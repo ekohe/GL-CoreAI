@@ -1,0 +1,50 @@
+{
+  "manifest_version": 3,
+  "short_name": "GitLab AI",
+  "name": "GitLab AISummarize",
+  "version": "0.0.7",
+  "description": "uses OpenAI and GitLab API to summarize a GitLab issue from the issue's URL.",
+  "options_page": "packs/static/settings.html",
+  "background": {
+    "service_worker": "packs/js/background.js"
+  },
+  "author": {
+    "name": "Encore Shao",
+    "email": "encore@ekohe.com"
+  },
+  "homepage_url": "https://ekohe.com",
+  "permissions": ["storage", "activeTab", "tabs", "scripting", "identity"],
+  "oauth2": {
+    "client_id": "813629896769-hq5035855rdk1pvqlspkcfr7l97l019f.apps.googleusercontent.com",
+    "scopes": [
+      "https://www.googleapis.com/auth/userinfo.email",
+      "https://www.googleapis.com/auth/userinfo.profile"
+    ]
+  },
+  "icons": {
+    "16": "static/icons/icon16.png",
+    "48": "static/icons/icon48.png",
+    "128": "static/icons/icon128.png"
+  },
+  "host_permissions": ["http://*/*", "https://*/*"],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; worker-src 'self';"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "css": ["packs/css/inject.css"],
+      "js": ["packs/js/inject.js"],
+      "run_at": "document_end"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["packs/static/index.html", "packs/*.png"],
+      "matches": ["<all_urls>", "http://*/*", "https://*/*"]
+    }
+  ],
+  "externally_connectable": {
+    "matches": ["http://localhost/*"]
+  }
+}

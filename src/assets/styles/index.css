@@ -1,0 +1,202 @@
+@import url("https://fonts.googleapis.com/css?family=Lato|Poppins|Kaushan+Script");
+@import 'bulma/css/bulma.min.css';
+@import './bulma-extra/tooltip.min.css';
+
+:root {
+  --bulma-skeleton-background: var(--bulma-border);
+  --bulma-skeleton-radius: var(--bulma-radius-small);
+  --bulma-skeleton-block-min-height: 4.5em;
+  --bulma-skeleton-lines-gap: 0.75em;
+  --bulma-skeleton-line-height: 0.75em;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Target the font awesome icon */
+.fa {
+  /* Set initial color */
+  color: black;
+  /* Add transition effect */
+  transition: color 0.5s ease;
+}
+
+html {
+  font-family: 'Poppins', Lato, Tahoma, sans-serif;
+  width: 100%;
+  min-height: 100%;
+  background-color: var(--sl-color-bg);
+}
+
+.shake {
+  display: inline-block;
+  animation: shake 0.5s infinite;
+  animation-duration: 1s;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+@keyframes shake {
+  0% {
+    transform: translate(1px, 1px) rotate(0deg);
+  }
+
+  10% {
+    transform: translate(-1px, -2px) rotate(-1deg);
+  }
+
+  20% {
+    transform: translate(-3px, 0px) rotate(1deg);
+  }
+
+  30% {
+    transform: translate(3px, 2px) rotate(0deg);
+  }
+
+  40% {
+    transform: translate(1px, -1px) rotate(1deg);
+  }
+
+  50% {
+    transform: translate(-1px, 2px) rotate(-1deg);
+  }
+
+  60% {
+    transform: translate(-3px, 1px) rotate(0deg);
+  }
+
+  70% {
+    transform: translate(3px, 1px) rotate(-1deg);
+  }
+
+  80% {
+    transform: translate(-1px, -1px) rotate(1deg);
+  }
+
+  90% {
+    transform: translate(1px, 2px) rotate(0deg);
+  }
+
+  100% {
+    transform: translate(1px, -2px) rotate(-1deg);
+  }
+}
+
+#gitlabAISummarizerDetails {
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+    background-color: transparent;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 5px transparent;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+    background: var(--scrollbar-thumb-bg, rgba(31, 44, 108, 0.65));
+  }
+
+  &::-webkit-scrollbar-thumb {
+    -webkit-box-shadow: inset 0 0 5px transparent;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+    background: var(--scrollbar-thumb-bg, rgba(31, 44, 108, 0.65));
+  }
+
+  &::-webkit-scrollbar-thumb:hover,
+  &::-webkit-scrollbar-thumb:active {
+    background: var(--scrollbar-thumb-bg, rgba(31, 44, 108, 0.65));
+  }
+
+  h4 {
+    font-weight: bold;
+    margin-bottom: 5px;
+    margin-top: 5px;
+    font-size: 1.2rem;
+  }
+
+  ul.prompts-list {
+    font-weight: normal;
+    margin-bottom: 0px;
+    list-style: circle;
+    margin-left: 15px;
+  }
+
+  div.gitlab-infos p, div.gitlab-infos strong {
+    color: rgb(0, 0, 0);
+  }
+}
+
+/* Theme Green */
+div[data-theme="theme-green"] {
+  .dom-bg-color {
+    background: linear-gradient(to right bottom, #64478c, #2c1646) !important;
+  }
+
+  .wrap-bg-color {
+    background: linear-gradient(to right bottom, #462f6e, #2f1350) !important;
+  }
+
+  .btn-bg-color {
+    background: #513579 !important;
+  }
+
+  .link-color {
+    color: #c45bee !important;
+    border-color: #c45bee !important;
+  }
+
+  hr {
+    background-color: #513579 !important;
+  }
+}
+
+/* Theme Dark Blue */
+div[data-theme="theme-dark-blue"] {
+  .dom-bg-color {
+    background: linear-gradient(to right bottom, #1f808e, #132e3a) !important;
+  }
+
+  .wrap-bg-color {
+    background: linear-gradient(to right bottom, #122f39, #081e26) !important;
+  }
+
+  .btn-bg-color {
+    background: #098395 !important;
+  }
+
+  .link-color {
+    color: #098395 !important;
+    border-color: #098395 !important;
+  }
+
+  hr {
+    background-color: #098395 !important;
+  }
+}
+
+/* Theme Dark Blue */
+div[data-theme="theme-navy-blue"] {
+  .dom-bg-color {
+    background: linear-gradient(to right bottom, #29403e, #11ad9c) !important;
+  }
+
+  .wrap-bg-color {
+    background: linear-gradient(to right bottom, #8be1d8, #0e1b20) !important;
+  }
+
+  .btn-bg-color {
+    background: #037e70 !important;
+  }
+
+  .link-color {
+    color: #037e70 !important;
+    border-color: #037e70 !important;
+  }
+
+  hr {
+    background-color: #037e70 !important;
+  }
+}
