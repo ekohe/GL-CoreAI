@@ -1,10 +1,12 @@
 # Gitlab AISummarize
 
-The AI architecture includes a custom Chrome extension that summarizes GitLab issues. This simplifies onboarding by providing detailed summaries of complex issues, allowing users to quickly understand an issue without navigating long histories.
+The AI architecture includes a custom Chrome extension that summarizes GitLab issues.
+
+This simplifies onboarding by providing detailed summaries of complex issues, allowing users to quickly understand an issue without navigating long histories.
 
 **Gitlab AISummarize** is a Chrome Extension that uses OpenAI and GitLab API to summarize a GitLab issue from the issue's URL.
 
-### API intergrations:
+### API intergrations
 
 - OpenAI API
 - GitLab API

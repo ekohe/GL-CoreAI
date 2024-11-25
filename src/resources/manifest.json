@@ -2,8 +2,8 @@
   "manifest_version": 3,
   "short_name": "GitLab AI",
   "name": "GitLab AISummarize",
-  "version": "0.0.7",
-  "description": "uses OpenAI and GitLab API to summarize a GitLab issue from the issue's URL.",
+  "version": "0.0.1",
+  "description": "uses OpenAI and GitLab API to summarize a GitLab issue from the issue's URL",
   "options_page": "packs/static/settings.html",
   "background": {
     "service_worker": "packs/js/background.js"
