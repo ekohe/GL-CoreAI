@@ -1,4 +1,4 @@
-import { getAIPolicyAndValues } from "./policies";
+import { taskPolicies } from "./../policies/index";
 
 // Task definition
 const taskDefinition = `
@@ -61,7 +61,7 @@ const taskDefinition = `
 
 export const getPrompt = (issueData: any, discussions: any): any => {
   // Get policies and values
-  const { preTaskPolicy, postTaskPolicy } = getAIPolicyAndValues();
+  const { preTaskPolicy, postTaskPolicy } = taskPolicies.getAIPolicyAndValues();
 
   const combinedSystemContent = `
 ${preTaskPolicy}

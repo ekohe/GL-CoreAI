@@ -7,7 +7,7 @@ import {
   getOllamaModel,
   getOllamaURL,
 } from ".";
-import { getPrompt } from "./prompts";
+import { taskPrompts } from "./prompts/index";
 
 async function fetchLLMResponse(
   issueDetails: any,
@@ -28,7 +28,7 @@ async function fetchLLMResponse(
   };
 
   // Generate messages prompt
-  const messages = getPrompt(issueData, discussions);
+  const messages = taskPrompts.getPrompt(issueData, discussions);
   const useOpenAI = aiProvider === "openai";
 
   const model = useOpenAI ? openAIModel : ollamaModel;
