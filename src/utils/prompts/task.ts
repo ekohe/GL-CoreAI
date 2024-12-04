@@ -47,7 +47,7 @@ const taskDefinition = `
 
   <h4>Actions</h4>
   <ul class="prompts-list">
-    <li>List 4-5 of the most impactful next actions. Consider:
+    <li>List 3-5 of the most impactful next actions. Consider:
     - Who will take over the next steps and what to do
     - Suggest most effective and efficient ways to resolve the issue
     - Mitigating risk with risk management strategies

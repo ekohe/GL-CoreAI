@@ -237,7 +237,6 @@ const launchGoogleAuthentication = async (
       interactive: true, // Setting this to true opens a pop-up for authentication
     },
     function (responseUrl) {
-      alert(responseUrl);
       if (chrome.runtime.lastError || !responseUrl) {
         console.error("Authentication failed:", chrome.runtime.lastError);
         return;

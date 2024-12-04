@@ -2,17 +2,22 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 
-import { calculateTicketAge, getCurrentTabURL, getOpenAIApiKey, getThemeColor, openChromeSettingPage } from "../../utils";
-import {
-  extractProjectPathAndIssueId,
-  fetchIssueDetails,
-  fetchIssueDiscussions,
-  getProjectIdFromPath
-} from "../../utils/gitlab";
-import { fetchLLMResponse } from "../../utils/llm";
-import { MESSAGES } from "../../utils/constants";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
+
+import {
+  calculateTicketAge, getAiProvider, getCurrentTabURL, getOpenAIApiKey, getThemeColor,
+  openChromeSettingPage
+} from "../../utils";
+import {
+  extractProjectPathAndIssueIdOrMergeRequestId,
+  fetchIssueDetails,
+  fetchIssueDiscussions,
+  fetchMergeRequestChanges,
+  getProjectIdFromPath
+} from "../../utils/gitlab";
+import { fetchLLMTaskSummarizer, invokingCodeAnalysis } from "../../utils/llm";
+import { MESSAGES } from "../../utils/constants";
 
 const openAIApiKey = await getOpenAIApiKey();
 const themeColor = await getThemeColor();
@@ -29,6 +34,8 @@ const GitLab = (props: {setIsCopy: any, iisRef: any}) => {
   const [projectId, setProjectId] = useState<string | undefined>(undefined);
   const [issueId, setIssueId] = useState<number | undefined>(undefined);
   const [issueData, setIssueData] = useState<any>({});
+  const [mergeRequestId, setMergeRequestId] = useState<number | undefined>(undefined);
+  const [mergeRequestChangesData, setMergeRequestChangesData] = useState<any>({});
 
   useEffect(() => {
     const loadingExtensionSettings = async () => {
@@ -46,14 +53,27 @@ const GitLab = (props: {setIsCopy: any, iisRef: any}) => {
   useEffect(() => {
     const loadingExtensionSettings = async () => {
       if (startGitLabAPI && currentTabURL && currentTabURL.startsWith('http')) {
-        const { projectPath, issueId } = extractProjectPathAndIssueId(currentTabURL);
-        if (projectPath === undefined && issueId === undefined) {
+        const { projectPath, issueId, mergeRequestId } = extractProjectPathAndIssueIdOrMergeRequestId(currentTabURL);
+
+        if (projectPath === undefined && issueId === undefined && mergeRequestId === undefined) {
           setProgress(MESSAGES.not_task_url);
         } else if (projectPath === undefined) {
           setProgress(`Project '${projectPath}' was not found.`);
-        } else if (issueId === undefined) {
-          setProgress(MESSAGES.not_task_url);
-        } else {
+        } else if (mergeRequestId !== undefined) {
+          const gitlabProjectID = await getProjectIdFromPath(currentTabURL)
+
+          if (gitlabProjectID === undefined) {
+            setProgress(`Project '${projectPath}' was not found.`);
+          } else {
+            setProjectId(gitlabProjectID);
+            setMergeRequestId(mergeRequestId);
+
+            const changesData = await fetchMergeRequestChanges(gitlabProjectID, mergeRequestId);
+            setMergeRequestChangesData(changesData);
+          }
+
+          setStartGitLabAPI(false);
+        } else if (issueId !== undefined) {
           const gitlabProjectID = await getProjectIdFromPath(currentTabURL)
 
           if (gitlabProjectID === undefined) {
@@ -81,9 +101,27 @@ const GitLab = (props: {setIsCopy: any, iisRef: any}) => {
         const discussions = await fetchIssueDiscussions(projectId, issueId)
 
         // Call the LLM with the fetched GitLab data
-        await fetchLLMResponse(iisRef, issueData, discussions);
+        await fetchLLMTaskSummarizer(iisRef, issueData, discussions);
         // setIsCopy(true);
         setProgress('');
+      }
+
+      if (hasOpenaiKey && enabledLLM && projectId && mergeRequestId) {
+        setProgress('');
+
+        const aiProvider = await getAiProvider();
+
+        let urlSection = document.createElement("p");
+        urlSection.innerHTML = `
+          <em>Invoking ${aiProvider} code analysis...</em>
+        `;
+        urlSection.style.paddingBottom = "0px";
+        urlSection.style.marginBottom = "5px";
+        iisRef.current.appendChild(urlSection);
+
+        for (const change of mergeRequestChangesData) {
+          await invokingCodeAnalysis(iisRef, change);
+        }
       }
     }
 
@@ -131,8 +169,10 @@ const GitLab = (props: {setIsCopy: any, iisRef: any}) => {
         </div>
 
         <hr style={{marginBlockStart: '1em', marginBlockEnd: '1em'}}/>
+      </>}
 
-        {!enabledLLM && <div className="control has-text-centered">
+      {hasOpenaiKey && !enabledLLM && projectId && (issueId || mergeRequestId) && <>
+        {<div className="control has-text-centered">
           <button
             className="button is-fullwidth link-color mt-6"
             style={{ backgroundColor: 'transparent' }}
@@ -141,8 +181,10 @@ const GitLab = (props: {setIsCopy: any, iisRef: any}) => {
             {MESSAGES.start_ai_summarizing}
           </button>
         </div>}
+      </>}
 
-        {enabledLLM && <div ref={iisRef} />}
+      {hasOpenaiKey && enabledLLM && projectId && (issueId || mergeRequestId) && <>
+        <div ref={iisRef} />
       </>}
 
       {!hasOpenaiKey && <div className="field" style={{marginTop: '4rem'}}>

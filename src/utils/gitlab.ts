@@ -5,22 +5,36 @@ const URLs = {
   project: `/api/v4/projects/`,
 };
 
-function extractProjectPathAndIssueId(url: string) {
-  const pattern =
+function extractProjectPathAndIssueIdOrMergeRequestId(url: string) {
+  const issuePattern =
     /https?:\/\/[^/]+\/(.+?)(?:\/-)?\/((issues|work_items)\/(\d+))/;
-  const match = url.match(pattern);
+  const issueMatch = url.match(issuePattern);
 
-  if (match) {
-    const projectPath = match[1].replace(/\/-$/, "");
-    const issueId = parseInt(match[4], 10);
-    return { projectPath, issueId };
+  const mergeRequestPattern =
+    /https?:\/\/[^/]+\/(.+?)(?:\/-)?\/((merge_requests)\/(\d+))/;
+  const mergeRequestMatch = url.match(mergeRequestPattern);
+
+  if (issueMatch) {
+    const projectPath = issueMatch[1].replace(/\/-$/, "");
+    const issueId = parseInt(issueMatch[4], 10);
+
+    return { projectPath, issueId, mergeRequestId: undefined };
+  } else if (mergeRequestMatch) {
+    const projectPath = mergeRequestMatch[1].replace(/\/-$/, "");
+    const mergeRequestId = parseInt(mergeRequestMatch[4], 10);
+
+    return { projectPath, issueId: undefined, mergeRequestId };
   } else {
-    return { projectPath: undefined, issueId: undefined };
+    return {
+      projectPath: undefined,
+      issueId: undefined,
+      mergeRequestId: undefined,
+    };
   }
 }
 
 async function getProjectIdFromPath(url: string) {
-  const { projectPath } = extractProjectPathAndIssueId(url);
+  const { projectPath } = extractProjectPathAndIssueIdOrMergeRequestId(url);
   if (projectPath === undefined) {
     console.log("Error fetching projectPath:", projectPath);
     return undefined;
@@ -96,6 +110,33 @@ async function fetchMergeRequests(
   return merge_requests;
 }
 
+async function fetchMergeRequestChanges(
+  projectId: number,
+  mergeRequestId: number | undefined
+) {
+  const mergeRequestsUrl = `${URLs.project}${projectId}/merge_requests/${mergeRequestId}/changes`;
+  const response = await fetchFromGitLabAPI(mergeRequestsUrl);
+
+  // Group diffs by file path
+  const groupedChanges = response.changes.reduce((acc: any, change: any) => {
+    if (!acc[change.old_path]) {
+      acc[change.old_path] = [];
+    }
+    acc[change.old_path].push(change.diff);
+    return acc;
+  }, {});
+
+  const changes = Object.keys(groupedChanges).map((filePath) => {
+    return {
+      fileName: filePath,
+      changes: groupedChanges[filePath].join("\n"),
+      extension: filePath.split(".").pop() || "",
+    };
+  });
+
+  return changes;
+}
+
 async function fetchCommits(projectId: number, mergeRequestId: number) {
   const commitsUrl = `${URLs.project}${projectId}/merge_requests/${mergeRequestId}/commits`;
   const commits = await fetchFromGitLabAPI(commitsUrl);
@@ -165,11 +206,12 @@ async function fetchLatestCommentURL(
 
 export {
   getProjectIdFromPath,
-  extractProjectPathAndIssueId,
+  extractProjectPathAndIssueIdOrMergeRequestId,
   fetchIssueDetails,
   fetchLinkedIssues,
   fetchIssueDiscussions,
   fetchMergeRequests,
+  fetchMergeRequestChanges,
   fetchLastCommitDetails,
   fetchCommits,
   fetchLastMergeDetails,

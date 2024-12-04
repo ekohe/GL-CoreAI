@@ -1,3 +1,4 @@
 import * as taskPrompts from "./task";
+import * as mergeRequestPrompts from "./mergeRequest";
 
-export { taskPrompts };
+export { taskPrompts, mergeRequestPrompts };

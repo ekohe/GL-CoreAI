@@ -35,4 +35,31 @@ const toastMessage = (message: string, messagetype: any) => {
   });
 };
 
-export { hexToRGB, isEmail, toastMessage };
+/**
+ * Splits a string into chunks of specified size, preserving line breaks.
+ * @param {string} str - The input string.
+ * @param {number} chunkSize - The maximum size of each chunk.
+ * @returns {string[]} An array of string chunks.
+ */
+const splitString = (str: string, chunkSize: any) => {
+  const lines = str.split("\n");
+  let currentChunk = "";
+  const chunks = [];
+
+  lines.forEach((line) => {
+    if (currentChunk.length + line.length <= chunkSize) {
+      currentChunk += line + "\n";
+    } else {
+      chunks.push(currentChunk.trim());
+      currentChunk = line + "\n";
+    }
+  });
+
+  if (currentChunk.length > 0) {
+    chunks.push(currentChunk.trim());
+  }
+
+  return chunks;
+};
+
+export { hexToRGB, isEmail, toastMessage, splitString };
