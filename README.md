@@ -13,7 +13,6 @@ This simplifies onboarding by providing detailed summaries of complex issues, al
 
 ### Requirements
 
-- Generate an GitLab `Access Token` from https://gitlab.ekohe.com/-/user_settings/personal_access_tokens
 - Generate an `API Key` from OpenAI
 
 ### Project Structure
@@ -90,7 +89,19 @@ src
     └── tools.ts
 ```
 
-### Before you begin: pls configure your API key
+### Generate a new package to use
+
+#### Step 1: Build new packages using the latest code
+
+```
+yarn run build
+```
+
+#### Step 2: Load the `dist` folder for local installation
+
+- chrome://extensions/
+
+#### Step 3: Configure your API key
 
 - [GitLab AISummarize Settings](chrome-extension://ehdeggpkeghpiibnhkgnbpjkghghdpoe/packs/static/settings.html)
 
