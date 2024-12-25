@@ -54,79 +54,24 @@ const SignIn: React.FC<ScreenProps> = ({ setScreenName, setErrorText, setUserAcc
                 Welcome to {AiBOT.name}
               </h1>
 
-              <>
-                <div className="field">
-                  <input
-                    className="input is-rounded is-medium"
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value) }
-                  />
-                </div>
-
-                <div className="field">
-                  <input
-                    className="input is-rounded is-medium"
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value) }
-                  />
-                </div>
-
-                <div className="field mt-5">
-                  <div className="control">
-                    <label className="checkbox has-text-white">
-                      <input
-                        type="checkbox"
-                        checked={privacyPolicy}
-                        onChange={(e) => setPrivacyPolicy(e.target.checked) }
-                      />
-                      {' '} I agree to {AiBOT.name} {' '}
-                      <a href="#" className="link-color">Terms of Use, and Privacy Policy</a>.
-                    </label>
-                  </div>
-                </div>
-
-                <div className="field">
-                  <div className="control">
-                    <button
-                      className="button is-fullwidth has-text-white btn-bg-color"
-                      style={ privacyPolicy ? {} : { opacity: '0.5' } }
-                      onClick={() => privacyPolicy && handleSignIn() }
-                    >
-                      {AI_EXT_STATUS.signin.text}
-                    </button>
-                  </div>
-                </div>
-
-                <p className="has-text-centered has-text-white">
-                  Don't have an account?
-                  <a
-                    onClick={() => openPage(AI_EXT_STATUS.signup.code) }
-                    className="link-color"
-                  >
-                    {' '} {AI_EXT_STATUS.signup.text}
-                  </a>
-                </p>
-              </>
-
-              <OrDivider />
-
               <GoogleAuthentication
                 text={`${AI_EXT_STATUS.signin.text} with Google`}
                 setGoogleAccessToken={setGoogleAccessToken}
               />
 
-              <p className="has-text-centered has-text-white">
-                <a
-                  onClick={() => openPage(AI_EXT_STATUS.forget_password.code) }
-                  className="link-color"
-                >
-                  {AI_EXT_STATUS.forget_password.text}
-                </a>
-              </p>
+              <div className="field mt-5">
+                <div className="control">
+                  <label className="checkbox has-text-white">
+                    <input
+                      type="checkbox"
+                      checked={privacyPolicy}
+                      onChange={(e) => setPrivacyPolicy(e.target.checked) }
+                    />
+                    {' '} I agree to {AiBOT.name} {' '}
+                    <a href="#" className="link-color">Terms of Use, and Privacy Policy</a>.
+                  </label>
+                </div>
+              </div>
             </div>
           </div>
         </div>
