@@ -16,8 +16,8 @@ const taskDefinition = `
   Based on the most current information in the issue and discussions,
   provide the following information in an easy to read HTML format:
 
-  <h4>Summary</h4>
-  <p>Summarize the issue in a detailed paragraph.
+  // <h4>Summary</h4>
+  <div class="summary">Summarize the issue in a detailed paragraph.
   Focus on the key points, including the problem, its impact, and any major developments.
   Any highlighted keywords should be displayed using the format <strong style="color: black;">keyword</strong>. Be consice, and do not leave out any details.
   </p>

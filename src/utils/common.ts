@@ -6,7 +6,7 @@ export const AiBOT = {
   authorName: manifest.author.name,
   authorEmail: manifest.author.email,
   homepageURL: manifest.homepage_url,
-  appId: "ehdeggpkeghpiibnhkgnbpjkghghdpoe",
+  appId: "ikimppmiiiackbjgemoelpchbhgcbibh",
   googleAppClientId: manifest.oauth2.client_id,
   googleAppScopes: manifest.oauth2.scopes,
 };
