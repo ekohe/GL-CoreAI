@@ -1,10 +1,10 @@
-# Gitlab AISummarize
+# GL CoreAI
 
 The AI architecture includes a custom Chrome extension that summarizes GitLab issues.
 
 This simplifies onboarding by providing detailed summaries of complex issues, allowing users to quickly understand an issue without navigating long histories.
 
-**Gitlab AISummarize** is a Chrome Extension that uses OpenAI and GitLab API to summarize a GitLab issue from the issue's URL.
+**GL CoreAI** is a Chrome Extension that uses OpenAI and GitLab API to summarize a GitLab issue from the issue's URL.
 
 ### API intergrations
 
@@ -103,7 +103,7 @@ yarn run build
 
 #### Step 3: Configure your API key
 
-- [GitLab AISummarize Settings](chrome-extension://ehdeggpkeghpiibnhkgnbpjkghghdpoe/packs/static/settings.html)
+- [GL CoreAI Settings](chrome-extension://ehdeggpkeghpiibnhkgnbpjkghghdpoe/packs/static/settings.html)
 
 ### Contributing
 
@@ -117,4 +117,4 @@ To see all contributors from https://github.com/ekohe/gitlab-ai-summarizer/graph
 
 ### License
 
-Gitlab AISummarize is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+GL CoreAI is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).

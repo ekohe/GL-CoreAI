@@ -27,12 +27,12 @@ const Header = (props: {
       <div className="navbar-brand">
         <a
           className="is-flex is-align-items-center"
-          href="https://ekohe.com"
+          href={AiBOT.homepageURL}
           target="_blank"
           rel="noopener noreferrer"
         >
           <img src={logo} alt={AiBOT.name} style={{ borderRadius: "50%" }} />
-          <span className="has-text-grey-dark ml-2">GitLab AISummarize</span>
+          <span className="has-text-grey-dark ml-2">{AiBOT.name}</span>
         </a>
       </div>
 
