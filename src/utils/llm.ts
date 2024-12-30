@@ -91,7 +91,7 @@ async function fetchLLMTaskSummarizer(
         if (data.length === 0 || data.startsWith(":")) continue;
         if (data === "data: [DONE]") {
           // Update the DOM when the stream is done
-          urlSection.innerHTML = `<em>Generated model: ${aiProvider} (${model})</em>`;
+          urlSection.innerHTML = `AI Summary Generated model: ${aiProvider} (${model})`;
           // responseSection.innerHTML += `<br><p style="text-align: center; font-style: italic;">${model} may make errors.</p>`;
           return responseContent.trim(); // End of stream
         }

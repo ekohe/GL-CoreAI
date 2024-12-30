@@ -1,6 +1,6 @@
-@import url("https://fonts.googleapis.com/css?family=Lato|Poppins|Kaushan+Script");
-@import 'bulma/css/bulma.min.css';
-@import './bulma-extra/tooltip.min.css';
+@import url("https://fonts.googleapis.com/css?family=Barlow|Helvetica");
+@import "bulma/css/bulma.min.css";
+@import "./bulma-extra/tooltip.min.css";
 
 :root {
   --bulma-skeleton-background: var(--bulma-border);
@@ -23,7 +23,7 @@
 }
 
 html {
-  font-family: 'Poppins', Lato, Tahoma, sans-serif;
+  font-family: "Poppins", Lato, Tahoma, sans-serif;
   width: 100%;
   min-height: 100%;
   background-color: var(--sl-color-bg);
@@ -113,7 +113,7 @@ html {
   h4 {
     font-weight: bold;
     margin-bottom: 5px;
-    margin-top: 5px;
+    margin-top: 16px;
     font-size: 1.2rem;
   }
 
@@ -124,28 +124,41 @@ html {
     margin-left: 15px;
   }
 
-  div.gitlab-infos p, div.gitlab-infos strong {
+  div.gitlab-infos p,
+  div.gitlab-infos strong {
     color: rgb(0, 0, 0);
+  }
+
+  a {
+    color: #00cbc0;
+    cursor: pointer;
+  }
+  .summary {
+    background-color: #f9f7f9;
+    padding: 12px;
+    margin-top: 12px;
   }
 }
 
 /* Theme Green */
 div[data-theme="theme-green"] {
+  background: #f9f7f9;
   .dom-bg-color {
-    background: linear-gradient(to right bottom, #64478c, #2c1646) !important;
+    background: #f9f7f9 !important;
+    display: none;
   }
 
   .wrap-bg-color {
-    background: linear-gradient(to right bottom, #462f6e, #2f1350) !important;
+    background: transparent !important;
   }
 
   .btn-bg-color {
-    background: #513579 !important;
+    background: #00cbc0 !important;
   }
 
   .link-color {
-    color: #c45bee !important;
-    border-color: #c45bee !important;
+    color: #00cbc0 !important;
+    border-color: #00cbc0 !important;
   }
 
   hr {

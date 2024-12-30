@@ -9,10 +9,10 @@ import { AI_EXT_STATUS } from "../../utils/constants";
 import { openChromeSettingPage } from "../../utils";
 
 const Header = (props: {
-  signOut: any,
-  isCopy: boolean,
-  iisRef: any,
-  setScreenName: any
+  signOut: any;
+  isCopy: boolean;
+  iisRef: any;
+  setScreenName: any;
 }) => {
   const { signOut, isCopy, iisRef, setScreenName } = props;
 
@@ -20,49 +20,51 @@ const Header = (props: {
     signOut();
 
     setScreenName(AI_EXT_STATUS.signin.code);
-  }
+  };
 
   return (
-    <nav style={{background: 'transparent'}}>
-      <div className="navbar-brand is-pulled-left">
+    <nav className="has-background-white py-2 px-4 mb-4 is-flex is-justify-content-space-between is-align-items-center">
+      <div className="navbar-brand">
         <a
-          className="navbar-item ml-1"
+          className="is-flex is-align-items-center"
           href="https://ekohe.com"
           target="_blank"
           rel="noopener noreferrer"
         >
           <img src={logo} alt={AiBOT.name} style={{ borderRadius: "50%" }} />
+          <span className="has-text-grey-dark ml-2">GitLab AISummarize</span>
         </a>
       </div>
 
-      <div className="is-pulled-right mt-3">
-        {isCopy && <a
-          className="navbar-item is-size-5 is-pulled-left has-tooltip-arrow has-tooltip-info has-tooltip-left"
-          data-tooltip="Copy it"
-          onClick={() => navigator.clipboard.writeText(iisRef.innerText) }
-        >
-          <FontAwesomeIcon icon={faCopy} fontSize={'25px'} color="white" />
-        </a>}
+      <div className="is-flex">
+        {isCopy && (
+          <a
+            className="navbar-item is-size-5 has-tooltip-arrow has-tooltip-info has-tooltip-left"
+            data-tooltip="Copy it"
+            onClick={() => navigator.clipboard.writeText(iisRef.innerText)}
+          >
+            <FontAwesomeIcon icon={faCopy} fontSize={"25px"} color="black" />
+          </a>
+        )}
 
         <a
-          className="navbar-item is-size-5 is-pulled-left has-tooltip-arrow has-tooltip-info has-tooltip-left"
+          className="navbar-item is-size-5 has-tooltip-arrow has-tooltip-info has-tooltip-left"
           data-tooltip="Open Settings Page"
-          onClick={() => openChromeSettingPage() }
+          onClick={() => openChromeSettingPage()}
         >
-          <FontAwesomeIcon icon={faGears} fontSize={'25px'} color="white" />
+          <FontAwesomeIcon icon={faGears} fontSize={"25px"} color="black" />
         </a>
 
         <a
-          style={{ marginRight: '20px' }}
-          className="navbar-item is-size-5 is-pulled-left has-tooltip-arrow has-tooltip-info has-tooltip-left"
+          className="navbar-item is-size-5 has-tooltip-arrow has-tooltip-info has-tooltip-left"
           data-tooltip="Sign Out"
-          onClick={() => handleSignOut() }
+          onClick={() => handleSignOut()}
         >
-          <FontAwesomeIcon icon={faSignOut} fontSize={'25px'} color="white" />
+          <FontAwesomeIcon icon={faSignOut} fontSize={"25px"} color="black" />
         </a>
       </div>
     </nav>
   );
-}
+};
 
 export default Header;

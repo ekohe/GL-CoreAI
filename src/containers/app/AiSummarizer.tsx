@@ -4,16 +4,24 @@ import { getGoogleAccount, getUserAccount } from "../../utils";
 import GitLab from "./GitLab";
 
 function AiSummarizer(porps: {
-  googleToken: string | undefined,
-  userAccessToken: string | undefined,
-  setIsCopy: any,
-  setScreenName: any,
-  setGoogleAccessToken: any,
-  setUserAccessToken: any,
-  setErrorText: any,
-  iisRef: any
+  googleToken: string | undefined;
+  userAccessToken: string | undefined;
+  setIsCopy: any;
+  setScreenName: any;
+  setGoogleAccessToken: any;
+  setUserAccessToken: any;
+  setErrorText: any;
+  iisRef: any;
 }) {
-  const { googleToken, userAccessToken, setIsCopy, setGoogleAccessToken, setUserAccessToken, setErrorText, iisRef } = porps;
+  const {
+    googleToken,
+    userAccessToken,
+    setIsCopy,
+    setGoogleAccessToken,
+    setUserAccessToken,
+    setErrorText,
+    iisRef,
+  } = porps;
   const [data, setData] = useState<AccountType | undefined>(undefined);
 
   useEffect(() => {
@@ -40,7 +48,7 @@ function AiSummarizer(porps: {
         }
       };
 
-      fetchGoogleAccount()
+      fetchGoogleAccount();
     }
 
     if (userAccessToken !== undefined) {
@@ -59,18 +67,18 @@ function AiSummarizer(porps: {
         }
       };
 
-      fetchUserAccount()
+      fetchUserAccount();
     }
   }, [googleToken, userAccessToken]);
 
   return (
     <div
-      className="container m-3 p-3"
+      className="container m-4 p-5"
       style={{
         height: "calc(100vh - 133px)",
-        width: "95%",
-        backgroundColor: 'white',
-        overflowY: 'scroll'
+        // width: "95%",
+        backgroundColor: "white",
+        overflowY: "scroll",
       }}
     >
       {data && <GitLab setIsCopy={setIsCopy} iisRef={iisRef} />}
