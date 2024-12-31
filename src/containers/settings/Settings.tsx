@@ -65,16 +65,13 @@ function Settings() {
 
   return (
     <>
-      <div className="hero-body" style={{ alignItems: 'baseline' }}>
-        <div className="container has-text-centered">
-          <p className="title"> Settings </p>
-          <hr />
-          <br />
+      <div className="hero-body" style={{ alignItems: 'center' }}>
 
-          <div>
+        <div className="container has-text-centered box" style={{paddingTop: '80px', paddingBottom: '80px',borderRadius: '0'}}>
+          <div className="is-size-2" style={{ color: '#00CBC0', fontWeight: 'bold', marginBottom: '40px'}}> Settings </div>
             <div className="field is-horizontal">
               <div className="field-label">
-                <label className="label has-text-white"> GitLab </label>
+                <label className="label"> GitLab </label>
               </div>
               <div className="field-body">
                 <div className="field is-expanded">
@@ -193,7 +190,7 @@ function Settings() {
 
             <div className="field is-horizontal">
               <div className="field-label">
-                <label className="label has-text-white"> AI Provider </label>
+                <label className="label"> AI Provider </label>
               </div>
               <div className="field-body">
                 <div className="field is-expanded">
@@ -216,7 +213,7 @@ function Settings() {
 
             {formData.GASAiProvider === 'openai' && <div className="field is-horizontal">
               <div className="field-label">
-                <label className="label has-text-white"> OpenAI Key (Paid) </label>
+                <label className="label"> OpenAI Key (Paid) </label>
               </div>
               <div className="field-body">
                 <div className="field is-expanded">
@@ -268,7 +265,7 @@ function Settings() {
 
             {formData.GASAiProvider === 'openai' && <div className="field is-horizontal">
               <div className="field-label">
-                <label className="label has-text-white"> AI Model </label>
+                <label className="label"> AI Model </label>
               </div>
               <div className="field-body">
                 <div className="field is-expanded">
@@ -297,7 +294,7 @@ function Settings() {
 
             {formData.GASAiProvider === 'ollama' && <div className="field is-horizontal">
               <div className="field-label">
-                <label className="label has-text-white"> Ollama URL </label>
+                <label className="label"> Ollama URL </label>
               </div>
               <div className="field-body">
                 <div className="field is-expanded">
@@ -320,7 +317,7 @@ function Settings() {
 
             {formData.GASAiProvider === 'ollama' && <div className="field is-horizontal">
               <div className="field-label">
-                <label className="label has-text-white"> AI Model </label>
+                <label className="label"> AI Model </label>
               </div>
               <div className="field-body">
                 <div className="field is-expanded">
@@ -346,13 +343,11 @@ function Settings() {
             </div>}
 
           </div>
-        </div>
-      </div>
-
-      <article className="message has-text-centered has-background-white has-text-black" style={{ marginBottom: '0px' }}>
-        <div className="message-body has-background-white">
+</div>
+      <article className="message has-text-centered has-text-white" style={{ marginBottom: '0px' }}>
+        <div className="message-body" style={{ background: '#333333'}}>
           <p>
-            <strong>{AiBOT.name}</strong> was made by <a href={AiBOT.homepageURL}>{AiBOT.authorName}</a>.
+            <strong>{AiBOT.name}</strong> was made by <a href={AiBOT.homepageURL} style={{color: '#00CBC0'}}>{AiBOT.authorName}</a>.
 
             If you have a idea? Please contact me ({AiBOT.authorEmail}).
           </p>

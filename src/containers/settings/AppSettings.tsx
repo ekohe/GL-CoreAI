@@ -19,13 +19,7 @@ function AppSettings() {
   return (
     <section
       className="hero is-info is-fullheight"
-      style={
-        backgroundUrl ? {
-          backgroundAttachment: 'fixed',
-          backgroundSize: 'cover',
-          background: `linear-gradient(rgba(31, 44, 108, 0.65), rgba(31, 44, 108, 0.65)), rgba(0, 0, 0, 0.55) url("${backgroundUrl}") no-repeat`
-        } : {}
-      }
+      style={{background:'#F9F7F9'}}
     >
       {tab === 'settings' && <Settings />}
     </section>

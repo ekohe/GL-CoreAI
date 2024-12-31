@@ -107,7 +107,8 @@
 
 /* Theme Green */
 iframe[theme="theme-green"] {
-  background: linear-gradient(to right bottom, #64478c, #2c1646) !important;
+  /* background: linear-gradient(to right bottom, #64478c, #2c1646) !important; */
+  background: #f9f7f9 !important;
 
   .dom-bg-color {
     background: linear-gradient(to right bottom, #64478c, #2c1646) !important;
