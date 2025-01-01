@@ -138,7 +138,7 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
 
   return (
     <div className="container" id="gitlabAISummarizerDetails">
-      {
+      {issueData.title &&
         <h3 style={
           {
             lineHeight: "40px",
@@ -307,7 +307,7 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
       {hasOpenaiKey &&
         !enabledLLM &&
         projectId &&
-        (issueId || mergeRequestId) && (
+        (issueId) && (
           <>
             {
               <div className="control has-text-centered">
@@ -321,6 +321,28 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
                   onClick={() => setEnabledLLM(true)}
                 >
                   {MESSAGES.start_ai_summarizing}
+                </button>
+              </div>
+            }
+          </>
+        )}
+
+      {hasOpenaiKey &&
+        !enabledLLM &&
+        projectId &&
+        (mergeRequestId) && (
+          <>
+            {
+              <div className="control has-text-centered">
+                <button
+                  className="button is-medium link-color mt-6"
+                  style={{
+                    backgroundColor: "transparent",
+                    borderRadius: "0",
+                    borderWidth: "2px",
+                  }}
+                >
+                  {MESSAGES.code_review_coming_soon}
                 </button>
               </div>
             }
