@@ -1,8 +1,8 @@
 #extGitLabAiSummarizer {
-  width: 450px;
+  width: 480px;
   height: 125%;
   transform: scale(0.8);
-  transform-origin: 450px 0;
+  transform-origin: 480px 0;
   position: fixed;
   right: 0px;
   top: 0px;
@@ -35,7 +35,7 @@
     cursor: pointer;
     position: absolute;
     top: 0px;
-    right: 449px;
+    right: 479px;
     background-color: white;
     box-shadow: -6px 0 16px 0 rgba(0, 0, 0, 0.08),
         -3px 0 6px -4px rgba(0, 0, 0, 0.12),

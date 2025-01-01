@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-target-blank */
 /* eslint-disable react-hooks/rules-of-hooks */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -61,7 +62,9 @@ function Settings() {
       <div className="hero-body" style={{ alignItems: 'center', paddingTop: '0px' }}>
         <div className="container" style={{ borderRadius: '0' }}>
           <div className="has-text-left">
-            <img src={logoBrand} alt={AiBOT.name} style={{ borderRadius: "50%", height: '80px' }} />
+            <a href={AiBOT.homepageURL} target="_blank" rel="noopener noreferrer">
+              <img src={logoBrand} alt={AiBOT.name} style={{ borderRadius: "50%", height: '80px' }} />
+            </a>
           </div>
 
           <div className="has-text-centered box" style={{ paddingTop: '80px', paddingBottom: '80px', backgroundColor: "#ffffff" }}>
@@ -298,7 +301,7 @@ function Settings() {
       <article className="message has-text-centered has-text-white" style={{ marginBottom: '0px' }}>
         <div className="message-body" style={{ background: '#333333'}}>
           <p>
-            <strong>{AiBOT.name}</strong> is made by <a href={AiBOT.homepageURL} style={{color: '#00CBC0'}}>{AiBOT.authorName}</a>.
+            <strong>{AiBOT.name}</strong> is made by <a href={AiBOT.homepageURL} style={{color: '#00CBC0'}} target="_blank" rel="noopener noreferrer">{AiBOT.authorName}</a>.
 
             If you have any ideas? Please contact via (<a href={`mailto:${AiBOT.authorEmail}`} style={{color: '#00CBC0', textDecorationLine: "none"}}>{AiBOT.authorEmail}</a>).
           </p>

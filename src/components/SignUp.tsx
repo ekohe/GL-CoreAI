@@ -135,6 +135,7 @@ const SignUp: React.FC<ScreenProps> = ({
               <GoogleAuthentication
                 text={`${AI_EXT_STATUS.signup.text} with Google`}
                 setGoogleAccessToken={setGoogleAccessToken}
+                privacyPolicy={privacyPolicy}
               />
             </div>
           </div>

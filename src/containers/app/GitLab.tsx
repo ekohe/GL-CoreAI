@@ -139,8 +139,8 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
   return (
     <div className="container" id="gitlabAISummarizerDetails">
       {issueData.title &&
-        <h3 style={
-          {
+        <h3
+          style={{
             lineHeight: "40px",
             overflow: "hidden",
             fontSize: "25px",
@@ -148,8 +148,9 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
             color: "#000000"
-          }
-        }>
+          }}
+          title={issueData.title}
+        >
           {issueData.title}
         </h3>
       }
@@ -308,7 +309,15 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
               >
                 State
               </span>
-              <span style={{ fontSize: "18px", textTransform: "capitalize" }} className="tag is-primary is-light">
+              <span
+                style={{
+                  fontSize: "18px",
+                  textTransform: "capitalize",
+                  backgroundColor: "#c3e6cd",
+                  color: "#24663b",
+                }}
+                className="tag"
+              >
                 {issueData.state === 'opened' ? 'Open' : issueData.state}
               </span>
             </div>
@@ -333,7 +342,7 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
             {
               <div className="control has-text-centered">
                 <button
-                  className="button is-medium link-color mt-6"
+                  className="button is-medium link-color m-6"
                   style={{
                     backgroundColor: "transparent",
                     borderRadius: "0",
@@ -356,7 +365,7 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
             {
               <div className="control has-text-centered">
                 <button
-                  className="button is-medium link-color mt-6"
+                  className="button is-medium link-color m-6"
                   style={{
                     backgroundColor: "transparent",
                     borderRadius: "0",

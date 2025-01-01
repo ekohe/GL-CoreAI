@@ -29,6 +29,7 @@ const SignIn: React.FC<ScreenProps> = ({
         <GoogleAuthentication
           text={`${AI_EXT_STATUS.signin.text} with Google`}
           setGoogleAccessToken={setGoogleAccessToken}
+          privacyPolicy={privacyPolicy}
         />
 
         <div className="field mt-5">
