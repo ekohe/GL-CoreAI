@@ -15,6 +15,7 @@ import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { setStorage } from "../../utils";
 import { THEMECOLORS } from "../../utils/constants";
 import { AiBOT } from "../../utils/common";
+import logoBrand from "../../assets/icons/logo-brand.png";
 
 function Settings() {
   const { formData, handleChange } = useFormContext();
@@ -51,24 +52,20 @@ function Settings() {
     }, 10);
   };
 
-  const updateThemeColor = (event: any) => {
-    if (event) {
-      const themeColor = event.target.style.backgroundColor;
-
-      setPickedThemeColor(themeColor)
-    }
-  };
-
   const switchOpenAIEyeIcon = (show: boolean) => {
     setShowOpenAIPassword(show)
   }
 
   return (
     <>
-      <div className="hero-body" style={{ alignItems: 'center' }}>
+      <div className="hero-body" style={{ alignItems: 'center', paddingTop: '0px' }}>
+        <div className="container" style={{ borderRadius: '0' }}>
+          <div className="has-text-left">
+            <img src={logoBrand} alt={AiBOT.name} style={{ borderRadius: "50%", height: '80px' }} />
+          </div>
 
-        <div className="container has-text-centered box" style={{paddingTop: '80px', paddingBottom: '80px',borderRadius: '0'}}>
-          <div className="is-size-2" style={{ color: '#00CBC0', fontWeight: 'bold', marginBottom: '40px'}}> Settings </div>
+          <div className="has-text-centered box" style={{ paddingTop: '80px', paddingBottom: '80px' }}>
+            <div className="is-size-2" style={{ color: '#00CBC0', fontWeight: 'bold', marginBottom: '40px'}}> Settings </div>
             <div className="field is-horizontal">
               <div className="field-label">
                 <label className="label"> GitLab </label>
@@ -132,61 +129,6 @@ function Settings() {
                 </div>
               </div>
             </div>
-
-            {/* <div className="field is-horizontal">
-              <div className="field-label"></div>
-              <div className="field-body">
-                <div className="field is-expanded">
-                  <div className="field has-addons">
-                    <p className="control">
-                      <a className="button is-static">
-                        <FontAwesomeIcon icon={faGitlab} fontSize="24" />
-                      </a>
-                    </p>
-                    <p className="control">
-                      <a className="button is-static">
-                        Access Token
-                      </a>
-                    </p>
-                    <p className="control is-expanded has-text-left">
-                      <input
-                        className="input"
-                        type={ showGitlabToken ? "password" : "input" }
-                        autoComplete="off"
-                        name="GASGitLabAccessToken"
-                        placeholder="Personal Access Token (glpat-xxx)"
-                        onChange={handleChange}
-                        value={formData.GASGitLabAccessToken}
-                        style={{ width: '60%' }}
-                      />
-                      {showGitlabToken ?
-                      <FontAwesomeIcon
-                        icon={faEyeSlash}
-                        fontSize="24"
-                        color="white"
-                        style={{
-                          marginTop: '10px',
-                          marginLeft: '10px',
-                          cursor: 'pointer'
-                        }}
-                        onClick={() => switchGitlabTokenEyeIcon(false)}
-                      />
-                      : <FontAwesomeIcon
-                        icon={faEye}
-                        fontSize="24"
-                        color="white"
-                        style={{
-                          marginTop: '10px',
-                          marginLeft: '10px',
-                          cursor: 'pointer'
-                        }}
-                        onClick={() => switchGitlabTokenEyeIcon(true)}
-                      />}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div> */}
 
             <div className="field is-horizontal">
               <div className="field-label">
@@ -341,15 +283,16 @@ function Settings() {
                 </div>
               </div>
             </div>}
-
           </div>
-</div>
+        </div>
+      </div>
+
       <article className="message has-text-centered has-text-white" style={{ marginBottom: '0px' }}>
         <div className="message-body" style={{ background: '#333333'}}>
           <p>
-            <strong>{AiBOT.name}</strong> was made by <a href={AiBOT.homepageURL} style={{color: '#00CBC0'}}>{AiBOT.authorName}</a>.
+            <strong>{AiBOT.name}</strong> is made by <a href={AiBOT.homepageURL} style={{color: '#00CBC0'}}>{AiBOT.authorName}</a>.
 
-            If you have a idea? Please contact me ({AiBOT.authorEmail}).
+            If you have any ideas? Please contact via (<a href={`mailto:${AiBOT.authorEmail}`} style={{color: '#00CBC0', textDecorationLine: "none"}}>{AiBOT.authorEmail}</a>).
           </p>
         </div>
       </article>

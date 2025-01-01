@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/alt-text */
 /* eslint-disable react/jsx-no-target-blank */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
@@ -10,7 +11,6 @@ import {
   getAiProvider,
   getCurrentTabURL,
   getOpenAIApiKey,
-  getThemeColor,
   openChromeSettingPage,
 } from "../../utils";
 import {
@@ -24,16 +24,14 @@ import { fetchLLMTaskSummarizer, invokingCodeAnalysis } from "../../utils/llm";
 import { MESSAGES } from "../../utils/constants";
 
 const openAIApiKey = await getOpenAIApiKey();
-const themeColor = await getThemeColor();
 const currentTabURL = await getCurrentTabURL();
 
 const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
-  const { setIsCopy, iisRef } = props;
+  const { iisRef } = props;
 
   const [hasOpenaiKey, setHasOpenaiKey] = useState<boolean>(true);
   const [startGitLabAPI, setStartGitLabAPI] = useState<boolean>(false);
   const [enabledLLM, setEnabledLLM] = useState<boolean>(false);
-  const [progress, setProgress] = useState<string>("");
 
   const [projectId, setProjectId] = useState<string | undefined>(undefined);
   const [issueId, setIssueId] = useState<number | undefined>(undefined);
@@ -48,7 +46,6 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
   useEffect(() => {
     const loadingExtensionSettings = async () => {
       if (openAIApiKey === undefined) {
-        setProgress(MESSAGES.missing_openaikey);
         setHasOpenaiKey(false);
       } else {
         setStartGitLabAPI(true);
@@ -69,14 +66,11 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
           issueId === undefined &&
           mergeRequestId === undefined
         ) {
-          setProgress(MESSAGES.not_task_url);
         } else if (projectPath === undefined) {
-          setProgress(`Project '${projectPath}' was not found.`);
         } else if (mergeRequestId !== undefined) {
           const gitlabProjectID = await getProjectIdFromPath(currentTabURL);
 
           if (gitlabProjectID === undefined) {
-            setProgress(`Project '${projectPath}' was not found.`);
           } else {
             setProjectId(gitlabProjectID);
             setMergeRequestId(mergeRequestId);
@@ -93,7 +87,6 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
           const gitlabProjectID = await getProjectIdFromPath(currentTabURL);
 
           if (gitlabProjectID === undefined) {
-            setProgress(`Project '${projectPath}' was not found.`);
           } else {
             setProjectId(gitlabProjectID);
             setIssueId(issueId);
@@ -121,13 +114,9 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
 
         // Call the LLM with the fetched GitLab data
         await fetchLLMTaskSummarizer(iisRef, issueData, discussions);
-        // setIsCopy(true);
-        setProgress("");
       }
 
       if (hasOpenaiKey && enabledLLM && projectId && mergeRequestId) {
-        setProgress("");
-
         const aiProvider = await getAiProvider();
 
         let urlSection = document.createElement("p");
@@ -150,10 +139,18 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
   return (
     <div className="container" id="gitlabAISummarizerDetails">
       {
-        <h2 className="title is-2">
-          {/* {progress} */}
-          title here
-        </h2>
+        <h3 style={
+          {
+            lineHeight: "40px",
+            overflow: "hidden",
+            fontSize: "25px",
+            fontWeight: "bold",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }
+        }>
+          {issueData.title}
+        </h3>
       }
 
       {Object.keys(issueData).length > 0 && (
@@ -164,12 +161,12 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
                 <span
                   style={{
                     color: "#333333",
-                    fontSize: "20px",
+                    fontSize: "18px",
                     opacity: "0.7",
-                    width: "120px",
+                    width: "150px",
                   }}
                 >
-                  Author:
+                  Author
                 </span>
                 <a
                   href={issueData.author?.web_url}
@@ -178,9 +175,15 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
                     textDecoration: "underline",
                     textTransform: "capitalize",
                     fontSize: "16px",
+                    display: "contents",
                   }}
                 >
-                  {issueData.author?.name}
+                  <div className="tags has-addons">
+                    <span className="tag" style={{fontSize: "18px", paddingRight: "0px"}}>
+                      <img src={issueData.author?.avatar_url} style={{borderRadius: '50%', height: '25px'}} />
+                    </span>
+                    <span className="tag" style={{fontSize: "18px", paddingLeft: "10px"}}>{issueData.author?.name}</span>
+                  </div>
                 </a>
               </div>
             )}
@@ -190,12 +193,12 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
                 <span
                   style={{
                     color: "#333333",
-                    fontSize: "20px",
+                    fontSize: "18px",
                     opacity: "0.7",
-                    width: "120px",
+                    width: "150px",
                   }}
                 >
-                  Assignee:
+                  Assignee
                 </span>
                 <a
                   href={issueData.assignee?.web_url}
@@ -204,9 +207,15 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
                     textDecoration: "underline",
                     textTransform: "capitalize",
                     fontSize: "16px",
+                    display: "contents",
                   }}
                 >
-                  {issueData.assignee?.name}
+                  <div className="tags has-addons">
+                    <span className="tag" style={{fontSize: "18px", paddingRight: "0px"}}>
+                      <img src={issueData.assignee?.avatar_url} style={{borderRadius: '50%', height: '25px'}} />
+                    </span>
+                    <span className="tag" style={{fontSize: "18px", paddingLeft: "10px"}}>{issueData.assignee?.name}</span>
+                  </div>
                 </a>
               </div>
             )}
@@ -215,14 +224,14 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
                 <span
                   style={{
                     color: "#333333",
-                    fontSize: "20px",
+                    fontSize: "18px",
                     opacity: "0.7",
-                    width: "120px",
+                    width: "150px",
                   }}
                 >
-                  Comments:
+                  Comments
                 </span>
-                <span style={{ fontSize: "20px" }}>
+                <span style={{ fontSize: "18px" }}>
                   {issueData.user_notes_count}
                 </span>
               </div>
@@ -232,17 +241,17 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
                 <span
                   style={{
                     color: "#333333",
-                    fontSize: "20px",
+                    fontSize: "18px",
                     opacity: "0.7",
-                    width: "120px",
+                    width: "150px",
                   }}
                 >
-                  Age:
+                  Age
                 </span>
-                <span style={{ fontSize: "20px" }}>
-                  {calculateTicketAge(issueData.created_at)} days.{" "}
+                <span style={{ fontSize: "18px" }}>
+                  {calculateTicketAge(issueData.created_at)} days {" "}
                   <span style={{ fontSize: "16px", opacity: "0.7" }}>
-                    {new Date(issueData.created_at).toLocaleDateString()}
+                    ({new Date(issueData.created_at).toLocaleDateString()})
                   </span>
                 </span>
               </div>
@@ -252,17 +261,17 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
                 <span
                   style={{
                     color: "#333333",
-                    fontSize: "20px",
+                    fontSize: "18px",
                     opacity: "0.7",
-                    width: "120px",
+                    width: "150px",
                   }}
                 >
-                  Last Updated:
+                  Last Updated
                 </span>
-                <span style={{ fontSize: "20px" }}>
-                  {calculateTicketAge(issueData.updated_at)} days ago.{" "}
+                <span style={{ fontSize: "18px" }}>
+                  {calculateTicketAge(issueData.updated_at)} days ago {" "}
                   <span style={{ fontSize: "16px", opacity: "0.7" }}>
-                    {new Date(issueData.updated_at).toLocaleDateString()}
+                    ({new Date(issueData.updated_at).toLocaleDateString()})
                   </span>
                 </span>
               </div>
@@ -271,14 +280,16 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
               <span
                 style={{
                   color: "#333333",
-                  fontSize: "20px",
+                  fontSize: "18px",
                   opacity: "0.7",
-                  width: "120px",
+                  width: "150px",
                 }}
               >
-                State:
+                State
               </span>
-              <span style={{ fontSize: "20px" }}>{issueData.state}</span>
+              <span style={{ fontSize: "18px", textTransform: "capitalize" }} className="tag is-primary is-light">
+                {issueData.state === 'opened' ? 'Open' : issueData.state}
+              </span>
             </div>
           </div>
 
@@ -301,7 +312,7 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
             {
               <div className="control has-text-centered">
                 <button
-                  className="button is-large link-color mt-6"
+                  className="button is-medium link-color mt-6"
                   style={{
                     backgroundColor: "transparent",
                     borderRadius: "0",
