@@ -17,7 +17,7 @@ function AppSettings() {
   return (
     <section
       className="hero is-info is-fullheight"
-      style={{background:'#F9F7F9'}}
+      style={{ background: "#F9F7F9" }}
     >
       {tab === 'settings' && <Settings />}
     </section>

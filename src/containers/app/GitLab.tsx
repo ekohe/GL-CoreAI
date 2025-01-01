@@ -147,6 +147,7 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
             fontWeight: "bold",
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
+            color: "#000000"
           }
         }>
           {issueData.title}
@@ -179,10 +180,20 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
                   }}
                 >
                   <div className="tags has-addons">
-                    <span className="tag" style={{fontSize: "18px", paddingRight: "0px"}}>
+                    <span className="tag" style={{fontSize: "18px", paddingRight: "5px", backgroundColor: "#f9f7f9"}}>
                       <img src={issueData.author?.avatar_url} style={{borderRadius: '50%', height: '25px'}} />
                     </span>
-                    <span className="tag" style={{fontSize: "18px", paddingLeft: "10px"}}>{issueData.author?.name}</span>
+                    <span
+                      className="tag"
+                      style={{
+                        fontSize: "18px",
+                        paddingLeft: "10px",
+                        backgroundColor: "#f9f7f9",
+                        color: "#000000"
+                      }}
+                    >
+                      {issueData.author?.name}
+                    </span>
                   </div>
                 </a>
               </div>
@@ -211,10 +222,20 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
                   }}
                 >
                   <div className="tags has-addons">
-                    <span className="tag" style={{fontSize: "18px", paddingRight: "0px"}}>
+                    <span className="tag" style={{fontSize: "18px", paddingRight: "5px", backgroundColor: "#f9f7f9"}}>
                       <img src={issueData.assignee?.avatar_url} style={{borderRadius: '50%', height: '25px'}} />
                     </span>
-                    <span className="tag" style={{fontSize: "18px", paddingLeft: "10px"}}>{issueData.assignee?.name}</span>
+                    <span
+                      className="tag"
+                      style={{
+                        fontSize: "18px",
+                        paddingLeft: "10px",
+                        backgroundColor: "#f9f7f9",
+                        color: "#000000"
+                      }}
+                    >
+                      {issueData.assignee?.name}
+                    </span>
                   </div>
                 </a>
               </div>
@@ -231,7 +252,7 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
                 >
                   Comments
                 </span>
-                <span style={{ fontSize: "18px" }}>
+                <span style={{ fontSize: "18px", color: "#000000" }}>
                   {issueData.user_notes_count}
                 </span>
               </div>
@@ -249,7 +270,7 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
                   Age
                 </span>
                 <span style={{ fontSize: "18px" }}>
-                  {calculateTicketAge(issueData.created_at)} days {" "}
+                  <span style={{color: "#000000"}}>{calculateTicketAge(issueData.created_at)} days</span> {" "}
                   <span style={{ fontSize: "16px", opacity: "0.7" }}>
                     ({new Date(issueData.created_at).toLocaleDateString()})
                   </span>
@@ -269,7 +290,7 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
                   Last Updated
                 </span>
                 <span style={{ fontSize: "18px" }}>
-                  {calculateTicketAge(issueData.updated_at)} days ago {" "}
+                  <span style={{color: "#000000"}}>{calculateTicketAge(issueData.updated_at)} days ago</span> {" "}
                   <span style={{ fontSize: "16px", opacity: "0.7" }}>
                     ({new Date(issueData.updated_at).toLocaleDateString()})
                   </span>

@@ -15,9 +15,14 @@ const SignIn: React.FC<ScreenProps> = ({
     <section className="section" style={{ display: "flex" }}>
       <div className="columns is-centered" style={{ margin: "auto" }}>
         <div className="has-text-centered">
-          <img src={logo} alt={AiBOT.name} style={{ borderRadius: "50%" }} />
+          <img
+            src={logo}
+            alt={AiBOT.name}
+            style={{ borderRadius: "50%", height: "200px" }}
+          />
         </div>
-        <h1 className="title has-text-centered has-text-black mt-5">
+
+        <h1 className="title has-text-centered has-text-black" style={{ marginBottom: "100px" }}>
           Welcome to {AiBOT.name}
         </h1>
 
@@ -27,15 +32,16 @@ const SignIn: React.FC<ScreenProps> = ({
         />
 
         <div className="field mt-5">
-          <div className="control">
-            <label className="checkbox has-text-black">
+          <div className="control m-5">
+            <label className="checkbox has-text-black" style={{ fontSize: "20px" }}>
               <input
                 type="checkbox"
                 checked={privacyPolicy}
+                style={{ marginRight: "10px" }}
                 onChange={(e) => setPrivacyPolicy(e.target.checked)}
               />{" "}
               I agree to {AiBOT.name}{" "}
-              <a href="#" className="link-color">
+              <a href="#" style={{ textDecoration: "underline", color: "#00cbc0" }}>
                 Terms of Use, and Privacy Policy
               </a>
               .

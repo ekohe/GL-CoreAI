@@ -107,8 +107,7 @@
 
 /* Theme Green */
 iframe[theme="theme-green"] {
-  /* background: linear-gradient(to right bottom, #64478c, #2c1646) !important; */
-  background: #f9f7f9 !important;
+  background: linear-gradient(to right bottom, #f9f7f9, #f9f7f9) !important;
 
   .dom-bg-color {
     background: linear-gradient(to right bottom, #64478c, #2c1646) !important;
@@ -125,7 +124,7 @@ iframe[theme="theme-green"] {
 
 /* Theme Dark Blue */
 iframe[theme="theme-dark-blue"] {
-  background: linear-gradient(to right bottom, #1f808e, #132e3a) !important;
+  background: linear-gradient(to right bottom, #f9f7f9, #f9f7f9) !important;
 
   .dom-bg-color {
     background: linear-gradient(to right bottom, #1f808e, #132e3a) !important;
@@ -142,7 +141,7 @@ iframe[theme="theme-dark-blue"] {
 
 /* Theme Dark Blue */
 iframe[theme="theme-navy-blue"] {
-  background: linear-gradient(to right bottom, #037e70, #132e3a) !important;
+  background: linear-gradient(to right bottom, #f9f7f9, #f9f7f9) !important;
 
   .dom-bg-color {
     background: linear-gradient(to right bottom, #037e70, #132e3a) !important;

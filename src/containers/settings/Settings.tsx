@@ -64,22 +64,22 @@ function Settings() {
             <img src={logoBrand} alt={AiBOT.name} style={{ borderRadius: "50%", height: '80px' }} />
           </div>
 
-          <div className="has-text-centered box" style={{ paddingTop: '80px', paddingBottom: '80px' }}>
+          <div className="has-text-centered box" style={{ paddingTop: '80px', paddingBottom: '80px', backgroundColor: "#ffffff" }}>
             <div className="is-size-2" style={{ color: '#00CBC0', fontWeight: 'bold', marginBottom: '40px'}}> Settings </div>
             <div className="field is-horizontal">
-              <div className="field-label">
-                <label className="label"> GitLab </label>
+              <div className="field-label" style={{justifyContent: "right", alignItems: "center", display: "flex"}}>
+                <label className="label has-text-black"> GitLab </label>
               </div>
               <div className="field-body">
                 <div className="field is-expanded">
                   <div className="field has-addons">
                     <p className="control">
-                      <a className="button is-static">
+                      <a className="button is-static" style={{ background: "transparent" }}>
                         <FontAwesomeIcon icon={faGitlab} fontSize="24" />
                       </a>
                     </p>
                     <p className="control">
-                      <a className="button is-static">
+                      <a className="button is-static" style={{ background: "transparent" }}>
                         Web URL
                       </a>
                     </p>
@@ -91,6 +91,7 @@ function Settings() {
                         placeholder="Your gitLab Web URL"
                         onChange={handleChange}
                         value={formData.GASGitLab}
+                        style={{ background: "transparent", color: "black" }}
                         readOnly
                       />
                     </p>
@@ -100,17 +101,17 @@ function Settings() {
             </div>
 
             <div className="field is-horizontal">
-              <div className="field-label"></div>
+              <div className="field-label" style={{justifyContent: "right", alignItems: "center", display: "flex"}}></div>
               <div className="field-body">
                 <div className="field is-expanded">
                   <div className="field has-addons">
                     <p className="control">
-                      <a className="button is-static">
+                      <a className="button is-static" style={{ background: "transparent" }}>
                         <FontAwesomeIcon icon={faGitlab} fontSize="24" />
                       </a>
                     </p>
                     <p className="control">
-                      <a className="button is-static">
+                      <a className="button is-static" style={{ background: "transparent" }}>
                         API Version
                       </a>
                     </p>
@@ -121,6 +122,7 @@ function Settings() {
                         autoComplete="off"
                         name="GASGitLabApiVersion"
                         placeholder="api/v4"
+                        style={{ background: "transparent", color: "black" }}
                         readOnly
                         onChange={handleChange} value={formData.GASGitLabApiVersion}
                       />
@@ -131,8 +133,8 @@ function Settings() {
             </div>
 
             <div className="field is-horizontal">
-              <div className="field-label">
-                <label className="label"> AI Provider </label>
+              <div className="field-label" style={{justifyContent: "right", alignItems: "center", display: "flex"}}>
+                <label className="label has-text-black"> AI Provider </label>
               </div>
               <div className="field-body">
                 <div className="field is-expanded">
@@ -141,7 +143,7 @@ function Settings() {
                       <select
                         name="GASAiProvider"
                         onChange={handleChange}
-                        style={{ minWidth: '290px' }}
+                        style={{ minWidth: '290px', background: "transparent", color: "black" }}
                         value={formData.GASAiProvider}
                       >
                         <option value={'openai'}>OpenAI</option>
@@ -154,14 +156,14 @@ function Settings() {
             </div>
 
             {formData.GASAiProvider === 'openai' && <div className="field is-horizontal">
-              <div className="field-label">
-                <label className="label"> OpenAI Key (Paid) </label>
+              <div className="field-label" style={{justifyContent: "right", alignItems: "center", display: "flex"}}>
+                <label className="label has-text-black"> OpenAI Key (Paid) </label>
               </div>
               <div className="field-body">
                 <div className="field is-expanded">
                   <div className="field has-addons">
                     <p className="control">
-                      <a className="button is-static">
+                      <a className="button is-static" style={{ background: "transparent" }}>
                         OpenAI Key
                       </a>
                     </p>
@@ -174,7 +176,7 @@ function Settings() {
                         placeholder="OpenAI Access Token"
                         onChange={handleChange}
                         value={formData.GASOpenAIKey}
-                        style={{ width: '63%' }}
+                        style={{ width: "63%", background: "transparent", color: "black" }}
                       />
                       {showOpenAIPassword ?
                       <FontAwesomeIcon
@@ -206,8 +208,8 @@ function Settings() {
             </div>}
 
             {formData.GASAiProvider === 'openai' && <div className="field is-horizontal">
-              <div className="field-label">
-                <label className="label"> AI Model </label>
+              <div className="field-label" style={{justifyContent: "right", alignItems: "center", display: "flex"}}>
+                <label className="label has-text-black"> AI Model </label>
               </div>
               <div className="field-body">
                 <div className="field is-expanded">
@@ -216,7 +218,7 @@ function Settings() {
                       <select
                         name="GASOpenaiModel"
                         onChange={handleChange}
-                        style={{ minWidth: '290px' }}
+                        style={{ minWidth: '290px', background: "transparent", color: "black" }}
                         value={formData.GASOpenaiModel}
                       >
                         <option value={'gpt-4o'}>GPT-4o</option>
@@ -235,21 +237,27 @@ function Settings() {
             </div>}
 
             {formData.GASAiProvider === 'ollama' && <div className="field is-horizontal">
-              <div className="field-label">
-                <label className="label"> Ollama URL </label>
+              <div className="field-label" style={{justifyContent: "right", alignItems: "center", display: "flex"}}>
+                <label className="label has-text-black"> Ollama URL </label>
               </div>
               <div className="field-body">
                 <div className="field is-expanded">
                   <div className="field has-addons">
                     <p className="control">
-                      <a className="button is-static">
+                      <a className="button is-static" style={{ background: "transparent" }}>
                         Ollama URL
                       </a>
                     </p>
                     <p className="control is-expanded">
                       <input
-                        className="input" type="text" autoComplete="off" name="GASOllamaURL" placeholder="URL of the Ollama server (e.g. http://localhost:11434)"
-                        onChange={handleChange} value={formData.GASOllamaURL}
+                        className="input"
+                        type="text"
+                        autoComplete="off"
+                        name="GASOllamaURL"
+                        placeholder="URL of the Ollama server (e.g. http://localhost:11434)"
+                        onChange={handleChange}
+                        style={{ background: "transparent", color: "black" }}
+                        value={formData.GASOllamaURL}
                       />
                     </p>
                   </div>
@@ -258,8 +266,8 @@ function Settings() {
             </div>}
 
             {formData.GASAiProvider === 'ollama' && <div className="field is-horizontal">
-              <div className="field-label">
-                <label className="label"> AI Model </label>
+              <div className="field-label" style={{justifyContent: "right", alignItems: "center", display: "flex"}}>
+                <label className="label has-text-black"> AI Model </label>
               </div>
               <div className="field-body">
                 <div className="field is-expanded">
@@ -268,7 +276,7 @@ function Settings() {
                       <select
                         name="GASOllamaModel"
                         onChange={handleChange}
-                        style={{ minWidth: '290px' }}
+                        style={{ minWidth: "290px", background: "transparent", color: "black" }}
                         value={formData.GASOllamaModel}
                       >
                         <option value={'llama3.1'}>Llama 3.1</option>
