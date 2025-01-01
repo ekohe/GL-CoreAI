@@ -7,12 +7,10 @@ import { getStorage } from './../../utils';
 
 function AppSettings() {
   const [tab, setTab] = useState('');
-  const [backgroundUrl, setBackgroundUrl] = useState('');
 
   useEffect(() => {
     getStorage(["currentTab", "backgroundUrl"], result => {
       setTab(result.currentTab || 'settings');
-      result.backgroundUrl && setBackgroundUrl(result.backgroundUrl);
     });
   }, []);
 
