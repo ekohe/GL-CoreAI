@@ -29,6 +29,10 @@ html {
   background-color: var(--sl-color-bg);
 }
 
+body {
+  font-family: "Barlow", "sans-serif", "helvetica" !important;
+}
+
 .shake {
   display: inline-block;
   animation: shake 0.5s infinite;

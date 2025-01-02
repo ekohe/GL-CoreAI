@@ -37,9 +37,10 @@ async function fetchLLMTaskSummarizer(
 
   let urlSection = document.createElement("p");
   urlSection.innerHTML = `<em>Invoking ${aiProvider} model: (${model})</em>`;
-  urlSection.style.color = "black";
+  urlSection.style.color = "#333333B2";
+  urlSection.style.fontSize = "18px";
   urlSection.style.paddingBottom = "0px";
-  urlSection.style.marginBottom = "5px";
+  urlSection.style.marginBottom = "10px";
   issueDetails.current.appendChild(urlSection);
 
   let responseSection = document.createElement("p");

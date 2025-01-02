@@ -22,8 +22,11 @@ const GoogleAuthentication = (props: {
             background: backgroundColor,
             borderColor: borderColor,
             borderRadius: "0px",
+            fontWeight: "bold",
           }}
-          onClick={(e) => privacyPolicy && launchGoogleAuthentication(e, setGoogleAccessToken)}
+          onClick={(e) =>
+            privacyPolicy && launchGoogleAuthentication(e, setGoogleAccessToken)
+          }
         >
           <span className="icon">
             <FontAwesomeIcon icon={faGoogle} />
