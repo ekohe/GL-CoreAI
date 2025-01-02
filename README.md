@@ -1,4 +1,6 @@
-# GL CoreAI <img src="https://raw.githubusercontent.com/ekohe/GL-CoreAI/refs/heads/main/src/assets/icons/logo-brand.png" align="right" width="250" height="150">
+<img src="https://raw.githubusercontent.com/ekohe/GL-CoreAI/refs/heads/main/src/assets/icons/logo-brand.png">
+
+# GL CoreAI
 
 The AI architecture includes a custom Chrome extension that summarizes GitLab issues.
 
