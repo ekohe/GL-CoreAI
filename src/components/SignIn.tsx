@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-target-blank */
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import logo from "../assets/icons/logo.png";
 import { AiBOT } from "../utils/common";
@@ -42,7 +43,7 @@ const SignIn: React.FC<ScreenProps> = ({
                 onChange={(e) => setPrivacyPolicy(e.target.checked)}
               />{" "}
               I agree to {AiBOT.name}{" "}
-              <a href="#" style={{ textDecoration: "underline", color: "#00cbc0" }}>
+              <a href="https://ekohe.github.io/GL-CoreAI/public/privacy.html" style={{ textDecoration: "underline", color: "#00cbc0" }} target="_blank">
                 Terms of Use, and Privacy Policy
               </a>
               .
