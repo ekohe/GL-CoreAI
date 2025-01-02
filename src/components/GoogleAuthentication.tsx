@@ -9,21 +9,19 @@ const GoogleAuthentication = (props: {
   privacyPolicy: boolean;
 }) => {
   const { text, setGoogleAccessToken, privacyPolicy } = props;
-  const backgroundColor = privacyPolicy ? "#00cbc0" : "#f9f7f9";
-  const borderColor = privacyPolicy ? "#00cbc0" : "#000000";
-  const primaryColor = privacyPolicy ? "has-text-white" : "has-text-black";
 
   return (
     <div className="field mb-5">
       <div className="control m-6">
         <button
-          className={`button is-fullwidth is-large ${primaryColor}`}
+          className={`button is-fullwidth is-large has-text-white`}
           style={{
-            background: backgroundColor,
-            borderColor: borderColor,
+            background: "#00cbc0",
+            borderColor: "#00cbc0",
             borderRadius: "0px",
             fontWeight: "bold",
           }}
+          disabled={!privacyPolicy}
           onClick={(e) =>
             privacyPolicy && launchGoogleAuthentication(e, setGoogleAccessToken)
           }
