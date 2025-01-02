@@ -6,6 +6,7 @@ import {
   getOpenAIModel,
   getOllamaModel,
   getOllamaURL,
+  llamaApiChat,
 } from ".";
 import { taskPrompts, mergeRequestPrompts } from "./prompts/index";
 import { splitString } from "./tools";
@@ -50,19 +51,28 @@ async function fetchLLMTaskSummarizer(
   issueDetails.current.appendChild(responseSection);
 
   try {
-    // Call the LLM API
-    const response = await fetch(aIApiUrl, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${personalOpenAIApiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+    let response: any;
+    if (useOpenAI) {
+      // Call the LLM API
+      response = await fetch(aIApiUrl, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${personalOpenAIApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: model,
+          messages: messages,
+          stream: true,
+        }),
+      });
+    } else {
+      response = await llamaApiChat("llamaAPI", aIApiUrl, {
         model: model,
         messages: messages,
-        stream: true,
-      }),
-    });
+        stream: false,
+      });
+    }
 
     // Check if the response is not OK
     if (!response.ok) {

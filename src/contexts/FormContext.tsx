@@ -38,7 +38,7 @@ const FormProvider = ({ children }: { children: ReactNode }) => {
     GASOpenAIKey: '',
     GASOpenaiModel: 'gpt-4o',
     GASOllamaURL: 'http://localhost:11434',
-    GASOllamaModel: 'llama3.1',
+    GASOllamaModel: 'llama3.2',
     GASThemeType: 'theme-green',
     GASThemeColor: '#000000'
   });

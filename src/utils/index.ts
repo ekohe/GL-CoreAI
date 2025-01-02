@@ -36,6 +36,18 @@ const getFromBackground = async (
   });
 };
 
+const llamaApiChat = async (
+  action: string,
+  aIApiUrl: string,
+  data: any
+): Promise<string | undefined> => {
+  return new Promise((resolve) => {
+    chrome.runtime.sendMessage({ action, aIApiUrl, data }, (response) => {
+      resolve(response || undefined);
+    });
+  });
+};
+
 // Retrieve GitLab API key
 const getGitLabApiKey = async (): Promise<string | undefined> => {
   return getFromBackground("getGitLabApiKey", "GASGitLabAccessToken");
@@ -289,4 +301,5 @@ export {
   getUserAccount,
   launchGoogleAuthentication,
   openChromeSettingPage,
+  llamaApiChat,
 };

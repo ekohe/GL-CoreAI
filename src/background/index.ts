@@ -46,7 +46,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       key: "GASOllamaURL",
       defaultValue: "http://localhost:11434",
     },
-    getOllamaModel: { key: "GASOllamaModel", defaultValue: "llama3.1" },
+    getOllamaModel: { key: "GASOllamaModel", defaultValue: "llama3.2" },
   };
 
   const action = actionsMap[request.action];
@@ -65,5 +65,20 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         chrome.runtime.id +
         "/packs/static/settings.html",
     });
+  }
+});
+
+chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
+  if (request.action === "llamaAPI") {
+    await fetch(request.aIApiUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(request.data),
+    })
+      .then((response) => response.json())
+      .then((data) => sendResponse({ ok: true, data }))
+      .catch((error) => sendResponse({ ok: false, error }));
+
+    return true; // Keep the message channel open for async response
   }
 });

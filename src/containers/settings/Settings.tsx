@@ -318,14 +318,6 @@ function Settings() {
                 <div className="field-body">
                   <div className="field is-expanded">
                     <div className="field has-addons">
-                      <p className="control">
-                        <a
-                          className="button is-static"
-                          style={{ background: "transparent" }}
-                        >
-                          Ollama URL
-                        </a>
-                      </p>
                       <p className="control is-expanded">
                         <input
                           className="input"
@@ -370,6 +362,8 @@ function Settings() {
                           }}
                           value={formData.GASOllamaModel}
                         >
+                          <option value={"llama3.3"}>Llama 3.3</option>
+                          <option value={"llama3.2"}>Llama 3.2</option>
                           <option value={"llama3.1"}>Llama 3.1</option>
                           <option value={"llama3"}>Llama 3</option>
                           <option value={"gemma2"}>Gemma 2</option>
