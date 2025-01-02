@@ -1,4 +1,4 @@
-# GL CoreAI
+# GL CoreAI <img src="https://raw.githubusercontent.com/ekohe/GL-CoreAI/refs/heads/main/src/assets/icons/logo-brand.png" align="right" width="250" height="150">
 
 The AI architecture includes a custom Chrome extension that summarizes GitLab issues.
 
@@ -8,8 +8,8 @@ This simplifies onboarding by providing detailed summaries of complex issues, al
 
 ### API intergrations
 
-- OpenAI
-- GitLab
+- OpenAI API (`/chat/completions`)
+- GitLab API (`/projects`, `/issues`)
 
 ### Requirements
 
@@ -103,7 +103,7 @@ yarn run build
 
 #### Step 3: Configure your API key
 
-- [GL CoreAI Settings](chrome-extension://ehdeggpkeghpiibnhkgnbpjkghghdpoe/packs/static/settings.html)
+- [GL CoreAI Settings](chrome-extension://bhaajobichfdfpccebngpkggnicjbkgh/packs/static/settings.html)
 
 ### Contributing
 
