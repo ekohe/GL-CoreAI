@@ -27,7 +27,7 @@
     "start": "react-scripts start",
     "build": "webpack --config webpack.config.js",
     "watch": "webpack -w --config webpack.config.js",
-    "build:zip": "cp config/credentials/key.pem dist && zip -r releases/gl-aicore.zip dist",
+    "build:zip": "cp config/credentials/key.pem dist && zip -r releases/gl-aicore.zip dist && rm dist/key.pem",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
