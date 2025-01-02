@@ -138,7 +138,7 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
 
   return (
     <div className="container" id="gitlabAISummarizerDetails">
-      {issueData.title &&
+      {issueData.title && (
         <h3
           style={{
             lineHeight: "40px",
@@ -147,13 +147,14 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
             fontWeight: "bold",
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
-            color: "#000000"
+            color: "#000000",
+            marginBottom: "16px",
           }}
           title={issueData.title}
         >
           {issueData.title}
         </h3>
-      }
+      )}
 
       {Object.keys(issueData).length > 0 && (
         <>
@@ -232,7 +233,7 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
                         fontSize: "18px",
                         paddingLeft: "10px",
                         backgroundColor: "#f9f7f9",
-                        color: "#000000"
+                        color: "#000000",
                       }}
                     >
                       {issueData.assignee?.name}
@@ -271,7 +272,9 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
                   Age
                 </span>
                 <span style={{ fontSize: "18px" }}>
-                  <span style={{color: "#000000"}}>{calculateTicketAge(issueData.created_at)} days</span> {" "}
+                  <span style={{ color: "#000000" }}>
+                    {calculateTicketAge(issueData.created_at)} days
+                  </span>{" "}
                   <span style={{ fontSize: "16px", opacity: "0.7" }}>
                     ({new Date(issueData.created_at).toLocaleDateString()})
                   </span>
@@ -291,7 +294,9 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
                   Last Updated
                 </span>
                 <span style={{ fontSize: "18px" }}>
-                  <span style={{color: "#000000"}}>{calculateTicketAge(issueData.updated_at)} days ago</span> {" "}
+                  <span style={{ color: "#000000" }}>
+                    {calculateTicketAge(issueData.updated_at)} days ago
+                  </span>{" "}
                   <span style={{ fontSize: "16px", opacity: "0.7" }}>
                     ({new Date(issueData.updated_at).toLocaleDateString()})
                   </span>
@@ -313,12 +318,12 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
                 style={{
                   fontSize: "18px",
                   textTransform: "capitalize",
-                  backgroundColor: "#c3e6cd",
-                  color: "#24663b",
+                  backgroundColor: "#8AE52533",
+                  color: "#8AE525",
                 }}
                 className="tag"
               >
-                {issueData.state === 'opened' ? 'Open' : issueData.state}
+                {issueData.state === "opened" ? "Open" : issueData.state}
               </span>
             </div>
           </div>
@@ -334,50 +339,44 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
         </>
       )}
 
-      {hasOpenaiKey &&
-        !enabledLLM &&
-        projectId &&
-        (issueId) && (
-          <>
-            {
-              <div className="control has-text-centered">
-                <button
-                  className="button is-medium link-color m-6"
-                  style={{
-                    backgroundColor: "transparent",
-                    borderRadius: "0",
-                    borderWidth: "2px",
-                  }}
-                  onClick={() => setEnabledLLM(true)}
-                >
-                  {MESSAGES.start_ai_summarizing}
-                </button>
-              </div>
-            }
-          </>
-        )}
+      {hasOpenaiKey && !enabledLLM && projectId && issueId && (
+        <>
+          {
+            <div className="control has-text-centered">
+              <button
+                className="button is-medium link-color m-6"
+                style={{
+                  backgroundColor: "transparent",
+                  borderRadius: "0",
+                  borderWidth: "2px",
+                }}
+                onClick={() => setEnabledLLM(true)}
+              >
+                {MESSAGES.start_ai_summarizing}
+              </button>
+            </div>
+          }
+        </>
+      )}
 
-      {hasOpenaiKey &&
-        !enabledLLM &&
-        projectId &&
-        (mergeRequestId) && (
-          <>
-            {
-              <div className="control has-text-centered">
-                <button
-                  className="button is-medium link-color m-6"
-                  style={{
-                    backgroundColor: "transparent",
-                    borderRadius: "0",
-                    borderWidth: "2px",
-                  }}
-                >
-                  {MESSAGES.code_review_coming_soon}
-                </button>
-              </div>
-            }
-          </>
-        )}
+      {hasOpenaiKey && !enabledLLM && projectId && mergeRequestId && (
+        <>
+          {
+            <div className="control has-text-centered">
+              <button
+                className="button is-medium link-color m-6"
+                style={{
+                  backgroundColor: "transparent",
+                  borderRadius: "0",
+                  borderWidth: "2px",
+                }}
+              >
+                {MESSAGES.code_review_coming_soon}
+              </button>
+            </div>
+          }
+        </>
+      )}
 
       {hasOpenaiKey &&
         enabledLLM &&

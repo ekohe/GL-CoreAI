@@ -43,7 +43,11 @@ const Header = (props: {
             data-tooltip="Copy it"
             onClick={() => navigator.clipboard.writeText(iisRef.innerText)}
           >
-            <FontAwesomeIcon icon={faCopy} fontSize={"25px"} color="black" />
+            <FontAwesomeIcon
+              icon={faCopy}
+              fontSize={"22px"}
+              color="#333333B2"
+            />
           </a>
         )}
 
@@ -52,7 +56,7 @@ const Header = (props: {
           data-tooltip="Open Settings Page"
           onClick={() => openChromeSettingPage()}
         >
-          <FontAwesomeIcon icon={faGears} fontSize={"25px"} color="black" />
+          <FontAwesomeIcon icon={faGears} fontSize={"22px"} color="#333333B2" />
         </a>
 
         <a
@@ -60,7 +64,11 @@ const Header = (props: {
           data-tooltip="Sign Out"
           onClick={() => handleSignOut()}
         >
-          <FontAwesomeIcon icon={faSignOut} fontSize={"25px"} color="black" />
+          <FontAwesomeIcon
+            icon={faSignOut}
+            fontSize={"22px"}
+            color="#333333B2"
+          />
         </a>
       </div>
     </nav>
