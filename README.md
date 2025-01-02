@@ -107,9 +107,9 @@ yarn run build
 
 ### Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/ekohe/gitlab-ai-summarizer. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected.
+Bug reports and pull requests are welcome on GitHub at https://github.com/ekohe/GL-CoreAI. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected.
 
-To see all contributors from https://github.com/ekohe/gitlab-ai-summarizer/graphs/contributors
+To see all contributors from https://github.com/ekohe/GL-CoreAI/graphs/contributors
 
 ### Contribution
 

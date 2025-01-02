@@ -1,5 +1,5 @@
 {
-  "name": "gitlab-ai-summarizer",
+  "name": "gl-coreai",
   "version": "0.1.0",
   "private": true,
   "dependencies": {

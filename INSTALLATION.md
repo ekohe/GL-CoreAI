@@ -12,7 +12,7 @@ A step-by-step guide to creating a Chrome extension using React.
 
 ### step 1: Create React App
 
-> npx create-react-app gitlab-ai-summarizer --template typescript
+> npx create-react-app Gl-CoreAI --template typescript
 
 ### step 2: Add Webpack
 
