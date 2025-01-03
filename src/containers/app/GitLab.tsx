@@ -3,9 +3,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
-
 import {
   calculateTicketAge,
   getAiProvider,
@@ -23,8 +20,47 @@ import {
 import { fetchLLMTaskSummarizer, invokingCodeAnalysis } from "../../utils/llm";
 import { MESSAGES } from "../../utils/constants";
 
+import { enhanceStringPrototype } from './../../utils/enhanceStringPrototype';
+
+enhanceStringPrototype(); // Add titlize method to String.prototype
+
 const openAIApiKey = await getOpenAIApiKey();
 const currentTabURL = await getCurrentTabURL();
+
+const renderInfoRow = (label: string, value: JSX.Element | string) => (
+    <div className="is-flex mt-2 is-align-items-center">
+      <span
+        style={{
+          color: "#333333",
+          fontSize: "18px",
+          opacity: "0.7",
+          width: "150px",
+        }}
+      >
+        {label}
+      </span>
+      <span style={{ fontSize: "18px", color: "#000000" }}>
+        {value}
+      </span>
+    </div>
+  );
+
+
+const renderButton = (onClickHandler: () => void, message: string) => (
+  <div className="control has-text-centered">
+    <button
+      className="button is-medium link-color m-6"
+      style={{
+        backgroundColor: "transparent",
+        borderRadius: "0",
+        borderWidth: "2px",
+      }}
+      onClick={onClickHandler}
+    >
+      {message}
+    </button>
+  </div>
+);
 
 const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
   const { iisRef } = props;
@@ -156,173 +192,58 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
       {Object.keys(issueData).length > 0 && (
         <>
           <div className="gitlab-infos">
-            {issueData.author && (
-              <div className="is-flex mt-2 is-align-items-center">
-                <span
-                  style={{
-                    color: "#333333",
-                    fontSize: "18px",
-                    opacity: "0.7",
-                    width: "150px",
-                  }}
-                >
-                  Author
-                </span>
-                <a
-                  href={issueData.author?.web_url}
-                  target="_blank"
-                  style={{
-                    textDecoration: "underline",
-                    textTransform: "capitalize",
-                    fontSize: "16px",
-                    display: "contents",
-                  }}
-                >
-                  <div className="tags has-addons">
-                    <span className="tag" style={{fontSize: "18px", paddingRight: "5px", backgroundColor: "#f9f7f9"}}>
-                      <img src={issueData.author?.avatar_url} style={{borderRadius: '50%', height: '25px'}} />
-                    </span>
-                    <span
-                      className="tag"
-                      style={{
-                        fontSize: "18px",
-                        paddingLeft: "10px",
-                        backgroundColor: "#f9f7f9",
-                        color: "#000000"
-                      }}
-                    >
-                      {issueData.author?.name}
-                    </span>
-                  </div>
-                </a>
-              </div>
-            )}
+            {['author', 'assignee'].map((role: string) => (
+              issueData[role] && renderInfoRow(
+                role.titlize(),
+                <>
+                  <a
+                    href={issueData[role]?.web_url}
+                    target="_blank"
+                    style={{
+                      textDecoration: "underline",
+                      textTransform: "capitalize",
+                      fontSize: "16px",
+                      display: "contents",
+                    }}
+                  >
+                    <div className="tags has-addons">
+                      <span className="tag" style={{fontSize: "18px", paddingRight: "5px", backgroundColor: "#f9f7f9"}}>
+                        <img src={issueData[role]?.avatar_url} style={{borderRadius: '50%', height: '25px'}} />
+                      </span>
+                      <span
+                        className="tag"
+                        style={{
+                          fontSize: "18px",
+                          paddingLeft: "10px",
+                          backgroundColor: "#f9f7f9",
+                          color: "#000000"
+                        }}
+                      >
+                        {issueData[role]?.name}
+                      </span>
+                    </div>
+                  </a>
+                </>
+              )
+            ))}
 
-            {issueData.assignee && (
-              <div className="is-flex mt-2 is-align-items-center">
-                <span
-                  style={{
-                    color: "#333333",
-                    fontSize: "18px",
-                    opacity: "0.7",
-                    width: "150px",
-                  }}
-                >
-                  Assignee
-                </span>
-                <a
-                  href={issueData.assignee?.web_url}
-                  target="_blank"
-                  style={{
-                    textDecoration: "underline",
-                    textTransform: "capitalize",
-                    fontSize: "16px",
-                    display: "contents",
-                  }}
-                >
-                  <div className="tags has-addons">
-                    <span className="tag" style={{fontSize: "18px", paddingRight: "5px", backgroundColor: "#f9f7f9"}}>
-                      <img src={issueData.assignee?.avatar_url} style={{borderRadius: '50%', height: '25px'}} />
-                    </span>
-                    <span
-                      className="tag"
-                      style={{
-                        fontSize: "18px",
-                        paddingLeft: "10px",
-                        backgroundColor: "#f9f7f9",
-                        color: "#000000",
-                      }}
-                    >
-                      {issueData.assignee?.name}
-                    </span>
-                  </div>
-                </a>
-              </div>
-            )}
-            {
-              <div className="is-flex mt-2 is-align-items-center">
-                <span
-                  style={{
-                    color: "#333333",
-                    fontSize: "18px",
-                    opacity: "0.7",
-                    width: "150px",
-                  }}
-                >
-                  Comments
-                </span>
-                <span style={{ fontSize: "18px", color: "#000000" }}>
-                  {issueData.user_notes_count}
-                </span>
-              </div>
-            }
-            {issueData.created_at && (
-              <div className="is-flex mt-2 is-align-items-center">
-                <span
-                  style={{
-                    color: "#333333",
-                    fontSize: "18px",
-                    opacity: "0.7",
-                    width: "150px",
-                  }}
-                >
-                  Age
-                </span>
-                <span style={{ fontSize: "18px" }}>
+            {renderInfoRow("Comments", issueData.user_notes_count)}
+
+            {['created_at', 'updated_at'].map((dateType) => (
+              issueData[dateType] && renderInfoRow(
+                dateType === 'created_at' ? 'Age' : 'Last Updated',
+                <>
                   <span style={{ color: "#000000" }}>
-                    {calculateTicketAge(issueData.created_at)} days
+                    {calculateTicketAge(issueData[dateType])} days{dateType === 'updated_at' ? ' ago' : ''}
                   </span>{" "}
                   <span style={{ fontSize: "16px", opacity: "0.7" }}>
-                    ({new Date(issueData.created_at).toLocaleDateString()})
+                    ({new Date(issueData[dateType]).toLocaleDateString()})
                   </span>
-                </span>
-              </div>
-            )}
-            {issueData.updated_at && (
-              <div className="is-flex mt-2 is-align-items-center">
-                <span
-                  style={{
-                    color: "#333333",
-                    fontSize: "18px",
-                    opacity: "0.7",
-                    width: "150px",
-                  }}
-                >
-                  Last Updated
-                </span>
-                <span style={{ fontSize: "18px" }}>
-                  <span style={{ color: "#000000" }}>
-                    {calculateTicketAge(issueData.updated_at)} days ago
-                  </span>{" "}
-                  <span style={{ fontSize: "16px", opacity: "0.7" }}>
-                    ({new Date(issueData.updated_at).toLocaleDateString()})
-                  </span>
-                </span>
-              </div>
-            )}
-            <div className="is-flex mt-2 is-align-items-center">
-              <span
-                style={{
-                  color: "#333333",
-                  fontSize: "18px",
-                  opacity: "0.7",
-                  width: "150px",
-                }}
-              >
-                State
-              </span>
-              <span
-                style={{
-                  fontSize: "18px",
-                  textTransform: "capitalize",
-                  backgroundColor: "#8AE52533",
-                  color: "#8AE525",
-                }}
-                className="tag"
-              >
-                {issueData.state === "opened" ? "Open" : issueData.state}
-              </span>
-            </div>
+                </>
+              )
+            ))}
+
+            {renderInfoRow("State", issueData.state === "opened" ? "Open" : issueData.state)}
           </div>
 
           <hr
@@ -336,72 +257,11 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
         </>
       )}
 
-      {hasOpenaiKey && !enabledLLM && projectId && issueId && (
-        <>
-          {
-            <div className="control has-text-centered">
-              <button
-                className="button is-medium link-color m-6"
-                style={{
-                  backgroundColor: "transparent",
-                  borderRadius: "0",
-                  borderWidth: "2px",
-                }}
-                onClick={() => setEnabledLLM(true)}
-              >
-                {MESSAGES.start_ai_summarizing}
-              </button>
-            </div>
-          }
-        </>
-      )}
+      {hasOpenaiKey && !enabledLLM && projectId && issueId && (renderButton(() => setEnabledLLM(true), MESSAGES.start_ai_summarizing))}
+      {!hasOpenaiKey && (renderButton(() => openChromeSettingPage(), MESSAGES.setup_openaikey))}
+      {!enabledLLM && projectId && mergeRequestId && (renderButton(() => {}, MESSAGES.code_review_coming_soon))}
 
-      {!hasOpenaiKey && (
-        <div className="field" style={{ marginTop: "5rem" }}>
-          <div className="control has-text-centered">
-            <button
-              className="button is-medium link-color m-6"
-              style={{
-                marginTop: "5rem",
-                backgroundColor: "transparent",
-                borderRadius: "0",
-                borderWidth: "2px",
-              }}
-              onClick={() => openChromeSettingPage()}
-            >
-              {MESSAGES.setup_openaikey}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {!enabledLLM && projectId && mergeRequestId && (
-        <>
-          {
-            <div className="control has-text-centered">
-              <button
-                className="button is-medium link-color m-6"
-                style={{
-                  backgroundColor: "transparent",
-                  borderRadius: "0",
-                  borderWidth: "2px",
-                }}
-              >
-                {MESSAGES.code_review_coming_soon}
-              </button>
-            </div>
-          }
-        </>
-      )}
-
-      {hasOpenaiKey &&
-        enabledLLM &&
-        projectId &&
-        (issueId || mergeRequestId) && (
-          <>
-            <div ref={iisRef} />
-          </>
-        )}
+      {hasOpenaiKey && enabledLLM && projectId && (issueId || mergeRequestId) && (<div ref={iisRef} />)}
     </div>
   );
 };
