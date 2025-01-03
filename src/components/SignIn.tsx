@@ -1,15 +1,13 @@
 /* eslint-disable react/jsx-no-target-blank */
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import logo from "../assets/icons/logo.png";
+import logo from "../assets/icons/logo.svg";
 import { AiBOT } from "../utils/common";
 import { AI_EXT_STATUS } from "../utils/constants";
 import GoogleAuthentication from "./GoogleAuthentication";
 import Footer from "../containers/app/Footer";
 import { useState } from "react";
 
-const SignIn: React.FC<ScreenProps> = ({
-  setGoogleAccessToken,
-}) => {
+const SignIn: React.FC<ScreenProps> = ({ setGoogleAccessToken }) => {
   const [privacyPolicy, setPrivacyPolicy] = useState<boolean>(false);
 
   return (
@@ -23,9 +21,12 @@ const SignIn: React.FC<ScreenProps> = ({
           />
         </div>
 
-        <h1 className="title has-text-centered has-text-black" style={{ marginBottom: "100px" }}>
+        {/* <h1
+          className="title has-text-centered has-text-black"
+          style={{ marginBottom: "100px" }}
+        >
           Welcome to {AiBOT.name}
-        </h1>
+        </h1> */}
 
         <GoogleAuthentication
           text={`${AI_EXT_STATUS.signin.text} with Google`}
@@ -35,7 +36,10 @@ const SignIn: React.FC<ScreenProps> = ({
 
         <div className="field mt-5">
           <div className="control m-5">
-            <label className="checkbox has-text-black" style={{ fontSize: "20px" }}>
+            <label
+              className="checkbox has-text-black"
+              style={{ fontSize: "20px" }}
+            >
               <input
                 type="checkbox"
                 checked={privacyPolicy}
@@ -43,7 +47,11 @@ const SignIn: React.FC<ScreenProps> = ({
                 onChange={(e) => setPrivacyPolicy(e.target.checked)}
               />{" "}
               I agree to {AiBOT.name}{" "}
-              <a href="https://ekohe.github.io/GL-CoreAI/public/privacy.html" style={{ textDecoration: "underline", color: "#00cbc0" }} target="_blank">
+              <a
+                href="https://ekohe.github.io/GL-CoreAI/public/privacy.html"
+                style={{ textDecoration: "underline", color: "#00cbc0" }}
+                target="_blank"
+              >
                 Terms of Use, and Privacy Policy
               </a>
               .
