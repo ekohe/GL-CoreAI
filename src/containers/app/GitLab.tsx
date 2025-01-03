@@ -45,11 +45,8 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
 
   useEffect(() => {
     const loadingExtensionSettings = async () => {
-      if (openAIApiKey === undefined) {
-        setHasOpenaiKey(false);
-      } else {
-        setStartGitLabAPI(true);
-      }
+      setStartGitLabAPI(true);
+      setHasOpenaiKey((openAIApiKey !== undefined && openAIApiKey !== ''));
     };
 
     loadingExtensionSettings();
@@ -359,7 +356,26 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
         </>
       )}
 
-      {hasOpenaiKey && !enabledLLM && projectId && mergeRequestId && (
+      {!hasOpenaiKey && (
+        <div className="field" style={{ marginTop: "5rem" }}>
+          <div className="control has-text-centered">
+            <button
+              className="button is-medium link-color m-6"
+              style={{
+                marginTop: "5rem",
+                backgroundColor: "transparent",
+                borderRadius: "0",
+                borderWidth: "2px",
+              }}
+              onClick={() => openChromeSettingPage()}
+            >
+              {MESSAGES.setup_openaikey}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {!enabledLLM && projectId && mergeRequestId && (
         <>
           {
             <div className="control has-text-centered">
@@ -386,24 +402,6 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
             <div ref={iisRef} />
           </>
         )}
-
-      {!hasOpenaiKey && (
-        <div className="field" style={{ marginTop: "4rem" }}>
-          <div className="control has-text-centered">
-            <div>
-              <FontAwesomeIcon icon={faTriangleExclamation} fontSize={"5rem"} />
-            </div>
-
-            <button
-              className="button has-text-white btn-bg-color"
-              style={{ marginTop: "4rem" }}
-              onClick={() => openChromeSettingPage()}
-            >
-              {MESSAGES.setup_openaikey}
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
