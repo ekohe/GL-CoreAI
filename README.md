@@ -2,11 +2,20 @@
 
 # GL CoreAI
 
+**GL CoreAI** is a Chrome Extension that uses OpenAI and GitLab API to summarize a GitLab issue from the issue's URL.
+
+---
+
 The AI architecture includes a custom Chrome extension that summarizes GitLab issues.
 
 This simplifies onboarding by providing detailed summaries of complex issues, allowing users to quickly understand an issue without navigating long histories.
 
-**GL CoreAI** is a Chrome Extension that uses OpenAI and GitLab API to summarize a GitLab issue from the issue's URL.
+---
+
+### Features
+
+- AI Summarize of GitLab Issues (done)
+- Code Suggestions in Merge Requests (coming soon)
 
 ### API intergrations
 
