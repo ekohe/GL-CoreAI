@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "short_name": "GL CoreAI",
   "name": "GL CoreAI",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Ekohe: GL CoreAI - uses OpenAI and GitLab API to summarize a GitLab issue from the issue's URL",
   "options_page": "packs/static/settings.html",
   "background": {
@@ -26,7 +26,6 @@
     "48": "static/icons/icon48.png",
     "128": "static/icons/icon128.png"
   },
-  "host_permissions": ["http://*/*", "https://*/*"],
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'; worker-src 'self';"
   },
