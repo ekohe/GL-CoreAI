@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "short_name": "GL CoreAI",
   "name": "GL CoreAI",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Ekohe: GL CoreAI - uses OpenAI and GitLab API to summarize a GitLab issue from the issue's URL",
   "options_page": "packs/static/settings.html",
   "background": {
@@ -13,7 +13,7 @@
     "email": "encore@ekohe.com"
   },
   "homepage_url": "https://ekohe.com",
-  "permissions": ["storage", "activeTab", "tabs", "scripting", "identity"],
+  "permissions": ["storage", "identity"],
   "oauth2": {
     "client_id": "813629896769-hq5035855rdk1pvqlspkcfr7l97l019f.apps.googleusercontent.com",
     "scopes": [

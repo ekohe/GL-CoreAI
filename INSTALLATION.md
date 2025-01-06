@@ -118,7 +118,7 @@ A manifest file is used to define the metadata and permissions for a Chrome exte
     "email": "encore@ekohe.com"
   },
   "homepage_url": "https://ekohe.com",
-  "permissions": ["storage", "activeTab", "tabs", "scripting"],
+  "permissions": ["storage"],
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
