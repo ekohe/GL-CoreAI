@@ -26,7 +26,7 @@ export const AI_EXT_STATUS = {
 };
 
 export const THEMECOLORS = [
-  "#000000",
+  "#f9f7f9",
   "#d99530",
   "#1f75cb",
   "#ff362c",

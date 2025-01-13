@@ -147,9 +147,9 @@ body {
 /* Theme Green */
 div[data-theme="theme-green"] {
   background: #f9f7f9;
+
   .dom-bg-color {
     background: #f9f7f9 !important;
-    display: none;
   }
 
   .wrap-bg-color {
@@ -172,12 +172,14 @@ div[data-theme="theme-green"] {
 
 /* Theme Dark Blue */
 div[data-theme="theme-dark-blue"] {
+  background: #f9f7f9;
+
   .dom-bg-color {
-    background: linear-gradient(to right bottom, #1f808e, #132e3a) !important;
+    background: #f9f7f9 !important;
   }
 
   .wrap-bg-color {
-    background: linear-gradient(to right bottom, #122f39, #081e26) !important;
+    background: transparent !important;
   }
 
   .btn-bg-color {
@@ -196,14 +198,15 @@ div[data-theme="theme-dark-blue"] {
 
 /* Theme Dark Blue */
 div[data-theme="theme-navy-blue"] {
+  background: #f9f7f9;
+
   .dom-bg-color {
-    background: linear-gradient(to right bottom, #29403e, #11ad9c) !important;
+    background: #f9f7f9 !important;
   }
 
   .wrap-bg-color {
-    background: linear-gradient(to right bottom, #8be1d8, #0e1b20) !important;
+    background: transparent !important;
   }
-
   .btn-bg-color {
     background: #037e70 !important;
   }

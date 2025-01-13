@@ -5,17 +5,17 @@ const Footer = () => {
     <footer
       style={{
         position: 'fixed',
-        fontSize: '1rem',
-        lineHeight: '25px',
+        fontSize: '1.2rem',
+        lineHeight: '50px',
         width: '100%',
         bottom: 0,
         left: 0,
       }}
       className="dom-bg-color has-text-centered"
     >
-      <div className="p-4">
-        <p className="has-text-white">
-          <strong className="has-text-white">{AiBOT.name}</strong> v{AiBOT?.version}
+      <div className="p-2">
+        <p className="has-text-black">
+          <strong className="has-text-black">{AiBOT.name}</strong> v{AiBOT?.version}
         </p>
       </div>
     </footer>

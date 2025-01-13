@@ -18,6 +18,11 @@ chrome.runtime.onInstalled.addListener(function (details) {
 //   }
 // });
 
+// chrome.storage.sync.remove(
+//   ["GASGitLab", "GASGitLabAccessToken", "GASThemeType", "GASThemeColor"],
+//   () => {}
+// );
+
 // Utility function to retrieve a value from Chrome storage
 const getFromStorage = (
   key: string,
@@ -57,14 +62,23 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 });
 
+const openChromeInternalPage = (chromeExtURL: string) => {
+  chrome.tabs.query({}, function (tabs: any) {
+    for (var i = 0; i < tabs.length; i++) {
+      if (tabs[i].url === chromeExtURL) {
+        chrome.tabs.update(tabs[i].id, { active: true });
+        return;
+      }
+    }
+    chrome.tabs.create({ url: chromeExtURL, active: true });
+  });
+};
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "openSettingPage") {
-    chrome.tabs.create({
-      url:
-        "chrome-extension://" +
-        chrome.runtime.id +
-        "/packs/static/settings.html",
-    });
+    openChromeInternalPage(
+      `chrome-extension://${chrome.runtime.id}/packs/static/settings.html`
+    );
   }
 });
 

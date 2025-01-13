@@ -28,7 +28,7 @@ const openAIApiKey = await getOpenAIApiKey();
 const currentTabURL = await getCurrentTabURL();
 
 const renderInfoRow = (label: string, value: JSX.Element | string) => (
-    <div className="is-flex mt-2 is-align-items-center">
+    <div className="is-flex mt-1 is-align-items-center">
       <span
         style={{
           color: "#333333",
@@ -243,7 +243,7 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
               )
             ))}
 
-            {renderInfoRow("State", issueData.state === "opened" ? "Open" : issueData.state)}
+            {renderInfoRow("State", issueData.state === "opened" ? "Open" : issueData.state.titlize())}
           </div>
 
           <hr

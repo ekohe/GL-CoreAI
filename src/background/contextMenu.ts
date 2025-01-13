@@ -11,7 +11,7 @@ const menus = {
   },
 };
 
-//No message to send or receive, only to trigger contextMenu on startup
+// No message to send or receive, only to trigger contextMenu on startup
 
 Object.entries(menus).forEach(([menuId, titleFunc]) => {
   chrome.contextMenus.create({
@@ -20,7 +20,6 @@ Object.entries(menus).forEach(([menuId, titleFunc]) => {
     title: typeof titleFunc === "string" ? titleFunc : titleFunc(),
   });
 });
-// })
 
 const updateContextMenus = (url?: string) => {
   chrome.contextMenus.update("issue_summary", { visible: false });
@@ -45,7 +44,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
       updateContextMenus(tab.url);
 
       chrome.tabs.sendMessage(tab.id as number, {
-        name: "disabledNewsSitesChanged",
+        name: "disabledGitLabSitesChanged",
         isDisabled: currentIsDisabled,
       });
     });

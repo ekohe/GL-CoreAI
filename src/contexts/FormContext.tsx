@@ -40,7 +40,7 @@ const FormProvider = ({ children }: { children: ReactNode }) => {
     GASOllamaURL: 'http://localhost:11434',
     GASOllamaModel: 'llama3.2',
     GASThemeType: 'theme-green',
-    GASThemeColor: '#000000'
+    GASThemeColor: '#f9f7f9'
   });
 
   useEffect(() => {
