@@ -1,12 +1,13 @@
 /* eslint-disable jsx-a11y/alt-text */
 /* eslint-disable react/jsx-no-target-blank */
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import {
   calculateTicketAge,
   getAiProvider,
   getCurrentTabURL,
+  getDeepSeekApiKey,
   getOpenAIApiKey,
   openChromeSettingPage,
 } from "../../utils";
@@ -25,6 +26,7 @@ import { enhanceStringPrototype } from './../../utils/enhanceStringPrototype';
 enhanceStringPrototype(); // Add titlize method to String.prototype
 
 const openAIApiKey = await getOpenAIApiKey();
+const deepSeekApiKey = await getDeepSeekApiKey();
 const currentTabURL = await getCurrentTabURL();
 
 const renderInfoRow = (label: string, value: JSX.Element | string) => (
@@ -64,8 +66,9 @@ const renderButton = (onClickHandler: () => void, message: string) => (
 
 const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
   const { iisRef } = props;
+  const summarizerDetails = useRef(null);
 
-  const [hasOpenaiKey, setHasOpenaiKey] = useState<boolean>(true);
+  const [hasLLMAPIKey, setHasLLMAPIKey] = useState<boolean>(true);
   const [startGitLabAPI, setStartGitLabAPI] = useState<boolean>(false);
   const [enabledLLM, setEnabledLLM] = useState<boolean>(false);
 
@@ -80,9 +83,27 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
   );
 
   useEffect(() => {
+    const currentElement = summarizerDetails.current as HTMLElement | null;
+    if (!currentElement) return;
+
+    const observer = new MutationObserver(() => {
+      if (currentElement && currentElement.parentElement) {
+        (currentElement.parentElement as HTMLElement).scrollTo({
+          top: currentElement.scrollHeight,
+          behavior: "smooth"
+        });
+      }
+    });
+
+    observer.observe(currentElement, { childList: true, subtree: true });
+
+    return () => observer.disconnect(); // Cleanup observer on component unmount
+  }, [summarizerDetails]);
+
+  useEffect(() => {
     const loadingExtensionSettings = async () => {
       setStartGitLabAPI(true);
-      setHasOpenaiKey((openAIApiKey !== undefined && openAIApiKey !== ''));
+      setHasLLMAPIKey((openAIApiKey !== undefined && openAIApiKey !== '') || (deepSeekApiKey !== undefined && deepSeekApiKey !== ''));
     };
 
     loadingExtensionSettings();
@@ -140,8 +161,8 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
   }, [startGitLabAPI]);
 
   useEffect(() => {
-    const loadingOpenAILLM = async () => {
-      if (hasOpenaiKey && enabledLLM && projectId && issueId) {
+    const loadingLLMAPIs = async () => {
+      if (hasLLMAPIKey && enabledLLM && projectId && issueId) {
         // Fetch the issue discussions
         const discussions = await fetchIssueDiscussions(projectId, issueId);
 
@@ -149,7 +170,7 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
         await gitLabIssueSummarize(iisRef, issueData, discussions);
       }
 
-      if (hasOpenaiKey && enabledLLM && projectId && mergeRequestId) {
+      if (hasLLMAPIKey && enabledLLM && projectId && mergeRequestId) {
         const aiProvider = await getAiProvider();
 
         let urlSection = document.createElement("p");
@@ -166,11 +187,11 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
       }
     };
 
-    loadingOpenAILLM();
+    loadingLLMAPIs();
   }, [enabledLLM]);
 
   return (
-    <div className="container" id="gitlabAISummarizerDetails">
+    <div className="container" id="gitlabAISummarizerDetails" ref={summarizerDetails}>
       {issueData.title && (
         <h3
           style={{
@@ -257,11 +278,11 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
         </>
       )}
 
-      {hasOpenaiKey && !enabledLLM && projectId && issueId && (renderButton(() => setEnabledLLM(true), MESSAGES.start_ai_summarizing))}
-      {!hasOpenaiKey && (renderButton(() => openChromeSettingPage(), MESSAGES.setup_openaikey))}
+      {hasLLMAPIKey && !enabledLLM && projectId && issueId && (renderButton(() => setEnabledLLM(true), MESSAGES.start_ai_summarizing))}
+      {!hasLLMAPIKey && (renderButton(() => openChromeSettingPage(), MESSAGES.setup_llm_apikey))}
       {!enabledLLM && projectId && mergeRequestId && (renderButton(() => {}, MESSAGES.code_review_coming_soon))}
 
-      {hasOpenaiKey && enabledLLM && projectId && (issueId || mergeRequestId) && (<div ref={iisRef} />)}
+      {hasLLMAPIKey && enabledLLM && projectId && (issueId || mergeRequestId) && (<div ref={iisRef} />)}
     </div>
   );
 };
