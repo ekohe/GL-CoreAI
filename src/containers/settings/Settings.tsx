@@ -189,6 +189,7 @@ function Settings() {
                         value={formData.GASAiProvider}
                       >
                         <option value={"openai"}>OpenAI</option>
+                        <option value={'deepseek'}>DeepSeek</option>
                         {/* <option value={'ollama'}>Ollama</option> */}
                       </select>
                     </div>
@@ -295,6 +296,105 @@ function Settings() {
                           <option value={"gpt-4-turbo"}>GPT-4-turbo</option>
                           <option value={"gpt-3.5-turbo"}>GPT-3.5-turbo</option>
                           <option value={"dall-e-3"}>DALL·E 3</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {formData.GASAiProvider === "deepseek" && (
+              <div className="field is-horizontal">
+                <div
+                  className="field-label"
+                  style={{
+                    justifyContent: "right",
+                    alignItems: "center",
+                    display: "flex",
+                  }}
+                >
+                  <label className="label has-text-black">
+                    DeepSeek API Key (Paid)
+                  </label>
+                </div>
+                <div className="field-body">
+                  <div className="field is-expanded">
+                    <div className="field has-addons">
+                      <p className="control is-expanded has-text-left">
+                        <input
+                          className="input"
+                          type={showOpenAIPassword ? "password" : "input"}
+                          autoComplete="off"
+                          name="GASDeepSeekAIKey"
+                          placeholder="DeepSeek Access Token"
+                          onChange={handleChange}
+                          value={formData.GASDeepSeekAIKey}
+                          style={{
+                            width: "63%",
+                            background: "transparent",
+                            color: "black",
+                          }}
+                        />
+                        {showOpenAIPassword ? (
+                          <FontAwesomeIcon
+                            icon={faEyeSlash}
+                            fontSize="24"
+                            color="white"
+                            style={{
+                              marginTop: "10px",
+                              marginLeft: "10px",
+                              cursor: "pointer",
+                            }}
+                            onClick={() => switchOpenAIEyeIcon(false)}
+                          />
+                        ) : (
+                          <FontAwesomeIcon
+                            icon={faEye}
+                            fontSize="24"
+                            color="white"
+                            style={{
+                              marginTop: "10px",
+                              marginLeft: "10px",
+                              cursor: "pointer",
+                            }}
+                            onClick={() => switchOpenAIEyeIcon(true)}
+                          />
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {formData.GASAiProvider === "deepseek" && (
+              <div className="field is-horizontal">
+                <div
+                  className="field-label"
+                  style={{
+                    justifyContent: "right",
+                    alignItems: "center",
+                    display: "flex",
+                  }}
+                >
+                  <label className="label has-text-black"> AI Model </label>
+                </div>
+                <div className="field-body">
+                  <div className="field is-expanded">
+                    <div className="field has-addons">
+                      <div className="select is-expanded">
+                        <select
+                          name="GASDeepSeekModel"
+                          onChange={handleChange}
+                          style={{
+                            minWidth: "290px",
+                            background: "transparent",
+                            color: "black",
+                          }}
+                          value={formData.GASDeepSeekModel}
+                        >
+                          <option value={"deepseek-chat"}>DeepSeek Chat</option>
                         </select>
                       </div>
                     </div>

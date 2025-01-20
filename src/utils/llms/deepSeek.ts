@@ -1,40 +1,23 @@
 /* eslint-disable @typescript-eslint/no-redeclare */
 
-import {
-  getAiProvider,
-  getOpenAIApiKey,
-  getOpenAIModel,
-  getOllamaModel,
-  getOllamaURL,
-  llamaApiChat,
-} from ".";
-import { taskPrompts, mergeRequestPrompts } from "./prompts/index";
-import { splitString } from "./tools";
+import { getDeepSeekApiKey, getDeepSeekModel } from "./../index";
+import { taskPrompts, mergeRequestPrompts } from "./../prompts/index";
+import { aiGeneratedSummaries, splitString } from "./../tools";
+
+const aiProvider = "deepseek";
+const aIApiUrl = "https://api.deepseek.com/v1/chat/completions";
 
 async function fetchLLMTaskSummarizer(
   issueDetails: any,
   issueData: any,
   discussions: any
 ) {
-  const personalOpenAIApiKey = await getOpenAIApiKey();
-  if (!personalOpenAIApiKey) return;
+  const personalAIApiKey = await getDeepSeekApiKey();
+  if (!personalAIApiKey) return;
 
-  const aiProvider = await getAiProvider();
-  const openAIModel = await getOpenAIModel();
-  const ollamaModel = await getOllamaModel();
-  const ollamaURL = await getOllamaURL();
-
-  const chatAPIs = {
-    ollama: `${ollamaURL}/api/chat`,
-    openai: "https://api.openai.com/v1/chat/completions",
-  };
-
+  const model = (await getDeepSeekModel()) || "";
   // Generate messages prompt
   const messages = taskPrompts.getPrompt(issueData, discussions);
-  const useOpenAI = aiProvider === "openai";
-
-  const model = useOpenAI ? openAIModel : ollamaModel;
-  const aIApiUrl = useOpenAI ? chatAPIs.openai : chatAPIs.ollama;
 
   let urlSection = document.createElement("p");
   urlSection.innerHTML = `<em>Invoking ${aiProvider} model: (${model})</em>`;
@@ -52,27 +35,18 @@ async function fetchLLMTaskSummarizer(
 
   try {
     let response: any;
-    if (useOpenAI) {
-      // Call the LLM API
-      response = await fetch(aIApiUrl, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${personalOpenAIApiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: model,
-          messages: messages,
-          stream: true,
-        }),
-      });
-    } else {
-      response = await llamaApiChat("llamaAPI", aIApiUrl, {
+    response = await fetch(aIApiUrl, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${personalAIApiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
         model: model,
         messages: messages,
-        stream: false,
-      });
-    }
+        stream: true,
+      }),
+    });
 
     // Check if the response is not OK
     if (!response.ok) {
@@ -102,7 +76,7 @@ async function fetchLLMTaskSummarizer(
         if (data.length === 0 || data.startsWith(":")) continue;
         if (data === "data: [DONE]") {
           // Update the DOM when the stream is done
-          urlSection.innerHTML = `AI Summary Generated model: ${aiProvider} (${model})`;
+          urlSection.innerHTML = aiGeneratedSummaries(aiProvider, model);
           // responseSection.innerHTML += `<br><p style="text-align: center; font-style: italic;">${model} may make errors.</p>`;
           return responseContent.trim(); // End of stream
         }
@@ -160,25 +134,13 @@ async function fetchLLMTaskSummarizer(
 }
 
 async function invokingCodeAnalysis(issueDetails: any, diffsData: any) {
-  const personalOpenAIApiKey = await getOpenAIApiKey();
-  if (!personalOpenAIApiKey) return;
+  const personalAIApiKey = await getDeepSeekApiKey();
+  if (!personalAIApiKey) return;
 
-  const aiProvider = await getAiProvider();
-  const openAIModel = await getOpenAIModel();
-  const ollamaModel = await getOllamaModel();
-  const ollamaURL = await getOllamaURL();
-
-  const chatAPIs = {
-    ollama: `${ollamaURL}/api/chat`,
-    openai: "https://api.openai.com/v1/chat/completions",
-  };
+  const model = await getDeepSeekModel();
 
   // Generate messages prompt
   const messages = mergeRequestPrompts.getPrompt(diffsData.changes);
-  const useOpenAI = aiProvider === "openai";
-
-  const model = useOpenAI ? openAIModel : ollamaModel;
-  const aIApiUrl = useOpenAI ? chatAPIs.openai : chatAPIs.ollama;
 
   let preCoderesponseSection = document.createElement("pre");
   preCoderesponseSection.style.paddingBottom = "0px";
@@ -198,7 +160,7 @@ async function invokingCodeAnalysis(issueDetails: any, diffsData: any) {
     const response = await fetch(aIApiUrl, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${personalOpenAIApiKey}`,
+        Authorization: `Bearer ${personalAIApiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({

@@ -2,7 +2,7 @@
 
 # GL CoreAI
 
-**GL CoreAI** is a Chrome Extension that uses OpenAI and GitLab API to summarize a GitLab issue from the issue's URL.
+**GL CoreAI** is a Chrome Extension that uses OpenAI/DeepSeek and GitLab API to summarize a GitLab issue from the issue's URL.
 
 ---
 
@@ -19,12 +19,14 @@ This simplifies onboarding by providing detailed summaries of complex issues, al
 
 ### API intergrations
 
-- OpenAI API (`/chat/completions`)
+- OpenAI API (`/v1/chat/completions`)
+- DeepSeek API (`/v1/chat/completions`)
 - GitLab API (`/projects`, `/issues`)
 
 ### Requirements
 
 - Generate an `API Key` from OpenAI
+- Generate an `API Key` from [DeepSeek](https://platform.deepseek.com/api_keys) (Chinese user-friendly)
 
 ### Project Structure
 
@@ -33,11 +35,16 @@ This simplifies onboarding by providing detailed summaries of complex issues, al
 src
 ├── assets
 │   ├── icons
+│   │   ├── brand.png
 │   │   ├── icon128.png
 │   │   ├── icon16.png
+│   │   ├── icon19.png
 │   │   ├── icon32.png
+│   │   ├── icon38.png
 │   │   ├── icon48.png
-│   │   └── logo.png
+│   │   ├── logo-brand.png
+│   │   ├── logo.png
+│   │   └── logo.svg
 │   ├── images
 │   │   └── settings.png
 │   └── styles
@@ -87,17 +94,25 @@ src
 └── utils
     ├── common.ts
     ├── constants.ts
+    ├── enhanceStringPrototype.ts
     ├── extView.ts
     ├── gitlab.ts
     ├── index.ts
-    ├── llm.ts
+    ├── llms
+    │   ├── deepSeek.ts
+    │   ├── index.ts
+    │   ├── ollama.ts
+    │   └── openAi.ts
     ├── policies
     │   ├── index.ts
     │   └── task.ts
     ├── prompts
     │   ├── index.ts
+    │   ├── mergeRequest.ts
     │   └── task.ts
     └── tools.ts
+
+22 directories, 57 files
 ```
 
 ### Generate a new package to use

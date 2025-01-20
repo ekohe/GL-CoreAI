@@ -62,4 +62,8 @@ const splitString = (str: string, chunkSize: any) => {
   return chunks;
 };
 
-export { hexToRGB, isEmail, toastMessage, splitString };
+const aiGeneratedSummaries = (provide: string, modelName: string): string => {
+  return `AI-generated summaries from ${provide.titlize()} (${modelName})`;
+};
+
+export { hexToRGB, isEmail, toastMessage, splitString, aiGeneratedSummaries };

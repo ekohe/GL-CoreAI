@@ -17,7 +17,7 @@ import {
   fetchMergeRequestChanges,
   getProjectIdFromPath,
 } from "../../utils/gitlab";
-import { fetchLLMTaskSummarizer, invokingCodeAnalysis } from "../../utils/llm";
+import { gitLabIssueSummarize, invokingCodeAnalysis } from "../../utils/llms";
 import { MESSAGES } from "../../utils/constants";
 
 import { enhanceStringPrototype } from './../../utils/enhanceStringPrototype';
@@ -146,7 +146,7 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
         const discussions = await fetchIssueDiscussions(projectId, issueId);
 
         // Call the LLM with the fetched GitLab data
-        await fetchLLMTaskSummarizer(iisRef, issueData, discussions);
+        await gitLabIssueSummarize(iisRef, issueData, discussions);
       }
 
       if (hasOpenaiKey && enabledLLM && projectId && mergeRequestId) {

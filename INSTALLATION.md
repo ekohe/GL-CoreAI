@@ -106,15 +106,15 @@ A manifest file is used to define the metadata and permissions for a Chrome exte
 {
   "manifest_version": 3,
   "short_name": "GL CoreAI",
-  "name": "Ekohe: GL CoreAI",
+  "name": "GL CoreAI",
   "version": "0.0.1",
-  "description": " uses OpenAI and GitLab API to summarize a GitLab issue from the issue's URL.",
+  "description": "uses OpenAI and GitLab API to summarize a GitLab issue from the issue's URL.",
   "options_page": "settings.html",
   "background": {
     "service_worker": "background.js"
   },
   "author": {
-    "name": "Encore Shao",
+    "name": "Ekohe",
     "email": "encore@ekohe.com"
   },
   "homepage_url": "https://ekohe.com",

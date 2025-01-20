@@ -63,6 +63,10 @@ const getOpenAIApiKey = async (): Promise<string | undefined> => {
   return getFromBackground("getOpenAIApiKey", "GASOpenAIKey");
 };
 
+const getDeepSeekApiKey = async (): Promise<string | undefined> => {
+  return getFromBackground("getDeepSeekApiKey", "GASDeepSeekAIKey");
+};
+
 // Retrieve Theme Type
 const getThemeType = async (): Promise<string | undefined> => {
   return getFromBackground("getThemeType", "GASThemeType");
@@ -80,6 +84,10 @@ const getAiProvider = async (): Promise<string | undefined> => {
 
 const getOpenAIModel = async (): Promise<string | undefined> => {
   return getFromBackground("getOpenAIModel", "GASOpenaiModel");
+};
+
+const getDeepSeekModel = async (): Promise<string | undefined> => {
+  return getFromBackground("getDeepSeekModel", "GASDeepSeekModel");
 };
 
 const getOllamaModel = async (): Promise<string | undefined> => {
@@ -214,19 +222,6 @@ const getGoogleAccount = async (token: string) => {
   }
 };
 
-const getUserAccount = async (token: string) => {
-  try {
-    return {
-      id: "1234",
-      name: "Encore",
-      email: "encore@apple.com",
-      verified_email: true,
-    };
-  } catch (error: any) {
-    throw new Error("Failed to fetch data: " + error.message); // Throw error so caller can handle it
-  }
-};
-
 const launchGoogleAuthentication = async (
   event: any,
   setGoogleAccessToken: any
@@ -281,10 +276,12 @@ export {
   getGitLabWebURL,
   getGitLabApiKey,
   getOpenAIApiKey,
+  getDeepSeekApiKey,
   getThemeType,
   getThemeColor,
   getAiProvider,
   getOpenAIModel,
+  getDeepSeekModel,
   getOllamaModel,
   getOllamaURL,
   getDomainFromURL,
@@ -298,7 +295,6 @@ export {
   checkDisabledGitLabSites,
   toggleDisabledGitLabSites,
   getGoogleAccount,
-  getUserAccount,
   launchGoogleAuthentication,
   openChromeSettingPage,
   llamaApiChat,

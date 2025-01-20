@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
-import { getGoogleAccount, getUserAccount } from "../../utils";
+import { getGoogleAccount } from "../../utils";
 import GitLab from "./GitLab";
 
 function AiSummarizer(porps: {
@@ -15,10 +15,8 @@ function AiSummarizer(porps: {
 }) {
   const {
     googleToken,
-    userAccessToken,
     setIsCopy,
     setGoogleAccessToken,
-    setUserAccessToken,
     setErrorText,
     iisRef,
   } = porps;
@@ -50,26 +48,7 @@ function AiSummarizer(porps: {
 
       fetchGoogleAccount();
     }
-
-    if (userAccessToken !== undefined) {
-      const fetchUserAccount = async () => {
-        try {
-          const result = await getUserAccount(userAccessToken);
-
-          setData(result);
-        } catch (err: any) {
-          setErrorText(err.message); // Handle error
-          setUserAccessToken(undefined);
-
-          chrome.storage.sync.remove(["GASUserAccessToken"], () => {
-            setUserAccessToken(undefined);
-          });
-        }
-      };
-
-      fetchUserAccount();
-    }
-  }, [googleToken, userAccessToken]);
+  }, [googleToken]);
 
   return (
     <div

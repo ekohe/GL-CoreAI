@@ -11,7 +11,9 @@ interface FormData {
   GASGitLabApiVersion: string;
   GASAiProvider: string;
   GASOpenAIKey: string;
+  GASDeepSeekAIKey: string;
   GASOpenaiModel: string;
+  GASDeepSeekModel: string;
   GASOllamaURL: string;
   GASOllamaModel: string;
   GASThemeType: string;
@@ -36,7 +38,9 @@ const FormProvider = ({ children }: { children: ReactNode }) => {
     GASGitLabApiVersion: 'api/v4',
     GASAiProvider: 'openai',
     GASOpenAIKey: '',
+    GASDeepSeekAIKey: '',
     GASOpenaiModel: 'gpt-4o',
+    GASDeepSeekModel: 'deepseek-chat',
     GASOllamaURL: 'http://localhost:11434',
     GASOllamaModel: 'llama3.2',
     GASThemeType: 'theme-green',

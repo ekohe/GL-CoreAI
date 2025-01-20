@@ -38,6 +38,7 @@ const getFromStorage = (
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   const actionsMap: { [key: string]: { key: string; defaultValue?: any } } = {
     getOpenAIApiKey: { key: "GASOpenAIKey" },
+    getDeepSeekApiKey: { key: "GASDeepSeekAIKey" },
     getGitLabApiKey: { key: "GASGitLabAccessToken" },
     getGoogleAccessToken: { key: "GASGoogleAccessToken" },
     getUserAccessToken: { key: "GASUserAccessToken" },
@@ -47,6 +48,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     getThemeColor: { key: "GASThemeColor", defaultValue: "#000000" },
     getAiProvider: { key: "GASAiProvider", defaultValue: "openai" },
     getOpenAIModel: { key: "GASOpenaiModel", defaultValue: "gpt-4o" },
+    getDeepSeekModel: {
+      key: "GASDeepSeekModel",
+      defaultValue: "deepseek-chat",
+    },
     getOllamaURL: {
       key: "GASOllamaURL",
       defaultValue: "http://localhost:11434",
