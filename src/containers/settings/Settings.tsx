@@ -394,7 +394,8 @@ function Settings() {
                           }}
                           value={formData.GASDeepSeekModel}
                         >
-                          <option value={"deepseek-chat"}>DeepSeek Chat</option>
+                          <option value={"deepseek-chat"}> DeepSeek Chat </option>
+                          <option value={"deepseek-reasoner"}> DeepSeek R1 </option>
                         </select>
                       </div>
                     </div>
