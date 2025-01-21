@@ -10,7 +10,6 @@ import { useEffect, useState } from "react";
 import { useFormContext } from "../../contexts/FormContext";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGitlab } from "@fortawesome/free-brands-svg-icons";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 import { setStorage } from "../../utils";
@@ -21,7 +20,7 @@ import logoBrand from "../../assets/icons/logo-brand.png";
 function Settings() {
   const { formData, handleChange } = useFormContext();
   const [pickedThemeColor, setPickedThemeColor] = useState(THEMECOLORS[0]);
-  const [showOpenAIPassword, setShowOpenAIPassword] = useState(true);
+  const [showAIKey, setShowAIKey] = useState(true);
 
   useEffect(() => {
     setPickedThemeColor(formData.GASThemeColor);
@@ -33,29 +32,7 @@ function Settings() {
     });
   }, [pickedThemeColor]);
 
-  const eyeDropper = async (event: any): Promise<void> => {
-    setTimeout(async () => {
-      try {
-        const eyeDropper = new (window as any).EyeDropper();
-        const { sRGBHex }: { sRGBHex: string } = await eyeDropper.open();
-        navigator.clipboard.writeText(sRGBHex);
-
-        if (event.target && event.target.style) {
-          event.target.style.backgroundColor = sRGBHex;
-          const inputBox = event.target
-            .closest(".ai-theme-color")
-            .querySelector("input");
-          inputBox.value = sRGBHex;
-        }
-      } catch (error) {
-        console.log("Error! Color code is not picked");
-      }
-    }, 10);
-  };
-
-  const switchOpenAIEyeIcon = (show: boolean) => {
-    setShowOpenAIPassword(show);
-  };
+  const toggleOpenAIEyeIcon = (show: boolean): void => setShowAIKey(show);
 
   return (
     <>
@@ -218,7 +195,7 @@ function Settings() {
                       <p className="control is-expanded has-text-left">
                         <input
                           className="input"
-                          type={showOpenAIPassword ? "password" : "input"}
+                          type={showAIKey ? "password" : "input"}
                           autoComplete="off"
                           name="GASOpenAIKey"
                           placeholder="OpenAI Access Token"
@@ -230,31 +207,17 @@ function Settings() {
                             color: "black",
                           }}
                         />
-                        {showOpenAIPassword ? (
-                          <FontAwesomeIcon
-                            icon={faEyeSlash}
-                            fontSize="24"
-                            color="white"
-                            style={{
-                              marginTop: "10px",
-                              marginLeft: "10px",
-                              cursor: "pointer",
-                            }}
-                            onClick={() => switchOpenAIEyeIcon(false)}
-                          />
-                        ) : (
-                          <FontAwesomeIcon
-                            icon={faEye}
-                            fontSize="24"
-                            color="white"
-                            style={{
-                              marginTop: "10px",
-                              marginLeft: "10px",
-                              cursor: "pointer",
-                            }}
-                            onClick={() => switchOpenAIEyeIcon(true)}
-                          />
-                        )}
+                        <FontAwesomeIcon
+                          icon={showAIKey ? faEyeSlash : faEye}
+                          fontSize="24"
+                          color="gray"
+                          style={{
+                            marginTop: "10px",
+                            marginLeft: "10px",
+                            cursor: "pointer",
+                          }}
+                          onClick={() => toggleOpenAIEyeIcon(!showAIKey)}
+                        />
                       </p>
                     </div>
                   </div>
@@ -324,7 +287,7 @@ function Settings() {
                       <p className="control is-expanded has-text-left">
                         <input
                           className="input"
-                          type={showOpenAIPassword ? "password" : "input"}
+                          type={showAIKey ? "password" : "input"}
                           autoComplete="off"
                           name="GASDeepSeekAIKey"
                           placeholder="DeepSeek Access Token"
@@ -336,31 +299,17 @@ function Settings() {
                             color: "black",
                           }}
                         />
-                        {showOpenAIPassword ? (
-                          <FontAwesomeIcon
-                            icon={faEyeSlash}
-                            fontSize="24"
-                            color="white"
-                            style={{
-                              marginTop: "10px",
-                              marginLeft: "10px",
-                              cursor: "pointer",
-                            }}
-                            onClick={() => switchOpenAIEyeIcon(false)}
-                          />
-                        ) : (
-                          <FontAwesomeIcon
-                            icon={faEye}
-                            fontSize="24"
-                            color="white"
-                            style={{
-                              marginTop: "10px",
-                              marginLeft: "10px",
-                              cursor: "pointer",
-                            }}
-                            onClick={() => switchOpenAIEyeIcon(true)}
-                          />
-                        )}
+                        <FontAwesomeIcon
+                          icon={showAIKey ? faEyeSlash : faEye}
+                          fontSize="24"
+                          color="gray"
+                          style={{
+                            marginTop: "10px",
+                            marginLeft: "10px",
+                            cursor: "pointer",
+                          }}
+                          onClick={() => toggleOpenAIEyeIcon(!showAIKey)}
+                        />
                       </p>
                     </div>
                   </div>
