@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "short_name": "GL CoreAI",
   "name": "GL CoreAI",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "GL CoreAI by Ekohe - uses OpenAI/DeepSeek and GitLab APIs to summarize issues/tasks from the their URLs",
   "options_page": "packs/static/settings.html",
   "background": {

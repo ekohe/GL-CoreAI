@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-redeclare */
 
 import { getDeepSeekApiKey, getDeepSeekModel } from "./../index";
-import { taskPrompts, mergeRequestPrompts } from "./../prompts/index";
+import { taskPrompts, codeReviewPrompts } from "./../prompts/index";
 import { aiGeneratedSummaries, splitString } from "./../tools";
 
 const aiProvider = "deepseek";
@@ -140,7 +140,7 @@ async function invokingCodeAnalysis(issueDetails: any, diffsData: any) {
   const model = await getDeepSeekModel();
 
   // Generate messages prompt
-  const messages = mergeRequestPrompts.getPrompt(diffsData.changes);
+  const messages = codeReviewPrompts.getPrompt(diffsData.changes);
 
   let preCoderesponseSection = document.createElement("pre");
   preCoderesponseSection.style.paddingBottom = "0px";

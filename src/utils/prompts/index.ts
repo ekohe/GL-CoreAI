@@ -1,4 +1,4 @@
 import * as taskPrompts from "./task";
-import * as mergeRequestPrompts from "./mergeRequest";
+import * as codeReviewPrompts from "./codeReview";
 
-export { taskPrompts, mergeRequestPrompts };
+export { taskPrompts, codeReviewPrompts };
