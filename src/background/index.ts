@@ -39,6 +39,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   const actionsMap: { [key: string]: { key: string; defaultValue?: any } } = {
     getOpenAIApiKey: { key: "GASOpenAIKey" },
     getDeepSeekApiKey: { key: "GASDeepSeekAIKey" },
+    getClaudeApiKey: { key: "GASClaudeKey" },
     getGitLabApiKey: { key: "GASGitLabAccessToken" },
     getGoogleAccessToken: { key: "GASGoogleAccessToken" },
     getUserAccessToken: { key: "GASUserAccessToken" },
@@ -51,6 +52,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     getDeepSeekModel: {
       key: "GASDeepSeekModel",
       defaultValue: "deepseek-chat",
+    },
+    getClaudeModel: {
+      key: "GASClaudeModel",
+      defaultValue: "claude-3-opus-20240229",
     },
     getOllamaURL: {
       key: "GASOllamaURL",

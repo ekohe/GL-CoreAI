@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable jsx-a11y/alt-text */
 /* eslint-disable react/jsx-no-target-blank */
 /* eslint-disable react-hooks/exhaustive-deps */
@@ -6,9 +7,13 @@ import { useEffect, useRef, useState } from "react";
 import {
   calculateTicketAge,
   getAiProvider,
+  getClaudeApiKey,
+  getClaudeModel,
   getCurrentTabURL,
   getDeepSeekApiKey,
+  getDeepSeekModel,
   getOpenAIApiKey,
+  getOpenAIModel,
   openChromeSettingPage,
 } from "../../utils";
 import {
@@ -19,12 +24,14 @@ import {
   getProjectIdFromPath,
 } from "../../utils/gitlab";
 import { gitLabIssueSummarize, invokingCodeAnalysis } from "../../utils/llms";
+import { GitLabAPI } from "../../utils/gitlabApi";
 import { MESSAGES } from "../../utils/constants";
 
 import { enhanceStringPrototype } from './../../utils/enhanceStringPrototype';
 
 enhanceStringPrototype(); // Add titlize method to String.prototype
 
+const claudeApiKey = await getClaudeApiKey();
 const openAIApiKey = await getOpenAIApiKey();
 const deepSeekApiKey = await getDeepSeekApiKey();
 const currentTabURL = await getCurrentTabURL();
@@ -86,6 +93,9 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
     const currentElement = summarizerDetails.current as HTMLElement | null;
     if (!currentElement) return;
 
+    // Initialize GitLab API for code suggestions
+    GitLabAPI.setupGlobalFunction();
+
     const observer = new MutationObserver(() => {
       if (currentElement && currentElement.parentElement) {
         (currentElement.parentElement as HTMLElement).scrollTo({
@@ -103,7 +113,7 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
   useEffect(() => {
     const loadingExtensionSettings = async () => {
       setStartGitLabAPI(true);
-      setHasLLMAPIKey((openAIApiKey !== undefined && openAIApiKey !== '') || (deepSeekApiKey !== undefined && deepSeekApiKey !== ''));
+      setHasLLMAPIKey((openAIApiKey !== undefined && openAIApiKey !== '') || (deepSeekApiKey !== undefined && deepSeekApiKey !== '') || !!claudeApiKey);
     };
 
     loadingExtensionSettings();
@@ -173,13 +183,26 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
       if (hasLLMAPIKey && enabledLLM && projectId && mergeRequestId) {
         const aiProvider = await getAiProvider();
 
-        let urlSection = document.createElement("p");
-        urlSection.innerHTML = `
-          <em>Invoking ${aiProvider} code analysis...</em>
-        `;
-        urlSection.style.paddingBottom = "0px";
-        urlSection.style.marginBottom = "5px";
-        iisRef.current.appendChild(urlSection);
+        let model = "";
+        if (aiProvider === "claude") {
+          model = (await getClaudeModel()) || "claude-3-opus-20240229";
+        } else if (aiProvider === "openai") {
+          model = (await getOpenAIModel()) || "gpt-4o-mini";
+        } else if (aiProvider === "deepseek") {
+          model = (await getDeepSeekModel()) || "deepseek-chat";
+        }
+
+        // Add model info at the top
+        const modelInfo = document.createElement("div");
+        modelInfo.style.backgroundColor = "#f8f9fa";
+        modelInfo.style.padding = "15px";
+        modelInfo.style.borderRadius = "8px";
+        modelInfo.style.marginBottom = "20px";
+        modelInfo.style.borderLeft = "4px solid #007bff";
+        modelInfo.innerHTML = `<em>Invoking ${aiProvider} model: (${model})</em>`;
+        modelInfo.style.color = "#333333";
+        modelInfo.style.fontSize = "16px";
+        iisRef.current.appendChild(modelInfo);
 
         for (const change of mergeRequestChangesData) {
           await invokingCodeAnalysis(iisRef, change);
@@ -280,7 +303,7 @@ const GitLab = (props: { setIsCopy: any; iisRef: any }) => {
 
       {hasLLMAPIKey && !enabledLLM && projectId && issueId && (renderButton(() => setEnabledLLM(true), MESSAGES.start_ai_summarizing))}
       {!hasLLMAPIKey && (renderButton(() => openChromeSettingPage(), MESSAGES.setup_llm_apikey))}
-      {!enabledLLM && projectId && mergeRequestId && (renderButton(() => {}, MESSAGES.code_review_coming_soon))}
+      {!enabledLLM && projectId && mergeRequestId && (renderButton(() => setEnabledLLM(true), "Start Code Review"))}
 
       {hasLLMAPIKey && enabledLLM && projectId && (issueId || mergeRequestId) && (<div ref={iisRef} />)}
     </div>

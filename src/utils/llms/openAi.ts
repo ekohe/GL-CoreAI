@@ -3,6 +3,7 @@
 import { getOpenAIApiKey, getOpenAIModel } from "./../index";
 import { taskPrompts, codeReviewPrompts } from "./../prompts/index";
 import { aiGeneratedSummaries, splitString } from "./../tools";
+import { CodeReviewRenderer } from "../codeReviewRenderer";
 
 const aiProvider = "openai";
 const aIApiUrl = "https://api.openai.com/v1/chat/completions";
@@ -137,23 +138,17 @@ async function invokingCodeAnalysis(issueDetails: any, diffsData: any) {
   const personalAIApiKey = await getOpenAIApiKey();
   if (!personalAIApiKey) return;
 
-  const model = await getOpenAIModel();
+  const model = await getOpenAIModel() || "gpt-4o-mini";
 
   // Generate messages prompt
-  const messages = codeReviewPrompts.getPrompt(diffsData.changes);
+  const messages = codeReviewPrompts.getPrompt(diffsData);
 
-  let preCoderesponseSection = document.createElement("pre");
-  preCoderesponseSection.style.paddingBottom = "0px";
-  preCoderesponseSection.style.marginBottom = "5px";
-  issueDetails.current.appendChild(preCoderesponseSection);
+  // Create main container
+  const mainContainer = document.createElement("div");
+  issueDetails.current.appendChild(mainContainer);
 
-  let headerSection = document.createElement("h3");
-  headerSection.innerText = diffsData.fileName;
-  headerSection.style.margin = "5px";
-  preCoderesponseSection.appendChild(headerSection);
-
-  let responseSection = document.createElement("code");
-  preCoderesponseSection.appendChild(responseSection);
+  // Show initial loading state
+    CodeReviewRenderer.showLoadingState(mainContainer);
 
   try {
     // Call the LLM API
@@ -182,72 +177,77 @@ async function invokingCodeAnalysis(issueDetails: any, diffsData: any) {
     if (!reader) return;
 
     let responseContent = "";
-    let accumulatedChunk = "";
-    const maxRetries = 5;
-    let retryCount = 0;
+    let lastUpdateTime = Date.now();
 
     // Read the stream
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
 
-      // Split the stream data by sentences
-      const arr = value.split(/(?<=\.\s)/);
+      // Split the stream data by new lines
+      const arr = value.split("\n");
 
       for (const data of arr) {
         // Ignore empty or comment messages
         if (data.length === 0 || data.startsWith(":")) continue;
         if (data === "data: [DONE]") {
-          return responseContent.trim(); // End of stream
+          // Use the shared renderer when stream is done
+                CodeReviewRenderer.renderCodeReview(mainContainer, responseContent.trim());
+                return responseContent.trim();
         }
-
-        accumulatedChunk += data;
 
         // Parse the JSON response incrementally
         try {
-          const jsonResponse = JSON.parse(accumulatedChunk.split("data: ")[1]);
-          const analysisChunks = splitString(
-            jsonResponse.choices[0].delta.content,
-            1000
-          );
-          if (analysisChunks.length > 0) {
-            for (const chunk of analysisChunks) {
-              responseContent += chunk;
-            }
+          if (data.startsWith("data: ")) {
+            const jsonResponse = JSON.parse(data.substring(6));
+            const deltaContent = jsonResponse.choices?.[0]?.delta?.content;
 
-            responseSection.innerHTML = responseContent.trim();
-          }
-          // Reset accumulatedChunk and retryCount after successful parse
-          accumulatedChunk = "";
-          retryCount = 0;
-        } catch (e) {
-          // Increment retry count and pause before retrying
-          retryCount++;
-          if (retryCount > maxRetries) {
-            // Attempt to parse the accumulated chunks as a whole
-            try {
-              const jsonResponse = JSON.parse(
-                accumulatedChunk.split("data: ")[1]
-              );
-              const deltaContent = jsonResponse.choices[0].delta.content;
-              if (deltaContent) {
-                responseContent += deltaContent;
+            if (deltaContent) {
+              responseContent += deltaContent;
 
-                responseSection.innerHTML = responseContent.trim();
+              // Update progressively (every 1000ms to avoid too frequent updates)
+              const now = Date.now();
+              if (now - lastUpdateTime > 1000 || responseContent.length < 100) {
+                if (CodeReviewRenderer.isCompleteJSON(responseContent.trim())) {
+                  CodeReviewRenderer.renderCodeReview(mainContainer, responseContent.trim());
+                  return responseContent.trim();
+                } else {
+                  CodeReviewRenderer.showProgressiveState(mainContainer, responseContent.trim());
+                }
+                lastUpdateTime = now;
               }
-            } catch (finalError) {
-              throw new Error("Error parsing accumulated JSON response");
             }
-            break;
           }
-          await new Promise((resolve) => setTimeout(resolve, 100)); // Pause for 100ms before retrying
+        } catch (error) {
+          // Continue reading stream
+          continue;
         }
       }
     }
 
+    // Final render
+        CodeReviewRenderer.renderCodeReview(mainContainer, responseContent.trim());
+
     return responseContent.trim();
   } catch (error) {
     console.log(`Error fetching data from ${aiProvider}:`, error);
+
+    // Show error message using the renderer
+    const errorContainer = document.createElement("div");
+    errorContainer.style.cssText = `
+      border: 1px solid #dc3545;
+      border-radius: 8px;
+      padding: 16px;
+      background-color: #f8d7da;
+      margin: 16px 0;
+    `;
+    errorContainer.innerHTML = `
+      <h4 style="margin: 0 0 8px 0; color: #721c24;">Error Processing Review</h4>
+      <p style="margin: 0; color: #721c24;">
+        Failed to get code review from OpenAI. Please try again.
+      </p>
+    `;
+    mainContainer.appendChild(errorContainer);
   }
 }
 

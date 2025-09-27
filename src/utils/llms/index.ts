@@ -3,6 +3,7 @@
 import * as openAi from "./openAi";
 import * as deepSeek from "./deepSeek";
 import * as ollama from "./ollama";
+import * as claude from "./claude";
 
 import { getAiProvider } from "./../index";
 
@@ -42,6 +43,9 @@ async function gitLabIssueSummarize(
     ollama: async (issueDetails, issueData, discussions) => {
       await ollama.fetchLLMTaskSummarizer(issueDetails, issueData, discussions);
     },
+    claude: async (issueDetails, issueData, discussions) => {
+      await claude.fetchLLMTaskSummarizer(issueDetails, issueData, discussions);
+    },
   };
 
   await executeProviderFunction(
@@ -65,6 +69,9 @@ async function invokingCodeAnalysis(
     },
     ollama: async (issueDetails, diffsData) => {
       await ollama.invokingCodeAnalysis(issueDetails, diffsData);
+    },
+    claude: async (issueDetails, diffsData) => {
+      await claude.invokingCodeAnalysis(issueDetails, diffsData);
     },
   };
 

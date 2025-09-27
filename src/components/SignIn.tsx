@@ -21,13 +21,6 @@ const SignIn: React.FC<ScreenProps> = ({ setGoogleAccessToken }) => {
           />
         </div>
 
-        {/* <h1
-          className="title has-text-centered has-text-black"
-          style={{ marginBottom: "100px" }}
-        >
-          Welcome to {AiBOT.name}
-        </h1> */}
-
         <GoogleAuthentication
           text={`${AI_EXT_STATUS.signin.text} with Google`}
           setGoogleAccessToken={setGoogleAccessToken}

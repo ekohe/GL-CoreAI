@@ -166,7 +166,8 @@ function Settings() {
                         value={formData.GASAiProvider}
                       >
                         <option value={"openai"}>OpenAI</option>
-                        <option value={'deepseek'}>DeepSeek</option>
+                        <option value={"deepseek"}>DeepSeek</option>
+                        <option value={"claude"}>Claude</option>
                         {/* <option value={'ollama'}>Ollama</option> */}
                       </select>
                     </div>
@@ -251,14 +252,114 @@ function Settings() {
                           }}
                           value={formData.GASOpenaiModel}
                         >
+                          <option value={"gpt-4.5-orion"}>GPT-4.5 (Orion) - Latest</option>
+                          <option value={"o3-mini-high"}>o3 Mini High - Reasoning</option>
                           <option value={"gpt-4o"}>GPT-4o</option>
-                          <option value={"gpt-4o-mini"}>GPT-4o-mini</option>
-                          <option value={"o1-preview"}>O1 Preview</option>
-                          <option value={"o1-mini"}>O1-mini</option>
+                          <option value={"gpt-4o-mini"}>GPT-4o Mini</option>
+                          <option value={"o1-preview"}>o1 Preview</option>
+                          <option value={"o1-mini"}>o1 Mini</option>
+                          <option value={"gpt-4-turbo"}>GPT-4 Turbo</option>
                           <option value={"gpt-4"}>GPT-4</option>
-                          <option value={"gpt-4-turbo"}>GPT-4-turbo</option>
-                          <option value={"gpt-3.5-turbo"}>GPT-3.5-turbo</option>
-                          <option value={"dall-e-3"}>DALL·E 3</option>
+                          <option value={"gpt-3.5-turbo"}>GPT-3.5 Turbo</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {formData.GASAiProvider === "claude" && (
+              <div className="field is-horizontal">
+                <div
+                  className="field-label"
+                  style={{
+                    justifyContent: "right",
+                    alignItems: "center",
+                    display: "flex",
+                  }}
+                >
+                  <label className="label has-text-black">
+                    Claude API Key (Paid)
+                  </label>
+                </div>
+                <div className="field-body">
+                  <div className="field is-expanded">
+                    <div className="field has-addons">
+                      <p className="control is-expanded has-text-left">
+                        <input
+                          className="input"
+                          type={showAIKey ? "password" : "input"}
+                          autoComplete="off"
+                          name="GASClaudeKey"
+                          placeholder="Claude API Key"
+                          onChange={handleChange}
+                          value={formData.GASClaudeKey}
+                          style={{
+                            width: "63%",
+                            background: "transparent",
+                            color: "black",
+                          }}
+                        />
+                        <FontAwesomeIcon
+                          icon={showAIKey ? faEyeSlash : faEye}
+                          fontSize="24"
+                          color="gray"
+                          style={{
+                            marginTop: "10px",
+                            marginLeft: "10px",
+                            cursor: "pointer",
+                          }}
+                          onClick={() => toggleOpenAIEyeIcon(!showAIKey)}
+                        />
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {formData.GASAiProvider === "claude" && (
+              <div className="field is-horizontal">
+                <div
+                  className="field-label"
+                  style={{
+                    justifyContent: "right",
+                    alignItems: "center",
+                    display: "flex",
+                  }}
+                >
+                  <label className="label has-text-black"> AI Model </label>
+                </div>
+                <div className="field-body">
+                  <div className="field is-expanded">
+                    <div className="field has-addons">
+                      <div className="select is-expanded">
+                        <select
+                          name="GASClaudeModel"
+                          onChange={handleChange}
+                          style={{
+                            minWidth: "290px",
+                            background: "transparent",
+                            color: "black",
+                          }}
+                          value={formData.GASClaudeModel}
+                        >
+                          <option value={"claude-3-5-sonnet-20250220"}>
+                            Claude 3.5 Sonnet (Latest)
+                          </option>
+                          <option value={"claude-3-5-haiku-20250220"}>
+                            Claude 3.5 Haiku (Fast)
+                          </option>
+                          <option value={"claude-3-5-sonnet-20241022"}>
+                            Claude 3.5 Sonnet (Legacy)
+                          </option>
+                          <option value={"claude-3-haiku-20240307"}>
+                            Claude 3 Haiku
+                          </option>
+                          <option value={"claude-3-opus-20240229"}>
+                            Claude 3 Opus
+                          </option>
                         </select>
                       </div>
                     </div>
@@ -343,8 +444,15 @@ function Settings() {
                           }}
                           value={formData.GASDeepSeekModel}
                         >
-                          <option value={"deepseek-chat"}> DeepSeek Chat </option>
-                          <option value={"deepseek-reasoner"}> DeepSeek R1 </option>
+                          <option value={"deepseek-reasoner"}>
+                            DeepSeek R1 (Latest - Reasoning)
+                          </option>
+                          <option value={"deepseek-chat"}>
+                            DeepSeek Chat (V2.5)
+                          </option>
+                          <option value={"deepseek-coder"}>
+                            DeepSeek Coder (V2)
+                          </option>
                         </select>
                       </div>
                     </div>
@@ -412,14 +520,18 @@ function Settings() {
                           }}
                           value={formData.GASOllamaModel}
                         >
-                          <option value={"llama3.3"}>Llama 3.3</option>
+                          <option value={"llama3.3"}>Llama 3.3 (Latest)</option>
                           <option value={"llama3.2"}>Llama 3.2</option>
                           <option value={"llama3.1"}>Llama 3.1</option>
-                          <option value={"llama3"}>Llama 3</option>
-                          <option value={"gemma2"}>Gemma 2</option>
+                          <option value={"qwen2.5"}>Qwen 2.5</option>
                           <option value={"qwen2"}>Qwen 2</option>
+                          <option value={"gemma2"}>Gemma 2</option>
+                          <option value={"deepseek-r1"}>DeepSeek R1</option>
+                          <option value={"phi3.5"}>Phi-3.5</option>
                           <option value={"phi3"}>Phi-3</option>
-                          <option value={"mistral"}>Mistral</option>
+                          <option value={"mistral-nemo"}>Mistral Nemo</option>
+                          <option value={"mistral"}>Mistral 7B</option>
+                          <option value={"codellama"}>Code Llama</option>
                         </select>
                       </div>
                     </div>
