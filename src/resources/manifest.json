@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "short_name": "GL CoreAI",
   "name": "GL CoreAI",
-  "version": "0.0.9",
+  "version": "0.1.0",
   "description": "GL CoreAI by Ekohe - uses OpenAI/DeepSeek and GitLab APIs to summarize issues/tasks from the their URLs",
   "options_page": "packs/static/settings.html",
   "background": {
@@ -13,7 +13,10 @@
     "email": "encore@ekohe.com"
   },
   "homepage_url": "https://ekohe.com",
-  "permissions": ["storage", "identity"],
+  "permissions": ["storage", "identity", "sidePanel"],
+  "side_panel": {
+    "default_path": "packs/static/index.html"
+  },
   "oauth2": {
     "client_id": "813629896769-hq5035855rdk1pvqlspkcfr7l97l019f.apps.googleusercontent.com",
     "scopes": [

@@ -53,7 +53,7 @@ export const MESSAGES = {
   missing_gitlab_access_token: "GitLab access token was not found.",
   setup_gitlab_access_token: "Setup an GitLab Access Token",
   start_ai_summarizing: "Summarize this issue",
-  code_review_coming_soon: "Code review coming soon...",
+  start_code_review: "Start Code Review",
   not_gitlab_url: "This is not a GitLab URL.",
   not_task_url: "This is not a GitLab issue/task URL.",
 };

@@ -67,6 +67,11 @@ const getDeepSeekApiKey = async (): Promise<string | undefined> => {
   return getFromBackground("getDeepSeekApiKey", "GASDeepSeekAIKey");
 };
 
+// Retrieve Claude API key
+const getClaudeApiKey = async (): Promise<string | undefined> => {
+  return getFromBackground("getClaudeApiKey", "GASClaudeKey");
+};
+
 // Retrieve Theme Type
 const getThemeType = async (): Promise<string | undefined> => {
   return getFromBackground("getThemeType", "GASThemeType");
@@ -88,6 +93,10 @@ const getOpenAIModel = async (): Promise<string | undefined> => {
 
 const getDeepSeekModel = async (): Promise<string | undefined> => {
   return getFromBackground("getDeepSeekModel", "GASDeepSeekModel");
+};
+
+const getClaudeModel = async (): Promise<string | undefined> => {
+  return getFromBackground("getClaudeModel", "GASClaudeModel");
 };
 
 const getOllamaModel = async (): Promise<string | undefined> => {
@@ -277,11 +286,13 @@ export {
   getGitLabApiKey,
   getOpenAIApiKey,
   getDeepSeekApiKey,
+  getClaudeApiKey,
   getThemeType,
   getThemeColor,
   getAiProvider,
   getOpenAIModel,
   getDeepSeekModel,
+  getClaudeModel,
   getOllamaModel,
   getOllamaURL,
   getDomainFromURL,

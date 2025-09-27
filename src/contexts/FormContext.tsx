@@ -1,9 +1,17 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 /* eslint-disable react-hooks/exhaustive-deps */
-import { createContext, useState, useEffect, useContext, ReactNode, ChangeEvent, useCallback } from 'react';
-import { getStorage, setStorage } from '../utils';
-import debounce from "lodash/debounce"
-import { toastMessage } from '../utils/tools';
+import {
+  createContext,
+  useState,
+  useEffect,
+  useContext,
+  ReactNode,
+  ChangeEvent,
+  useCallback,
+} from "react";
+import { getStorage, setStorage } from "../utils";
+import debounce from "lodash/debounce";
+import { toastMessage } from "../utils/tools";
 
 interface FormData {
   GASGitLab: string;
@@ -12,8 +20,10 @@ interface FormData {
   GASAiProvider: string;
   GASOpenAIKey: string;
   GASDeepSeekAIKey: string;
+  GASClaudeKey: string;
   GASOpenaiModel: string;
   GASDeepSeekModel: string;
+  GASClaudeModel: string;
   GASOllamaURL: string;
   GASOllamaModel: string;
   GASThemeType: string;
@@ -33,25 +43,27 @@ const FormContext = createContext<FormContextType | undefined>(undefined);
 
 const FormProvider = ({ children }: { children: ReactNode }) => {
   const [formData, setFormData] = useState<FormData>({
-    GASGitLab: '',
-    GASGitLabAccessToken: '',
-    GASGitLabApiVersion: 'api/v4',
-    GASAiProvider: 'openai',
-    GASOpenAIKey: '',
-    GASDeepSeekAIKey: '',
-    GASOpenaiModel: 'gpt-4o',
-    GASDeepSeekModel: 'deepseek-chat',
-    GASOllamaURL: 'http://localhost:11434',
-    GASOllamaModel: 'llama3.2',
-    GASThemeType: 'theme-green',
-    GASThemeColor: '#f9f7f9'
+    GASGitLab: "",
+    GASGitLabAccessToken: "",
+    GASGitLabApiVersion: "api/v4",
+    GASAiProvider: "openai",
+    GASOpenAIKey: "",
+    GASDeepSeekAIKey: "",
+    GASClaudeKey: "",
+    GASOpenaiModel: "gpt-4o",
+    GASDeepSeekModel: "deepseek-chat",
+    GASClaudeModel: "claude-3-opus-20240229",
+    GASOllamaURL: "http://localhost:11434",
+    GASOllamaModel: "llama3.2",
+    GASThemeType: "theme-green",
+    GASThemeColor: "#f9f7f9",
   });
 
   useEffect(() => {
-    getStorage(Object.keys(formData), result => {
-      setFormData(prevFormData => ({
+    getStorage(Object.keys(formData), (result) => {
+      setFormData((prevFormData) => ({
         ...prevFormData,
-        ...result
+        ...result,
       }));
     });
   }, []);
@@ -59,17 +71,22 @@ const FormProvider = ({ children }: { children: ReactNode }) => {
   const debouncedSave = useCallback(
     debounce((name: string, value: any) => {
       setStorage({ [name]: value }, () => {
-        toastMessage('Settings saved successfully', 'is-link')
+        toastMessage("Settings saved successfully", "is-link");
       });
     }, 1000),
     [1000]
   );
 
-  const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    event: ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
     const { name, value, type } = event.target;
-    const updatedValue = type === 'checkbox' ? (event.target as HTMLInputElement).checked : value;
+    const updatedValue =
+      type === "checkbox" ? (event.target as HTMLInputElement).checked : value;
 
-    setFormData(prevFormData => ({
+    setFormData((prevFormData) => ({
       ...prevFormData,
       [name]: updatedValue,
     }));
@@ -87,7 +104,7 @@ const FormProvider = ({ children }: { children: ReactNode }) => {
 const useFormContext = () => {
   const context = useContext(FormContext);
   if (!context) {
-    throw new Error('useFormContext must be used within a FormProvider');
+    throw new Error("useFormContext must be used within a FormProvider");
   }
   return context;
 };
