@@ -171,6 +171,7 @@ const SignUp: React.FC<ScreenProps> = ({
                 text={`${AI_EXT_STATUS.signup.text} with Google`}
                 setGoogleAccessToken={setGoogleAccessToken}
                 privacyPolicy={privacyPolicy}
+                setErrorText={setErrorText}
               />
             </div>
           </div>

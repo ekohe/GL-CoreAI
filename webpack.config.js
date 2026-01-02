@@ -46,6 +46,11 @@ const extPlugins = [
         filename: "static/settings.html",
         chunks: ["settings"]
     }),
+    new HTMLWebpackPlugin({
+        template: publicPath("popup.html"),
+        filename: "static/popup.html",
+        chunks: ["popup"]
+    }),
     new MiniCssExtractPlugin({
       filename: "css/[name].css", // Outputs CSS files to the css/ folder
       chunkFilename: "css/[name].chunk.css", // Outputs CSS chunks to the css/ folder
@@ -70,6 +75,7 @@ module.exports = {
     entry: {
         index: srcPath("/index.tsx"),
         settings: srcPath("/containers/settings/Index.tsx"),
+        popup: srcPath("/containers/popup/Index.tsx"),
         background: srcPath("/background/index.ts"),
         // contentscript: "./src/contentscript/index.ts",
         inject: srcPath("/contentscript/inject.ts"),

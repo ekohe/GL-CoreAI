@@ -11,4 +11,7 @@ export const AiBOT = {
   googleAppScopes: manifest.oauth2.scopes,
 };
 
-Object.assign(window, { AiBOT });
+// Only assign to window if it's available (not in service worker context)
+if (typeof window !== 'undefined') {
+  Object.assign(window, { AiBOT });
+}

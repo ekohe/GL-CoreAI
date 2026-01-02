@@ -1,5 +1,14 @@
 /* eslint-disable no-unreachable */
 import { AiBOT } from "./common";
+// PlainObjectType is used by shared utilities
+// Import shared utilities
+import {
+  isGitLabIssuesPage,
+  checkDisabledGitLabSites,
+  toggleDisabledGitLabSites,
+  getStorage,
+  setStorage,
+} from './shared';
 
 async function fetchFromGitLabAPI(url: string) {
   const gitLabWebURL = await getGitLabWebURL();
@@ -24,12 +33,18 @@ const getFromBackground = async (
   action: string,
   key: string
 ): Promise<string | undefined> => {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     chrome.runtime.sendMessage({ action }, function (response) {
-      if (response && response[key]) {
+      // Debug: log the raw response from background to diagnose issues
+      if (chrome.runtime.lastError) {
+        console.error(`[getFromBackground] runtime error:`, chrome.runtime.lastError);
+        resolve(undefined);
+        return;
+      }
+
+      if (response && response[key] !== undefined) {
         resolve(response[key]);
       } else {
-        console.log(`No ${key} found`);
         resolve(undefined);
       }
     });
@@ -119,28 +134,7 @@ const getCurrentTabURL = async (): Promise<string | undefined> => {
   return getFromBackground("getCurrentTabURL", "GASCurrentTabUrl");
 };
 
-const getStorage = (
-  keys: string | string[] | PlainObjectType,
-  callback: (v: any) => any
-) => {
-  if (chrome.storage) {
-    chrome.storage.sync.get(keys, (result: any) => callback(result));
-  } else {
-    console.log("Local storage is not available in this browser.");
-
-    callback(keys);
-  }
-};
-
-const setStorage = (obj: PlainObjectType, callback?: () => any) => {
-  if (chrome.storage) {
-    chrome.storage.sync.set(obj, callback ?? (() => {}));
-  } else {
-    console.log("Local storage is not available in this browser.");
-
-    callback?.();
-  }
-};
+// getStorage and setStorage now imported from shared utilities
 
 const calculateTicketAge = (date: string): number => {
   const parsedDate = new Date(date);
@@ -179,45 +173,45 @@ const chunkArray = (array: any, size: number) => {
   }, []);
 };
 
-const isGitLabIssuesPage = (url?: string) => {
-  if (!url) {
-    return;
-  }
+// Shared utilities now imported at top of file
 
-  // domain check
-  // const { host } = new URL(url);
-  // return SITES.some((domain) => host.endsWith(domain));
-  const regexp = new RegExp("/-/issues/d+|https://gitlab.|/-/work_items/d+");
-  return regexp.test(url);
+// Security: Validate token format
+const isValidGoogleToken = (token: string): boolean => {
+  return Boolean(token) && token.length > 20 && !token.includes(' ') && /^[A-Za-z0-9._-]+$/.test(token);
 };
 
-const checkDisabledGitLabSites = (
-  url: string,
-  cb: (resule: boolean, domain: string, sites: string[]) => any
-) => {
-  const { host: domain } = new URL(url as string);
-  getStorage({ disabled_gitlab_sites: [] }, ({ disabled_gitlab_sites }) => {
-    const result = disabled_gitlab_sites.includes(domain);
-    cb(result, domain, disabled_gitlab_sites);
-  });
+// Check if token is expired
+const isTokenExpired = (expiresAt?: number): boolean => {
+  if (!expiresAt) return false;
+  return Date.now() > expiresAt;
 };
 
-const toggleDisabledGitLabSites = (
-  url: string,
-  cb?: (isDisabled: boolean) => any
-) => {
-  checkDisabledGitLabSites(url, (isDisabled, domain, sites) => {
-    if (isDisabled) {
-      sites = sites.filter((site) => site !== domain);
-    } else {
-      sites.push(domain);
-    }
-    setStorage({ disabled_gitlab_sites: sites }, () => cb?.(!isDisabled));
-  });
+// Get token expiry from storage
+const getGoogleTokenExpiry = async (): Promise<number | undefined> => {
+  const result = await getFromBackground("getGoogleTokenExpiry", "GASGoogleTokenExpiry");
+  return result ? parseInt(result as string) : undefined;
+};
+
+// Get the last time we validated the Google token with Google API
+const getGoogleLastValidated = async (): Promise<number | undefined> => {
+  const result = await getFromBackground("getGoogleLastValidated", "GASGoogleLastValidated");
+  return result ? parseInt(result as string) : undefined;
+};
+
+// Check if we need to validate token (if it's been more than 30 days)
+const needsTokenValidation = (lastValidated?: number): boolean => {
+  if (!lastValidated) return true; // Never validated, need to validate
+  const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000; // 30 days
+  return Date.now() - lastValidated >= thirtyDaysInMs;
 };
 
 const getGoogleAccount = async (token: string) => {
   try {
+    // Validate token before making API call
+    if (!isValidGoogleToken(token)) {
+      throw new Error("Invalid token format");
+    }
+
     const response = await fetch(
       "https://www.googleapis.com/oauth2/v1/userinfo?alt=json",
       {
@@ -225,25 +219,55 @@ const getGoogleAccount = async (token: string) => {
         headers: new Headers({ Authorization: "Bearer " + token }),
       }
     );
+
+    if (response.status === 401) {
+      throw new Error("Token expired or invalid");
+    }
+
     return await response.json();
   } catch (error: any) {
     throw new Error("Failed to fetch data: " + error.message); // Throw error so caller can handle it
   }
 };
 
+// Refresh Google token
+const refreshGoogleToken = async (): Promise<string | null> => {
+  return new Promise((resolve) => {
+    chrome.identity.getAuthToken({ interactive: false }, (token) => {
+      if (chrome.runtime.lastError || !token) {
+        resolve(null);
+      } else if (isValidGoogleToken(token)) {
+        // Store refreshed token with new expiry (typically 1 hour)
+        const tokenExpiresAt = Date.now() + (3600 * 1000); // 1 hour
+        setStorage({
+          GASGoogleAccessToken: token,
+          GASGoogleTokenExpiry: tokenExpiresAt
+        });
+        resolve(token);
+      } else {
+        console.error("Invalid token format received during refresh");
+        resolve(null);
+      }
+    });
+  });
+};
+
 const launchGoogleAuthentication = async (
   event: any,
-  setGoogleAccessToken: any
+  setGoogleAccessToken: any,
+  setIsAuthenticating?: (isAuth: boolean) => void,
+  setErrorText?: (error: string) => void
 ) => {
   const currentTarget = event.currentTarget;
   currentTarget.disabled = true;
+  setIsAuthenticating?.(true);
+
   const clientId = AiBOT.googleAppClientId;
 
   // Define your client ID and redirect URL from the Google Developer Console
   const redirectUri = `https://${AiBOT.appId}.chromiumapp.org/`;
   const scopes = AiBOT.googleAppScopes.join(" ");
-  const authUrl = `
-    https://accounts.google.com/o/oauth2/v2/auth?response_type=token&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${encodeURIComponent(
+  const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?response_type=token&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${encodeURIComponent(
     scopes
   )}&include_granted_scopes=true&prompt=consent`;
 
@@ -253,24 +277,68 @@ const launchGoogleAuthentication = async (
       interactive: true, // Setting this to true opens a pop-up for authentication
     },
     function (responseUrl) {
-      if (chrome.runtime.lastError || !responseUrl) {
-        console.error("Authentication failed:", chrome.runtime.lastError);
+      currentTarget.disabled = false;
+      setIsAuthenticating?.(false);
+
+      if (chrome.runtime.lastError) {
+        const error = chrome.runtime.lastError.message || "Unknown error";
+        console.error("Authentication failed:", error);
+
+        // Enhanced error handling
+        let userMessage = "Authentication failed. Please try again.";
+        if (error.includes('canceled') || error.includes('cancelled')) {
+          userMessage = "Authentication was cancelled. Please try again.";
+        } else if (error.includes('network') || error.includes('connection')) {
+          userMessage = "Network error during authentication. Check your connection and try again.";
+        } else if (error.includes('blocked')) {
+          userMessage = "Authentication was blocked. Please check your browser settings.";
+        }
+
+        setErrorText?.(userMessage);
         return;
       }
-      const url = new URL(responseUrl);
-      const tokenMatch = url.hash.match(/access_token=([^&]*)/);
 
-      if (tokenMatch) {
-        const accessToken = tokenMatch[1];
-
-        setStorage({ GASGoogleAccessToken: accessToken }, () => {
-          setGoogleAccessToken(accessToken);
-        });
-      } else {
-        console.error("Access token not found in response");
+      if (!responseUrl) {
+        console.error("No response URL received");
+        setErrorText?.("Authentication failed. No response received.");
+        return;
       }
 
-      currentTarget.disabled = false;
+      try {
+        const url = new URL(responseUrl);
+        const tokenMatch = url.hash.match(/access_token=([^&]*)/);
+        const expiresMatch = url.hash.match(/expires_in=([^&]*)/);
+
+        if (tokenMatch) {
+          const accessToken = decodeURIComponent(tokenMatch[1]);
+
+          // Security validation
+          if (!isValidGoogleToken(accessToken)) {
+            console.error("Invalid token format received");
+            setErrorText?.("Invalid authentication response. Please try again.");
+            return;
+          }
+
+          // Calculate token expiry (default to 1 hour if not provided)
+          const expiresIn = expiresMatch ? parseInt(expiresMatch[1]) : 3600;
+          const tokenExpiresAt = Date.now() + (expiresIn * 1000);
+
+          // Store token, expiry, and last validated timestamp
+          setStorage({
+            GASGoogleAccessToken: accessToken,
+            GASGoogleTokenExpiry: tokenExpiresAt,
+            GASGoogleLastValidated: Date.now()
+          }, () => {
+            setGoogleAccessToken(accessToken);
+          });
+        } else {
+          console.error("Access token not found in response");
+          setErrorText?.("Authentication response incomplete. Please try again.");
+        }
+      } catch (urlError) {
+        console.error("Error parsing authentication response:", urlError);
+        setErrorText?.("Invalid authentication response format.");
+      }
     }
   );
 };
@@ -280,8 +348,14 @@ const openChromeSettingPage = (): void => {
 };
 
 export {
+  // Storage functions (from shared)
   getStorage,
   setStorage,
+  // GitLab functions (from shared)
+  isGitLabIssuesPage,
+  checkDisabledGitLabSites,
+  toggleDisabledGitLabSites,
+  // Local functions
   getGitLabWebURL,
   getGitLabApiKey,
   getOpenAIApiKey,
@@ -302,11 +376,15 @@ export {
   chunkArray,
   calculateTicketAge,
   fetchFromGitLabAPI,
-  isGitLabIssuesPage,
-  checkDisabledGitLabSites,
-  toggleDisabledGitLabSites,
   getGoogleAccount,
   launchGoogleAuthentication,
   openChromeSettingPage,
   llamaApiChat,
+  // New authentication utilities
+  isValidGoogleToken,
+  isTokenExpired,
+  getGoogleTokenExpiry,
+  getGoogleLastValidated,
+  needsTokenValidation,
+  refreshGoogleToken,
 };

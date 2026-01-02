@@ -18,7 +18,7 @@ const OrDivider = () => {
         className='has-text-white'
         style={{
           margin: '0 5px',
-          fontSize: '1rem'
+          fontSize: '0.8rem'
         }}
       > Or </span>
       <div

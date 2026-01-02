@@ -41,7 +41,7 @@ function formatTextWithLinks(text: string): JSX.Element[] {
 const FormattedText: React.FC<FormattedTextProps> = ({ text }) => {
   return <ul
           style={{
-            fontSize: '1.1rem',
+            fontSize: '0.8rem',
             marginTop: '10px'
           }}>
     {formatTextWithLinks(text)}

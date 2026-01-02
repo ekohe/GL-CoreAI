@@ -1,54 +1,74 @@
 import {
   checkDisabledGitLabSites,
   isGitLabIssuesPage,
-  toggleDisabledGitLabSites,
-} from "../utils";
+} from "../utils/serviceWorkerUtils";
 import { AiBOT } from "../utils/common";
 
 const menus = {
-  gitlab_recognition(isDisabled: boolean = true) {
-    return `Turn ${isDisabled ? "On" : "Off"} ${AiBOT.name}`;
+  open_side_panel(status: boolean = true) {
+    return `Toggle ${AiBOT.name}`;
   },
 };
 
 // No message to send or receive, only to trigger contextMenu on startup
 
-Object.entries(menus).forEach(([menuId, titleFunc]) => {
+// Create context menus with error handling
+try {
+  // Create the side panel menu
   chrome.contextMenus.create({
-    id: menuId,
-    contexts: ["page", "browser_action"],
-    title: typeof titleFunc === "string" ? titleFunc : titleFunc(),
+    id: "open_side_panel",
+    contexts: ["page", "action"],
+    title: menus.open_side_panel(true),
   });
-});
+} catch (error) {
+  console.error("Error creating context menus:", error);
+}
 
 const updateContextMenus = (url?: string) => {
-  chrome.contextMenus.update("issue_summary", { visible: false });
+  try {
+    chrome.contextMenus.update("open_side_panel", { visible: false });
 
-  if (isGitLabIssuesPage(url)) {
-    checkDisabledGitLabSites(url as string, (isDisabled: boolean) => {
-      chrome.contextMenus.update("issue_summary", {
-        visible: true,
-        title: menus.gitlab_recognition(isDisabled),
+    if (isGitLabIssuesPage(url)) {
+      checkDisabledGitLabSites(url as string, (isDisabled: boolean) => {
+        try {
+          chrome.contextMenus.update("open_side_panel", {
+            visible: !isDisabled, // Only show side panel option when enabled
+            title: menus.open_side_panel(isDisabled),
+          });
+        } catch (error) {
+          console.error("Error updating context menus:", error);
+        }
       });
-    });
+    }
+  } catch (error) {
+    console.error("Error in updateContextMenus:", error);
   }
 };
 
-chrome.contextMenus.onClicked.addListener((info, tab) => {
-  if (info.menuItemId === "issue_summary") {
+try {
+  chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     if (!tab || !tab.url || !tab.id) {
       return;
     }
 
-    toggleDisabledGitLabSites(tab.url, (currentIsDisabled: boolean) => {
-      updateContextMenus(tab.url);
+    if (info.menuItemId === "open_side_panel") {
+      try {
+        if (!tab.windowId) {
+          console.error("No window ID available");
+          return;
+        }
 
-      chrome.tabs.sendMessage(tab.id as number, {
-        name: "disabledGitLabSitesChanged",
-        isDisabled: currentIsDisabled,
-      });
-    });
-  }
-});
+        chrome.runtime.sendMessage({
+          action: "toggleSidePanelFromContextMenu",
+          windowId: tab.windowId
+        });
+      } catch (error) {
+        console.error("Failed to toggle side panel:", error);
+      }
+    }
+  });
+} catch (error) {
+  console.error("Error setting up context menu click listener:", error);
+}
 
 export { updateContextMenus };

@@ -4,6 +4,7 @@ import { getClaudeApiKey, getClaudeModel } from "./../index";
 import { taskPrompts, codeReviewPrompts } from "./../prompts/index";
 import { aiGeneratedSummaries } from "./../tools";
 import { CodeReviewRenderer } from "../codeReviewRenderer";
+import { DEFAULT_AI_MODELS } from "../constants";
 
 const aiProvider = "claude";
 const aIApiUrl = "https://api.anthropic.com/v1/messages";
@@ -16,9 +17,59 @@ async function fetchLLMTaskSummarizer(
   const personalAIApiKey = await getClaudeApiKey();
   if (!personalAIApiKey) return;
 
-  const model = (await getClaudeModel()) || "claude-3-opus-20240229";
+  const model = (await getClaudeModel()) || DEFAULT_AI_MODELS.claude;
   const messages = taskPrompts.getPrompt(issueData, discussions);
   let system = "";
+
+  // Create model info banner
+  const urlSection = document.createElement("div");
+  urlSection.className = "ai-model-banner";
+  urlSection.style.cssText = `
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 8px;
+    margin-bottom: 16px;
+    color: white;
+    font-size: 0.85rem;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  `;
+  urlSection.innerHTML = `
+    <span style="display: inline-flex; animation: pulse 1.5s infinite;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M12 6v6l4 2"/>
+      </svg>
+    </span>
+    <span>Generating summary with <strong>${aiProvider.charAt(0).toUpperCase() + aiProvider.slice(1)}</strong> (${model})...</span>
+  `;
+  issueDetails.current.appendChild(urlSection);
+
+  // Create response container with better styling
+  const responseContainer = document.createElement("div");
+  responseContainer.className = "ai-response-container";
+  responseContainer.style.cssText = `
+    color: #1a1a2e;
+    font-size: 0.9rem;
+    line-height: 1.7;
+    padding: 0;
+    min-height: 60px;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+  `;
+  responseContainer.innerHTML = `
+    <div style="display: flex; align-items: center; gap: 8px; color: #666;">
+      <div class="loading-dots" style="display: flex; gap: 4px;">
+        <span style="width: 6px; height: 6px; background: #667eea; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; animation-delay: -0.32s;"></span>
+        <span style="width: 6px; height: 6px; background: #667eea; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; animation-delay: -0.16s;"></span>
+        <span style="width: 6px; height: 6px; background: #667eea; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both;"></span>
+      </div>
+      <span>Analyzing issue and discussions...</span>
+    </div>
+  `;
+  issueDetails.current.appendChild(responseContainer);
 
   try {
     const claudeMessages = messages
@@ -68,20 +119,6 @@ async function fetchLLMTaskSummarizer(
 
     let responseContent = "";
 
-    // Create a response container for streaming
-    const responseContainer = document.createElement("div");
-    responseContainer.style.whiteSpace = "pre-wrap";
-    responseContainer.style.fontSize = "16px";
-    responseContainer.style.fontFamily =
-      "system-ui, -apple-system, BlinkMacSystemFont, sans-serif";
-    responseContainer.style.lineHeight = "1.6";
-    responseContainer.style.color = "#333";
-    responseContainer.style.backgroundColor = "#f8f9fa";
-    responseContainer.style.padding = "20px";
-    responseContainer.style.borderRadius = "8px";
-    responseContainer.style.margin = "10px 0";
-    issueDetails.current.appendChild(responseContainer);
-
     // Read the stream
     while (true) {
       const { done, value } = await reader.read();
@@ -93,8 +130,18 @@ async function fetchLLMTaskSummarizer(
         // Ignore empty or comment messages
         if (data.length === 0 || data.startsWith(":")) continue;
         if (data === "data: [DONE]") {
-          // Update the DOM when the stream is done
-          responseContainer.textContent = responseContent.trim();
+          // Update the banner to show completion
+          urlSection.style.background = "linear-gradient(135deg, #11998e 0%, #38ef7d 100%)";
+          urlSection.style.boxShadow = "0 2px 8px rgba(17, 153, 142, 0.3)";
+          urlSection.innerHTML = `
+            <span style="display: inline-flex;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </span>
+            <span>${aiGeneratedSummaries(aiProvider, model)}</span>
+          `;
+          responseContainer.style.opacity = "1";
           return responseContent.trim(); // End of stream
         }
 
@@ -118,7 +165,11 @@ async function fetchLLMTaskSummarizer(
               responseContent += deltaContent;
 
               // Update the DOM with new content
-              responseContainer.textContent = responseContent;
+              responseContainer.style.opacity = "1";
+              responseContainer.innerHTML = responseContent
+                .replace(/```html/g, "")
+                .replace(/```/g, "")
+                .trim();
             }
           }
         } catch (error) {
@@ -130,7 +181,21 @@ async function fetchLLMTaskSummarizer(
 
     return responseContent.trim();
   } catch (error) {
-    console.log(`Error fetching data from ${aiProvider}:`, error);
+
+    // Show error state in the banner
+    urlSection.style.background = "linear-gradient(135deg, #eb3349 0%, #f45c43 100%)";
+    urlSection.style.boxShadow = "0 2px 8px rgba(235, 51, 73, 0.3)";
+    urlSection.innerHTML = `
+      <span style="display: inline-flex;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="15" y1="9" x2="9" y2="15"/>
+          <line x1="9" y1="9" x2="15" y2="15"/>
+        </svg>
+      </span>
+      <span>Failed to generate summary. Please check your API key and try again.</span>
+    `;
+    responseContainer.innerHTML = "";
   }
 }
 
@@ -138,7 +203,7 @@ async function invokingCodeAnalysis(issueDetails: any, diffsData: any) {
   const personalAIApiKey = await getClaudeApiKey();
   if (!personalAIApiKey) return;
 
-  const model = (await getClaudeModel()) || "claude-3-opus-20240229";
+  const model = (await getClaudeModel()) || DEFAULT_AI_MODELS.claude;
   const messages = codeReviewPrompts.getPrompt(diffsData);
   let system = "";
 
@@ -257,7 +322,6 @@ async function invokingCodeAnalysis(issueDetails: any, diffsData: any) {
 
     return responseContent.trim();
   } catch (error) {
-    console.log(`Error fetching data from ${aiProvider}:`, error);
 
     // Show error message using the renderer
     const errorContainer = document.createElement("div");

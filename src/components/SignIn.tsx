@@ -7,7 +7,7 @@ import GoogleAuthentication from "./GoogleAuthentication";
 import Footer from "../containers/app/Footer";
 import { useState } from "react";
 
-const SignIn: React.FC<ScreenProps> = ({ setGoogleAccessToken }) => {
+const SignIn: React.FC<ScreenProps> = ({ setGoogleAccessToken, setErrorText }) => {
   const [privacyPolicy, setPrivacyPolicy] = useState<boolean>(false);
 
   return (
@@ -25,13 +25,14 @@ const SignIn: React.FC<ScreenProps> = ({ setGoogleAccessToken }) => {
           text={`${AI_EXT_STATUS.signin.text} with Google`}
           setGoogleAccessToken={setGoogleAccessToken}
           privacyPolicy={privacyPolicy}
+          setErrorText={setErrorText}
         />
 
         <div className="field mt-5">
           <div className="control m-5">
             <label
               className="checkbox has-text-black"
-              style={{ fontSize: "20px" }}
+              style={{ fontSize: "1rem" }}
             >
               <input
                 type="checkbox"
