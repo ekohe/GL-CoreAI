@@ -377,13 +377,11 @@ export class CodeReviewRenderer {
         // Second attempt: try basic JSON repair
         try {
           const repairedData = this.basicJSONRepair(cleanedData);
-          console.log('Attempting to repair JSON:', repairedData);
           parsedData = JSON.parse(repairedData);
         } catch (secondError: any) {
           // Third attempt: try advanced repair for the specific user issues
           try {
             const advancedRepairedData = this.advancedJSONRepair(cleanedData);
-            console.log('Attempting advanced JSON repair:', advancedRepairedData);
             parsedData = JSON.parse(advancedRepairedData);
           } catch (thirdError: any) {
             throw new Error(`JSON parsing failed after all repair attempts. Original: ${firstError.message}. Basic repair: ${secondError.message}. Advanced repair: ${thirdError.message}`);

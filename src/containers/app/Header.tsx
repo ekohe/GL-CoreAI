@@ -45,7 +45,7 @@ const Header = (props: {
           >
             <FontAwesomeIcon
               icon={faCopy}
-              fontSize={"22px"}
+              fontSize={"1rem"}
               color="#333333B2"
             />
           </a>
@@ -56,7 +56,7 @@ const Header = (props: {
           data-tooltip="Open Settings Page"
           onClick={() => openChromeSettingPage()}
         >
-          <FontAwesomeIcon icon={faGears} fontSize={"22px"} color="#333333B2" />
+          <FontAwesomeIcon icon={faGears} fontSize={"1rem"} color="#333333B2" />
         </a>
 
         <a
@@ -66,7 +66,7 @@ const Header = (props: {
         >
           <FontAwesomeIcon
             icon={faSignOut}
-            fontSize={"22px"}
+            fontSize={"1rem"}
             color="#333333B2"
           />
         </a>

@@ -12,6 +12,11 @@ import {
 import { getStorage, setStorage } from "../utils";
 import debounce from "lodash/debounce";
 import { toastMessage } from "../utils/tools";
+import {
+  DEFAULT_AI_MODELS,
+  DEFAULT_AI_PROVIDER,
+  DEFAULT_OLLAMA_URL,
+} from "../utils/constants";
 
 interface FormData {
   GASGitLab: string;
@@ -46,15 +51,15 @@ const FormProvider = ({ children }: { children: ReactNode }) => {
     GASGitLab: "",
     GASGitLabAccessToken: "",
     GASGitLabApiVersion: "api/v4",
-    GASAiProvider: "openai",
+    GASAiProvider: DEFAULT_AI_PROVIDER,
     GASOpenAIKey: "",
     GASDeepSeekAIKey: "",
     GASClaudeKey: "",
-    GASOpenaiModel: "gpt-4o",
-    GASDeepSeekModel: "deepseek-chat",
-    GASClaudeModel: "claude-3-opus-20240229",
-    GASOllamaURL: "http://localhost:11434",
-    GASOllamaModel: "llama3.2",
+    GASOpenaiModel: DEFAULT_AI_MODELS.openai,
+    GASDeepSeekModel: DEFAULT_AI_MODELS.deepseek,
+    GASClaudeModel: DEFAULT_AI_MODELS.claude,
+    GASOllamaURL: DEFAULT_OLLAMA_URL,
+    GASOllamaModel: DEFAULT_AI_MODELS.ollama,
     GASThemeType: "theme-green",
     GASThemeColor: "#f9f7f9",
   });

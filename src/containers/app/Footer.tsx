@@ -5,7 +5,7 @@ const Footer = () => {
     <footer
       style={{
         position: 'fixed',
-        fontSize: '1.2rem',
+        fontSize: '1rem',
         lineHeight: '50px',
         width: '100%',
         bottom: 0,

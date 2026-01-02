@@ -36,7 +36,6 @@ function extractProjectPathAndIssueIdOrMergeRequestId(url: string) {
 async function getProjectIdFromPath(url: string) {
   const { projectPath } = extractProjectPathAndIssueIdOrMergeRequestId(url);
   if (projectPath === undefined) {
-    console.log("Error fetching projectPath:", projectPath);
     return undefined;
   }
 
@@ -47,7 +46,6 @@ async function getProjectIdFromPath(url: string) {
     const project = await fetchFromGitLabAPI(searchUrl);
     return project.id;
   } catch (error) {
-    console.log("Error fetching project:", error);
     return undefined;
   }
 }

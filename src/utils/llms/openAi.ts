@@ -4,6 +4,7 @@ import { getOpenAIApiKey, getOpenAIModel } from "./../index";
 import { taskPrompts, codeReviewPrompts } from "./../prompts/index";
 import { aiGeneratedSummaries, splitString } from "./../tools";
 import { CodeReviewRenderer } from "../codeReviewRenderer";
+import { DEFAULT_AI_MODELS } from "../constants";
 
 const aiProvider = "openai";
 const aIApiUrl = "https://api.openai.com/v1/chat/completions";
@@ -20,18 +21,54 @@ async function fetchLLMTaskSummarizer(
   // Generate messages prompt
   const messages = taskPrompts.getPrompt(issueData, discussions);
 
-  let urlSection = document.createElement("p");
-  urlSection.innerHTML = `<em>Invoking ${aiProvider} model: (${model})</em>`;
-  urlSection.style.color = "#333333B2";
-  urlSection.style.fontSize = "18px";
-  urlSection.style.paddingBottom = "0px";
-  urlSection.style.marginBottom = "10px";
+  // Create model info banner
+  const urlSection = document.createElement("div");
+  urlSection.className = "ai-model-banner";
+  urlSection.style.cssText = `
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 8px;
+    margin-bottom: 16px;
+    color: white;
+    font-size: 0.85rem;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  `;
+  urlSection.innerHTML = `
+    <span style="display: inline-flex; animation: pulse 1.5s infinite;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M12 6v6l4 2"/>
+      </svg>
+    </span>
+    <span>Generating summary with <strong>${aiProvider.charAt(0).toUpperCase() + aiProvider.slice(1)}</strong> (${model})...</span>
+  `;
   issueDetails.current.appendChild(urlSection);
 
-  let responseSection = document.createElement("p");
-  responseSection.style.color = "black";
-  responseSection.style.paddingBottom = "0px";
-  responseSection.style.marginBottom = "5px";
+  // Create response container with better styling
+  const responseSection = document.createElement("div");
+  responseSection.className = "ai-response-container";
+  responseSection.style.cssText = `
+    color: #1a1a2e;
+    font-size: 0.9rem;
+    line-height: 1.7;
+    padding: 0;
+    min-height: 60px;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+  `;
+  responseSection.innerHTML = `
+    <div style="display: flex; align-items: center; gap: 8px; color: #666;">
+      <div class="loading-dots" style="display: flex; gap: 4px;">
+        <span style="width: 6px; height: 6px; background: #667eea; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; animation-delay: -0.32s;"></span>
+        <span style="width: 6px; height: 6px; background: #667eea; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; animation-delay: -0.16s;"></span>
+        <span style="width: 6px; height: 6px; background: #667eea; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both;"></span>
+      </div>
+      <span>Analyzing issue and discussions...</span>
+    </div>
+  `;
   issueDetails.current.appendChild(responseSection);
 
   try {
@@ -76,9 +113,18 @@ async function fetchLLMTaskSummarizer(
         // Ignore empty or comment messages
         if (data.length === 0 || data.startsWith(":")) continue;
         if (data === "data: [DONE]") {
-          // Update the DOM when the stream is done
-          urlSection.innerHTML = aiGeneratedSummaries(aiProvider, model);
-          // responseSection.innerHTML += `<br><p style="text-align: center; font-style: italic;">${model} may make errors.</p>`;
+          // Update the banner to show completion
+          urlSection.style.background = "linear-gradient(135deg, #11998e 0%, #38ef7d 100%)";
+          urlSection.style.boxShadow = "0 2px 8px rgba(17, 153, 142, 0.3)";
+          urlSection.innerHTML = `
+            <span style="display: inline-flex;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </span>
+            <span>${aiGeneratedSummaries(aiProvider, model)}</span>
+          `;
+          responseSection.style.opacity = "1";
           return responseContent.trim(); // End of stream
         }
 
@@ -91,7 +137,7 @@ async function fetchLLMTaskSummarizer(
           if (deltaContent) {
             responseContent += deltaContent;
             // Update the DOM with the content, trimming backticks and HTML
-
+            responseSection.style.opacity = "1";
             responseSection.innerHTML = responseContent
               .replace(/```html/g, "")
               .replace(/```/g, "")
@@ -130,7 +176,21 @@ async function fetchLLMTaskSummarizer(
 
     return responseContent.trim();
   } catch (error) {
-    console.log(`Error fetching data from ${aiProvider}:`, error);
+
+    // Show error state in the banner
+    urlSection.style.background = "linear-gradient(135deg, #eb3349 0%, #f45c43 100%)";
+    urlSection.style.boxShadow = "0 2px 8px rgba(235, 51, 73, 0.3)";
+    urlSection.innerHTML = `
+      <span style="display: inline-flex;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="15" y1="9" x2="9" y2="15"/>
+          <line x1="9" y1="9" x2="15" y2="15"/>
+        </svg>
+      </span>
+      <span>Failed to generate summary. Please check your API key and try again.</span>
+    `;
+    responseSection.innerHTML = "";
   }
 }
 
@@ -138,7 +198,7 @@ async function invokingCodeAnalysis(issueDetails: any, diffsData: any) {
   const personalAIApiKey = await getOpenAIApiKey();
   if (!personalAIApiKey) return;
 
-  const model = await getOpenAIModel() || "gpt-4o-mini";
+  const model = (await getOpenAIModel()) || DEFAULT_AI_MODELS.openai;
 
   // Generate messages prompt
   const messages = codeReviewPrompts.getPrompt(diffsData);
@@ -230,7 +290,6 @@ async function invokingCodeAnalysis(issueDetails: any, diffsData: any) {
 
     return responseContent.trim();
   } catch (error) {
-    console.log(`Error fetching data from ${aiProvider}:`, error);
 
     // Show error message using the renderer
     const errorContainer = document.createElement("div");

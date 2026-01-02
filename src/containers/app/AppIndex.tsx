@@ -3,8 +3,11 @@ import { useEffect, useRef, useState } from "react";
 
 import {
   getGoogleAccessToken,
+  getGoogleTokenExpiry,
   getThemeType,
   getUserAccessToken,
+  isTokenExpired,
+  refreshGoogleToken,
 } from "./../../utils";
 
 import Header from "./Header";
@@ -13,6 +16,7 @@ import Footer from "./Footer";
 import SignIn from "../../components/SignIn";
 import SignUp from "../../components/SignUp";
 import AiSummarizer from "./AiSummarizer";
+// SidePanelToggle functionality integrated directly
 
 import { AI_EXT_STATUS } from "../../utils/constants";
 
@@ -21,6 +25,7 @@ import ForgetPassword from "../../components/ForgetPassword";
 import { toastMessage } from "../../utils/tools";
 
 const storageGoogleAccessToken = await getGoogleAccessToken();
+const storageGoogleTokenExpiry = await getGoogleTokenExpiry();
 const storageUserAccessToken = await getUserAccessToken();
 const themeType = await getThemeType();
 
@@ -39,16 +44,45 @@ function AppIndex() {
   const [messageText, setMessageText] = useState("");
 
   useEffect(() => {
-    if (
-      googleAccessToken === undefined &&
-      storageGoogleAccessToken !== undefined
-    ) {
-      setGoogleAccessToken(storageGoogleAccessToken);
-    }
+    const checkAndRefreshToken = async () => {
+      if (storageGoogleAccessToken && storageGoogleTokenExpiry) {
+        if (isTokenExpired(storageGoogleTokenExpiry)) {
+          try {
+            const refreshedToken = await refreshGoogleToken();
+            if (refreshedToken) {
+              setGoogleAccessToken(refreshedToken);
+            } else {
+              // Refresh failed, redirect to sign-in
+              chrome.storage.sync.remove(
+                ["GASGoogleAccessToken", "GASGoogleTokenExpiry", "GASGoogleLastValidated"],
+                () => {
+                  setScreenName(AI_EXT_STATUS.signin.code);
+                }
+              );
+            }
+          } catch (error) {
+            console.error("Error during token refresh:", error);
+            setErrorText("Authentication expired. Please sign in again.");
+            chrome.storage.sync.remove(
+              ["GASGoogleAccessToken", "GASGoogleTokenExpiry", "GASGoogleLastValidated"],
+              () => {
+                setScreenName(AI_EXT_STATUS.signin.code);
+              }
+            );
+          }
+        } else {
+          setGoogleAccessToken(storageGoogleAccessToken);
+        }
+      } else if (storageGoogleAccessToken) {
+        setGoogleAccessToken(storageGoogleAccessToken);
+      }
+    };
 
     if (userAccessToken === undefined && storageUserAccessToken !== undefined) {
       setUserAccessToken(storageUserAccessToken);
     }
+
+    checkAndRefreshToken();
   }, []);
 
   useEffect(() => {
@@ -64,7 +98,7 @@ function AppIndex() {
 
   const signOut = (): void => {
     chrome.storage.sync.remove(
-      ["GASGoogleAccessToken", "GASUserAccessToken"],
+      ["GASGoogleAccessToken", "GASGoogleTokenExpiry", "GASGoogleLastValidated", "GASUserAccessToken"],
       () => {
         setGoogleAccessToken(undefined);
         setUserAccessToken(undefined);
