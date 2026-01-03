@@ -12,14 +12,22 @@ import {
 
 async function fetchFromGitLabAPI(url: string) {
   const gitLabWebURL = await getGitLabWebURL();
+
   const requestUrl = url.startsWith("http")
-    ? gitLabWebURL
+    ? url  // Use the provided full URL as-is
     : [gitLabWebURL, url].join("");
 
   if (requestUrl === undefined) {
     throw new Error(`GitLab API request URL is wrong.`);
   }
-  const response = await fetch(requestUrl);
+
+  // Use cookie-based authentication (user is already logged into GitLab in the browser)
+  const response = await fetch(requestUrl, {
+    credentials: 'include',  // Include cookies for authentication
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
 
   if (!response.ok) {
     throw new Error(`GitLab API error: ${response.statusText}`);
@@ -63,14 +71,14 @@ const llamaApiChat = async (
   });
 };
 
-// Retrieve GitLab API key
-const getGitLabApiKey = async (): Promise<string | undefined> => {
-  return getFromBackground("getGitLabApiKey", "GASGitLabAccessToken");
-};
-
 // Retrieve GitLab Web URL
 const getGitLabWebURL = async (): Promise<string | undefined> => {
   return getFromBackground("getGitLab", "GASGitLab");
+};
+
+// Retrieve GitLab API key (optional - for users who prefer token-based auth)
+const getGitLabApiKey = async (): Promise<string | undefined> => {
+  return getFromBackground("getGitLabApiKey", "GASGitLabAccessToken");
 };
 
 // Retrieve OpenAI API key
@@ -120,6 +128,11 @@ const getOllamaModel = async (): Promise<string | undefined> => {
 
 const getOllamaURL = async (): Promise<string | undefined> => {
   return getFromBackground("getOllamaURL", "GASOllamaURL");
+};
+
+// Retrieve User Role
+const getUserRole = async (): Promise<string | undefined> => {
+  return getFromBackground("getUserRole", "GASUserRole");
 };
 
 const getGoogleAccessToken = async (): Promise<string | undefined> => {
@@ -369,6 +382,7 @@ export {
   getClaudeModel,
   getOllamaModel,
   getOllamaURL,
+  getUserRole,
   getDomainFromURL,
   getGoogleAccessToken,
   getUserAccessToken,

@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import { useEffect, useState } from 'react';
 
-import Settings from './Settings';
+import Settings from './Settings/index';
 import { getStorage } from './../../utils';
 
 

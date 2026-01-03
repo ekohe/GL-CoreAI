@@ -7,6 +7,7 @@ import {
   DEFAULT_AI_MODELS,
   DEFAULT_AI_PROVIDER,
   DEFAULT_OLLAMA_URL,
+  DEFAULT_USER_ROLE,
 } from "../utils/constants";
 
 export {};
@@ -169,6 +170,7 @@ const storageActionsMap: { [key: string]: { key: string; defaultValue?: any } } 
   getClaudeModel: { key: "GASClaudeModel", defaultValue: DEFAULT_AI_MODELS.claude },
   getOllamaURL: { key: "GASOllamaURL", defaultValue: DEFAULT_OLLAMA_URL },
   getOllamaModel: { key: "GASOllamaModel", defaultValue: DEFAULT_AI_MODELS.ollama },
+  getUserRole: { key: "GASUserRole", defaultValue: DEFAULT_USER_ROLE },
 };
 
 // Consolidated message listener for all runtime messages

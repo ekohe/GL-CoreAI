@@ -115,3 +115,84 @@ export const MESSAGES = {
   not_gitlab_url: "This is not a GitLab URL.",
   not_task_url: "This is not a GitLab issue/task URL.",
 };
+
+// MR Action Types for different code review actions
+export const MR_ACTION_TYPES = {
+  summarize: {
+    code: "summarize",
+    title: "Summarize PR",
+    description: "Summarize the changes in this pull request and potential impacts.",
+    icon: "summarize",
+  },
+  spot_issues: {
+    code: "spot_issues",
+    title: "Spot issues",
+    description: "Point out potential bugs or regressions and suggest improvements.",
+    icon: "issues",
+  },
+  draft_notes: {
+    code: "draft_notes",
+    title: "Draft notes",
+    description: "Write a concise release-note summary for this PR.",
+    icon: "notes",
+  },
+} as const;
+
+export type MRActionType = keyof typeof MR_ACTION_TYPES;
+
+// Issue Action Types for different issue analysis actions
+export const ISSUE_ACTION_TYPES = {
+  summarize: {
+    code: "summarize",
+    title: "Summarize Issue",
+    description: "Summarize the issue details, discussions, and current status.",
+    icon: "summarize",
+  },
+  analyze_blockers: {
+    code: "analyze_blockers",
+    title: "Analyze blockers",
+    description: "Identify potential blockers, risks, and dependencies.",
+    icon: "blockers",
+  },
+  draft_update: {
+    code: "draft_update",
+    title: "Draft update",
+    description: "Write a status update or progress summary for stakeholders.",
+    icon: "update",
+  },
+} as const;
+
+export type IssueActionType = keyof typeof ISSUE_ACTION_TYPES;
+
+// User Role Types for role-based issue summarization
+export const USER_ROLES = {
+  pm: {
+    code: "pm",
+    label: "Product Manager",
+    description: "Focus on product requirements, timelines, and stakeholder communication",
+  },
+  engineer: {
+    code: "engineer",
+    label: "Engineer",
+    description: "Focus on technical details, implementation, and code-related aspects",
+  },
+  data: {
+    code: "data",
+    label: "Data Analyst",
+    description: "Focus on metrics, data requirements, and analytical insights",
+  },
+  sales: {
+    code: "sales",
+    label: "Sales",
+    description: "Focus on customer impact, business value, and commercial aspects",
+  },
+} as const;
+
+export type UserRoleType = keyof typeof USER_ROLES;
+
+export const DEFAULT_USER_ROLE: UserRoleType = "engineer";
+
+export const USER_ROLE_OPTIONS = Object.entries(USER_ROLES).map(([value, role]) => ({
+  value,
+  label: role.label,
+}));

@@ -16,6 +16,7 @@ import {
   DEFAULT_AI_MODELS,
   DEFAULT_AI_PROVIDER,
   DEFAULT_OLLAMA_URL,
+  DEFAULT_USER_ROLE,
 } from "../utils/constants";
 
 interface FormData {
@@ -33,6 +34,7 @@ interface FormData {
   GASOllamaModel: string;
   GASThemeType: string;
   GASThemeColor: string;
+  GASUserRole: string;
 }
 
 interface FormContextType {
@@ -62,6 +64,7 @@ const FormProvider = ({ children }: { children: ReactNode }) => {
     GASOllamaModel: DEFAULT_AI_MODELS.ollama,
     GASThemeType: "theme-green",
     GASThemeColor: "#f9f7f9",
+    GASUserRole: DEFAULT_USER_ROLE,
   });
 
   useEffect(() => {

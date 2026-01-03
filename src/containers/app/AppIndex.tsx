@@ -111,7 +111,7 @@ function AppIndex() {
       {screenName === AI_EXT_STATUS.signin.code && (
         <section
           className="is-info is-fullheight"
-          style={{ height: "100vh", display: "flex" }}
+          style={{ height: "100vh" }}
         >
           <SignIn
             setScreenName={setScreenName}
@@ -125,7 +125,7 @@ function AppIndex() {
       {screenName === AI_EXT_STATUS.signup.code && (
         <section
           className="is-info is-fullheight"
-          style={{ height: "100vh", display: "flex" }}
+          style={{ height: "100vh" }}
         >
           <SignUp
             setScreenName={setScreenName}
@@ -139,7 +139,7 @@ function AppIndex() {
       {screenName === AI_EXT_STATUS.forget_password.code && (
         <section
           className="is-info is-fullheight"
-          style={{ height: "100vh", display: "flex" }}
+          style={{ height: "100vh" }}
         >
           <ForgetPassword
             setScreenName={setScreenName}

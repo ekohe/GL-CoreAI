@@ -12,17 +12,22 @@ const menus = {
 
 // No message to send or receive, only to trigger contextMenu on startup
 
-// Create context menus with error handling
-try {
-  // Create the side panel menu
-  chrome.contextMenus.create({
-    id: "open_side_panel",
-    contexts: ["page", "action"],
-    title: menus.open_side_panel(true),
+// Create context menus only on extension install/update to avoid duplicate ID errors
+chrome.runtime.onInstalled.addListener(() => {
+  // Remove all existing menus first to ensure clean state
+  chrome.contextMenus.removeAll(() => {
+    try {
+      // Create the side panel menu
+      chrome.contextMenus.create({
+        id: "open_side_panel",
+        contexts: ["page", "action"],
+        title: menus.open_side_panel(true),
+      });
+    } catch (error) {
+      console.error("Error creating context menus:", error);
+    }
   });
-} catch (error) {
-  console.error("Error creating context menus:", error);
-}
+});
 
 const updateContextMenus = (url?: string) => {
   try {

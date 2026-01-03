@@ -23,7 +23,7 @@ const Header = (props: {
   };
 
   return (
-    <nav className="has-background-white py-2 px-4 mb-4 is-flex is-justify-content-space-between is-align-items-center">
+    <nav className="has-background-white py-2 px-4 is-flex is-justify-content-space-between is-align-items-center">
       <div className="navbar-brand">
         <a
           className="is-flex is-align-items-center"
@@ -32,14 +32,21 @@ const Header = (props: {
           rel="noopener noreferrer"
         >
           <img src={logo} alt={AiBOT.name} style={{ borderRadius: "50%" }} />
-          <span className="has-text-grey-dark ml-2">{AiBOT.name}</span>
+          <span
+          className="has-text-grey-dark ml-2"
+          style={{
+            fontSize: "1.2rem",
+            fontWeight: "bold",
+            color: "#1a1a2e",
+          }}
+          >{AiBOT.name}</span>
         </a>
       </div>
 
       <div className="is-flex">
         {isCopy && (
           <a
-            className="navbar-item is-size-5 has-tooltip-arrow has-tooltip-info has-tooltip-left"
+            className="navbar-item is-size-5 has-tooltip-arrow has-tooltip-left"
             data-tooltip="Copy it"
             onClick={() => navigator.clipboard.writeText(iisRef.innerText)}
           >
@@ -52,7 +59,7 @@ const Header = (props: {
         )}
 
         <a
-          className="navbar-item is-size-5 has-tooltip-arrow has-tooltip-info has-tooltip-left"
+          className="navbar-item is-size-5 has-tooltip-arrow has-tooltip-left"
           data-tooltip="Open Settings Page"
           onClick={() => openChromeSettingPage()}
         >
@@ -60,7 +67,7 @@ const Header = (props: {
         </a>
 
         <a
-          className="navbar-item is-size-5 has-tooltip-arrow has-tooltip-info has-tooltip-left"
+          className="navbar-item is-size-5 has-tooltip-arrow has-tooltip-left"
           data-tooltip="Sign Out"
           onClick={() => handleSignOut()}
         >
