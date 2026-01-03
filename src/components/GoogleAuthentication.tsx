@@ -14,31 +14,72 @@ const GoogleAuthentication = (props: {
   const [isAuthenticating, setIsAuthenticating] = useState<boolean>(false);
 
   return (
-    <div className="field mb-5">
-      <div className="control m-6">
-        <button
-          className={`button is-fullwidth is-large has-text-white ${isAuthenticating ? 'is-loading' : ''}`}
-          style={{
-            background: "#00cbc0",
-            borderColor: "#00cbc0",
-            borderRadius: "0px",
-            fontWeight: "bold",
-          }}
-          disabled={!privacyPolicy || isAuthenticating}
-          onClick={(e) =>
-            privacyPolicy && !isAuthenticating && launchGoogleAuthentication(e, setGoogleAccessToken, setIsAuthenticating, setErrorText)
+    <div
+      style={{
+        width: "100%",
+      }}
+    >
+      <button
+        className={`button is-fullwidth ${isAuthenticating ? 'is-loading' : ''}`}
+        style={{
+          background: privacyPolicy
+            ? "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+            : "linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%)",
+          border: "none",
+          borderRadius: "14px",
+          padding: "1rem 1.5rem",
+          height: "auto",
+          minHeight: "clamp(52px, 8vw, 60px)",
+          fontWeight: "600",
+          color: privacyPolicy ? "white" : "#9ca3af",
+          boxShadow: privacyPolicy
+            ? "0 4px 20px rgba(102, 126, 234, 0.35)"
+            : "0 2px 8px rgba(0, 0, 0, 0.08)",
+          transition: "all 0.25s ease",
+          cursor: privacyPolicy ? "pointer" : "not-allowed",
+          opacity: isAuthenticating ? 0.85 : 1,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "0.75rem",
+        }}
+        disabled={!privacyPolicy || isAuthenticating}
+        onClick={(e) =>
+          privacyPolicy && !isAuthenticating && launchGoogleAuthentication(e, setGoogleAccessToken, setIsAuthenticating, setErrorText)
+        }
+        onMouseEnter={(e) => {
+          if (privacyPolicy && !isAuthenticating) {
+            e.currentTarget.style.transform = "translateY(-3px)";
+            e.currentTarget.style.boxShadow = "0 8px 30px rgba(102, 126, 234, 0.45)";
           }
-        >
-          {!isAuthenticating && (
-            <span className="icon">
-              <FontAwesomeIcon icon={faGoogle} />
-            </span>
-          )}
-          <span style={{ fontSize: "1.1rem" }}>
-            {isAuthenticating ? "Authenticating..." : text}
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = "translateY(0)";
+          e.currentTarget.style.boxShadow = privacyPolicy
+            ? "0 4px 20px rgba(102, 126, 234, 0.35)"
+            : "0 2px 8px rgba(0, 0, 0, 0.08)";
+        }}
+      >
+        {!isAuthenticating && (
+          <span
+            style={{
+              fontSize: "clamp(1.1rem, 3vw, 1.25rem)",
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <FontAwesomeIcon icon={faGoogle} />
           </span>
-        </button>
-      </div>
+        )}
+        <span
+          style={{
+            fontSize: "clamp(0.9rem, 2.5vw, 1rem)",
+            letterSpacing: "0.01em",
+          }}
+        >
+          {isAuthenticating ? "Authenticating..." : text}
+        </span>
+      </button>
     </div>
   );
 };

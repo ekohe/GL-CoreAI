@@ -2,7 +2,7 @@
 
 # GL CoreAI
 
-**GL CoreAI** is a Chrome Extension that uses OpenAI/DeepSeek/Claude and GitLab API to summarize a GitLab issue from the issue's URL.
+**GL CoreAI** is a Chrome Extension that uses OpenAI/Claude/DeepSeek and GitLab API to summarize a GitLab issue from the issue's URL.
 
 ---
 

@@ -3,7 +3,7 @@
   "short_name": "GL CoreAI",
   "name": "GL CoreAI",
   "version": "1.0.0",
-  "description": "GL CoreAI by Ekohe - uses OpenAI/DeepSeek and GitLab APIs to summarize issues/tasks from the their URLs",
+  "description": "GL CoreAI by Ekohe - uses OpenAI/Claude/DeepSeek and GitLab APIs to summarize issues/tasks from the their URLs",
   "options_page": "packs/static/settings.html",
   "background": {
     "service_worker": "packs/js/background.js"
@@ -46,7 +46,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["packs/static/index.html", "packs/*.png"],
+      "resources": ["packs/static/index.html", "packs/*.png", "static/icons/*"],
       "matches": ["<all_urls>", "http://*/*", "https://*/*"]
     }
   ],

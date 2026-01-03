@@ -6,6 +6,7 @@ import * as ollama from "./ollama";
 import * as claude from "./claude";
 
 import { getAiProvider } from "./../index";
+import { MRActionType, IssueActionType } from "../constants";
 
 type ProviderFunctionMap = {
   [key: string]: (...args: any[]) => Promise<void>;
@@ -78,4 +79,51 @@ async function invokingCodeAnalysis(
   await executeProviderFunction(providerFunctions, issueDetails, diffsData);
 }
 
-export { gitLabIssueSummarize, invokingCodeAnalysis };
+async function invokingMRAction(
+  containerRef: any,
+  diffsData: any,
+  actionType: MRActionType
+): Promise<void> {
+  const providerFunctions: ProviderFunctionMap = {
+    openai: async (containerRef, diffsData, actionType) => {
+      await openAi.invokingMRAction(containerRef, diffsData, actionType);
+    },
+    deepseek: async (containerRef, diffsData, actionType) => {
+      await deepSeek.invokingMRAction(containerRef, diffsData, actionType);
+    },
+    ollama: async (containerRef, diffsData, actionType) => {
+      await ollama.invokingMRAction(containerRef, diffsData, actionType);
+    },
+    claude: async (containerRef, diffsData, actionType) => {
+      await claude.invokingMRAction(containerRef, diffsData, actionType);
+    },
+  };
+
+  await executeProviderFunction(providerFunctions, containerRef, diffsData, actionType);
+}
+
+async function invokingIssueAction(
+  containerRef: any,
+  issueData: any,
+  discussions: any,
+  actionType: IssueActionType
+): Promise<void> {
+  const providerFunctions: ProviderFunctionMap = {
+    openai: async (containerRef, issueData, discussions, actionType) => {
+      await openAi.invokingIssueAction(containerRef, issueData, discussions, actionType);
+    },
+    deepseek: async (containerRef, issueData, discussions, actionType) => {
+      await deepSeek.invokingIssueAction(containerRef, issueData, discussions, actionType);
+    },
+    ollama: async (containerRef, issueData, discussions, actionType) => {
+      await ollama.invokingIssueAction(containerRef, issueData, discussions, actionType);
+    },
+    claude: async (containerRef, issueData, discussions, actionType) => {
+      await claude.invokingIssueAction(containerRef, issueData, discussions, actionType);
+    },
+  };
+
+  await executeProviderFunction(providerFunctions, containerRef, issueData, discussions, actionType);
+}
+
+export { gitLabIssueSummarize, invokingCodeAnalysis, invokingMRAction, invokingIssueAction };

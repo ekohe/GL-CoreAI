@@ -4,22 +4,26 @@ const Footer = () => {
   return (
     <footer
       style={{
-        position: 'fixed',
-        fontSize: '1rem',
-        lineHeight: '50px',
-        width: '100%',
-        bottom: 0,
-        left: 0,
+        padding: "1rem 0.5rem",
+        textAlign: "center",
+        flexShrink: 0,
       }}
-      className="dom-bg-color has-text-centered"
+      className="dom-bg-color"
     >
-      <div className="p-2">
-        <p className="has-text-black">
-          <strong className="has-text-black">{AiBOT.name}</strong> v{AiBOT?.version}
-        </p>
-      </div>
+      <p
+        style={{
+          fontSize: "clamp(0.75rem, 2vw, 0.875rem)",
+          color: "#6b7280",
+          margin: 0,
+        }}
+      >
+        <strong style={{ color: "#374151" }}>
+          {AiBOT.name} was made by {AiBOT.authorName}.
+        </strong>{" "}
+        <span style={{ color: "#9ca3af" }}>v{AiBOT?.version}</span>
+      </p>
     </footer>
   );
-}
+};
 
 export default Footer;

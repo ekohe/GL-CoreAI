@@ -311,3 +311,31 @@ div[data-theme="theme-navy-blue"] {
     background-color: #037e70 !important;
   }
 }
+
+/* Custom tooltip styles with gradient background */
+[data-tooltip]:not(.is-loading)::before {
+  background: linear-gradient(135deg, rgb(102, 126, 234) 0%, rgb(118, 75, 162) 100%) !important;
+  color: white !important;
+  font-weight: 500;
+  font-size: 0.8rem;
+  padding: 6px 12px;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+/* Tooltip arrow with gradient color */
+[data-tooltip]:not(.is-loading).has-tooltip-arrow::after {
+  border-color: rgb(102, 126, 234) transparent transparent transparent !important;
+}
+
+[data-tooltip]:not(.is-loading).has-tooltip-left.has-tooltip-arrow::after {
+  border-color: transparent transparent transparent rgb(118, 75, 162) !important;
+}
+
+[data-tooltip]:not(.is-loading).has-tooltip-right.has-tooltip-arrow::after {
+  border-color: transparent rgb(102, 126, 234) transparent transparent !important;
+}
+
+[data-tooltip]:not(.is-loading).has-tooltip-bottom.has-tooltip-arrow::after {
+  border-color: transparent transparent rgb(118, 75, 162) transparent !important;
+}
