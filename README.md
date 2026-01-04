@@ -2,7 +2,7 @@
 
 # GL CoreAI
 
-**GL CoreAI** is a Chrome Extension that uses OpenAI/Claude/DeepSeek and GitLab API to summarize a GitLab issue from the issue's URL.
+**GL CoreAI** AI-powered GitLab assistant that summarizes issues and merge requests using OpenAI, Claude, or DeepSeek. Quickly understand complex issues without reading long comment histories.
 
 ---
 
@@ -14,8 +14,8 @@ This simplifies onboarding by providing detailed summaries of complex issues, al
 
 ### Features
 
-- AI Summarize of GitLab Issues (done)
-- Code Suggestions in Merge Requests (coming soon)
+- AI Summarize of GitLab Issues
+- Code Review on MR Requests
 
 ### API intergrations
 
@@ -33,89 +33,32 @@ This simplifies onboarding by providing detailed summaries of complex issues, al
 ### Project Structure
 
 ```
-➜  gitlab-ai-summarizer git:(main) ✗ tree src
+➜  gitlab-ai-summarizer git:(main) ✗ tree src -d -L 4 -I "node_modules|dist"
 src
 ├── assets
-│   ├── icons
-│   │   ├── brand.png
-│   │   ├── icon128.png
-│   │   ├── icon16.png
-│   │   ├── icon19.png
-│   │   ├── icon32.png
-│   │   ├── icon38.png
-│   │   ├── icon48.png
-│   │   ├── logo-brand.png
-│   │   ├── logo.png
-│   │   └── logo.svg
-│   ├── images
-│   │   └── settings.png
-│   └── styles
-│       ├── bulma-extra
-│       │   ├── switch.min.css
-│       │   ├── timeline.min.css
-│       │   └── tooltip.min.css
-│       ├── index.css
-│       ├── inject.css
-│       └── settings.css
+│   ├── icons
+│   ├── images
+│   └── styles
+│       └── bulma-extra
 ├── background
-│   ├── contextMenu.ts
-│   └── index.ts
 ├── components
-│   ├── ForgetPassword.tsx
-│   ├── FormattedText.tsx
-│   ├── GoogleAuthentication.tsx
-│   ├── OrDivider.tsx
-│   ├── SignIn.tsx
-│   └── SignUp.tsx
 ├── containers
-│   ├── app
-│   │   ├── AiSummarizer.tsx
-│   │   ├── AppIndex.tsx
-│   │   ├── Footer.tsx
-│   │   ├── GitLab.tsx
-│   │   └── Header.tsx
-│   └── settings
-│       ├── AppSettings.tsx
-│       ├── Index.tsx
-│       └── Settings.tsx
+│   ├── app
+│   │   └── GitLab
+│   ├── popup
+│   └── settings
+│       └── Settings
 ├── contentscript
-│   └── inject.ts
 ├── contexts
-│   └── FormContext.tsx
-├── index.tsx
-├── react-app-env.d.ts
-├── reportWebVitals.ts
 ├── resources
-│   ├── _locales
-│   │   ├── en
-│   │   ├── fr
-│   │   └── zh_CN
-│   └── manifest.json
-├── setupTests.ts
-├── type.d.ts
+│   └── _locales
+│       ├── en
+│       ├── fr
+│       └── zh_CN
 └── utils
-    ├── common.ts
-    ├── constants.ts
-    ├── enhanceStringPrototype.ts
-    ├── extView.ts
-    ├── gitlab.ts
-    ├── index.ts
     ├── llms
-    │   ├── claude.ts
-    │   ├── deepSeek.ts
-    │   ├── index.ts
-    │   ├── ollama.ts
-    │   └── openAi.ts
     ├── policies
-    │   ├── index.ts
-    │   └── task.ts
-    ├── prompts
-    │   ├── index.ts
-    │   ├── mergeRequest.ts
-    │   └── task.ts
-    └── tools.ts
-
-22 directories, 58 files
+    └── prompts
 ```
 
 ### Generate a new package to use
@@ -133,6 +76,12 @@ yarn run build
 #### Step 3: Configure your API key
 
 - [GL CoreAI Settings](chrome-extension://bhaajobichfdfpccebngpkggnicjbkgh/packs/static/settings.html)
+
+#### Step 4: Generate the release package
+
+```
+yarn run build:zip
+```
 
 ### Contributing
 

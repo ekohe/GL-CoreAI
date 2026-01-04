@@ -2,8 +2,8 @@
   "manifest_version": 3,
   "short_name": "GL CoreAI",
   "name": "GL CoreAI",
-  "version": "1.0.0",
-  "description": "GL CoreAI by Ekohe - uses OpenAI/Claude/DeepSeek and GitLab APIs to summarize issues/tasks from the their URLs",
+  "version": "1.0.1",
+  "description": "AI-powered GitLab assistant that summarizes issues and merge requests using OpenAI, Claude, or DeepSeek. Quickly understand complex issues without reading long comment histories.",
   "options_page": "packs/static/settings.html",
   "background": {
     "service_worker": "packs/js/background.js"
