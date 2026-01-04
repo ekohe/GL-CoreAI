@@ -199,16 +199,25 @@ WRITING GUIDELINES:
 // Role-specific focus areas for summarization
 const getRoleFocusAreas = (role: UserRoleType): string => {
   const focusAreas: Record<UserRoleType, string> = {
-    pm: `FOCUS YOUR ANALYSIS AS A PRODUCT MANAGER ON:
-- Product requirements and acceptance criteria
-- Timeline implications and milestone impacts
-- Stakeholder communication points
-- User impact and business value
-- Priority and scope considerations
-- Cross-team dependencies and coordination needs
-- Feature completeness and delivery readiness`,
+    project_manager: `FOCUS YOUR ANALYSIS AS A PROJECT MANAGER ON:
+- Project timeline and milestone tracking
+- Resource allocation and team coordination
+- Risk management and mitigation strategies
+- Stakeholder communication and reporting
+- Cross-team dependencies and blockers
+- Delivery readiness and go-live planning
+- Budget and scope considerations`,
 
-    engineer: `FOCUS YOUR ANALYSIS AS AN ENGINEER ON:
+    product_owner: `FOCUS YOUR ANALYSIS AS A PRODUCT OWNER ON:
+- Product requirements and acceptance criteria
+- User stories and feature prioritization
+- User experience and customer value
+- Product roadmap alignment
+- Backlog grooming and sprint planning
+- Feature completeness and MVP scope
+- Stakeholder expectations and feedback`,
+
+    software_engineer: `FOCUS YOUR ANALYSIS AS A SOFTWARE ENGINEER ON:
 - Technical implementation details and architecture decisions
 - Code-related discussions and technical debt
 - Performance implications and scalability concerns
@@ -217,39 +226,50 @@ const getRoleFocusAreas = (role: UserRoleType): string => {
 - Development effort estimation
 - Potential technical blockers and solutions`,
 
-    data: `FOCUS YOUR ANALYSIS AS A DATA ANALYST ON:
+    data_scientist: `FOCUS YOUR ANALYSIS AS A DATA SCIENTIST ON:
 - Data requirements and schema changes
 - Metrics and KPIs mentioned or impacted
 - Analytics implications and tracking needs
 - Data quality and validation requirements
-- Reporting and dashboard considerations
+- Machine learning model considerations
 - Data pipeline and ETL impacts
-- Statistical or analytical methodology`,
+- Statistical methodology and experimentation`,
 
-    sales: `FOCUS YOUR ANALYSIS AS A SALES TEAM MEMBER ON:
+    business_development: `FOCUS YOUR ANALYSIS AS A BUSINESS DEVELOPMENT REPRESENTATIVE ON:
 - Customer impact and value proposition
 - Commercial implications and revenue opportunities
-- Client communication points
+- Partnership and collaboration opportunities
 - Competitive positioning aspects
-- Timeline for customer-facing features
-- Support and enablement requirements
-- Market and customer feedback references`,
+- Market expansion and growth potential
+- Client relationship management
+- Sales enablement and go-to-market strategy`,
+
+    marketing_specialist: `FOCUS YOUR ANALYSIS AS A MARKETING SPECIALIST ON:
+- Customer messaging and value communication
+- Brand alignment and positioning
+- Campaign planning and execution
+- Market research and customer insights
+- Content creation and distribution needs
+- Launch timing and promotional activities
+- Customer engagement and retention strategies`,
   };
 
-  return focusAreas[role] || focusAreas.engineer;
+  return focusAreas[role] || focusAreas.software_engineer;
 };
 
 // Role-specific system messages
 const getRoleSystemMessage = (role: UserRoleType, actionType: IssueActionType): string => {
   const roleContext: Record<UserRoleType, string> = {
-    pm: "You are an expert project analyst specializing in product management perspectives. You understand product requirements, timelines, stakeholder needs, and business value.",
-    engineer: "You are an expert project analyst specializing in technical perspectives. You understand code implementation, architecture, technical debt, and engineering best practices.",
-    data: "You are an expert project analyst specializing in data and analytics perspectives. You understand data requirements, metrics, analytics pipelines, and data-driven insights.",
-    sales: "You are an expert project analyst specializing in commercial perspectives. You understand customer needs, business value, market positioning, and revenue implications.",
+    project_manager: "You are an expert project analyst specializing in project management perspectives. You understand project timelines, resource allocation, risk management, and cross-team coordination.",
+    product_owner: "You are an expert project analyst specializing in product ownership perspectives. You understand product requirements, user stories, feature prioritization, and roadmap alignment.",
+    software_engineer: "You are an expert project analyst specializing in technical perspectives. You understand code implementation, architecture, technical debt, and engineering best practices.",
+    data_scientist: "You are an expert project analyst specializing in data science perspectives. You understand data requirements, metrics, machine learning, analytics pipelines, and data-driven insights.",
+    business_development: "You are an expert project analyst specializing in business development perspectives. You understand customer needs, business value, market positioning, partnerships, and revenue implications.",
+    marketing_specialist: "You are an expert project analyst specializing in marketing perspectives. You understand customer messaging, brand positioning, campaign planning, and go-to-market strategies.",
   };
 
   const baseMessages: Record<IssueActionType, string> = {
-    summarize: `${roleContext[role] || roleContext.engineer}
+    summarize: `${roleContext[role] || roleContext.software_engineer}
 
 CRITICAL REQUIREMENTS:
 - You MUST return ONLY valid JSON - no markdown, no explanations, no additional text
@@ -257,7 +277,7 @@ CRITICAL REQUIREMENTS:
 - Focus on extracting key information from the issue and discussions
 - Your response will be directly parsed as JSON, so any non-JSON content will cause errors.`,
 
-    analyze_blockers: `${roleContext[role] || roleContext.engineer} You also excel at identifying blockers, dependencies, and risks.
+    analyze_blockers: `${roleContext[role] || roleContext.software_engineer} You also excel at identifying blockers, dependencies, and risks.
 
 CRITICAL REQUIREMENTS:
 - You MUST return ONLY valid JSON - no markdown, no explanations, no additional text
@@ -265,7 +285,7 @@ CRITICAL REQUIREMENTS:
 - Provide actionable recommendations from your role's perspective
 - Your response will be directly parsed as JSON, so any non-JSON content will cause errors.`,
 
-    draft_update: `${roleContext[role] || roleContext.engineer} You create professional status updates tailored for stakeholders.
+    draft_update: `${roleContext[role] || roleContext.software_engineer} You create professional status updates tailored for stakeholders.
 
 CRITICAL REQUIREMENTS:
 - You MUST return ONLY valid JSON - no markdown, no explanations, no additional text

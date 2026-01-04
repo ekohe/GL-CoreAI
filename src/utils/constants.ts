@@ -44,9 +44,9 @@ export const THEMECOLORS = [
 export const DEFAULT_AI_PROVIDER = "openai";
 
 export const DEFAULT_AI_MODELS = {
-  openai: "gpt-4o",
+  openai: "gpt-5.2",
   deepseek: "deepseek-chat",
-  claude: "claude-3-opus-20240229",
+  claude: "claude-opus-4-5-20251101",
   ollama: "llama3.2",
 } as const;
 
@@ -54,38 +54,124 @@ export const DEFAULT_OLLAMA_URL = "http://localhost:11434";
 
 export const AI_MODEL_OPTIONS = {
   openai: [
-    { value: "gpt-5.2", label: "GPT-5.2" },
-    { value: "gpt-5.0-mini", label: "GPT-5.0 Mini" },
-    { value: "gpt-4.5-orion", label: "GPT-4.5 (Orion)" },
-    { value: "o3-mini-high", label: "o3 Mini High - Reasoning" },
-    { value: DEFAULT_AI_MODELS.openai, label: "GPT-4o" },
+    { value: DEFAULT_AI_MODELS.openai, label: "GPT-5.2" },
+    { value: "gpt-5.2-pro", label: "GPT-5.2 Pro" },
+    { value: "gpt-5.1", label: "GPT-5.1" },
+    { value: "gpt-5.1-codex", label: "GPT-5.1 Codex" },
+    { value: "gpt-5.1-codex-max", label: "GPT-5.1 Codex Max" },
+    { value: "gpt-5", label: "GPT-5" },
+    { value: "gpt-5-mini", label: "GPT-5 Mini" },
+    { value: "gpt-5-nano", label: "GPT-5 Nano" },
+    { value: "gpt-4.1", label: "GPT-4.1" },
+    { value: "gpt-4.1-mini", label: "GPT-4.1 Mini" },
+    { value: "gpt-4.1-nano", label: "GPT-4.1 Nano" },
+    { value: "gpt-4o", label: "GPT-4o" },
     { value: "gpt-4o-mini", label: "GPT-4o Mini" },
-    { value: "o1-preview", label: "o1 Preview" },
-    { value: "o1-mini", label: "o1 Mini" },
-    { value: "gpt-4-turbo", label: "GPT-4 Turbo" },
-    { value: "gpt-4", label: "GPT-4" },
-    { value: "gpt-3.5-turbo", label: "GPT-3.5 Turbo" },
+    { value: "o3", label: "o3" },
+    { value: "o3-mini", label: "o3 Mini" },
+    { value: "o1", label: "o1" },
+    { value: "o1-pro", label: "o1 Pro" },
+    { value: "gpt-image-1.5", label: "GPT Image 1.5" },
+    { value: "gpt-image-1", label: "GPT Image 1" },
+    { value: "gpt-image-1-mini", label: "GPT Image 1 Mini" },
+    { value: "gpt-realtime", label: "GPT Realtime" },
+    { value: "gpt-realtime-mini", label: "GPT Realtime Mini" },
+    { value: "gpt-audio", label: "GPT Audio" },
+    { value: "gpt-audio-mini", label: "GPT Audio Mini" },
+    { value: "gpt-oss-120b", label: "gpt-oss-120b (Open-weight)" },
+    { value: "gpt-oss-20b", label: "gpt-oss-20b (Open-weight)" },
   ],
   claude: [
+    // Latest Claude 4.5 Models
+    {
+      value: DEFAULT_AI_MODELS.claude,
+      label: "Claude Opus 4.5 (Latest)",
+    },
+    {
+      value: "claude-sonnet-4-5-20250929",
+      label: "Claude Sonnet 4.5 (Latest)",
+    },
+    {
+      value: "claude-haiku-4-5-20251001",
+      label: "Claude Haiku 4.5 (Latest)",
+    },
+
+    // Claude 4 Models
+    {
+      value: "claude-opus-4-1-20250805",
+      label: "Claude Opus 4.1",
+    },
+    {
+      value: "claude-opus-4-20250514",
+      label: "Claude Opus 4",
+    },
+    {
+      value: "claude-sonnet-4-20250514",
+      label: "Claude Sonnet 4",
+    },
+
+    // Claude 3.5 Models
     {
       value: "claude-3-5-sonnet-20250220",
       label: "Claude 3.5 Sonnet (Latest)",
     },
-    { value: "claude-3-5-haiku-20250220", label: "Claude 3.5 Haiku (Fast)" },
     {
       value: "claude-3-5-sonnet-20241022",
-      label: "Claude 3.5 Sonnet (Legacy)",
+      label: "Claude 3.5 Sonnet (Oct 2024)",
     },
-    { value: "claude-3-haiku-20240307", label: "Claude 3 Haiku" },
-    { value: DEFAULT_AI_MODELS.claude, label: "Claude 3 Opus" },
+    {
+      value: "claude-3-5-sonnet-20240620",
+      label: "Claude 3.5 Sonnet (Jun 2024)",
+    },
+    {
+      value: "claude-3-5-haiku-20241022",
+      label: "Claude 3.5 Haiku",
+    },
   ],
   deepseek: [
-    { value: "deepseek-reasoner", label: "DeepSeek R1 (Latest - Reasoning)" },
-    { value: DEFAULT_AI_MODELS.deepseek, label: "DeepSeek Chat (V2.5)" },
+    {
+      value: "deepseek-reasoner",
+      label: "DeepSeek R1 (Latest - Reasoning)",
+    },
+    {
+      value: DEFAULT_AI_MODELS.deepseek,
+      label: "DeepSeek Chat (V2.5)",
+    },
+    {
+      value: "deepseek-coder",
+      label: "DeepSeek Coder",
+    },
+    {
+      value: "deepseek-math",
+      label: "DeepSeek Math",
+    },
+    {
+      value: "deepseek-llm",
+      label: "DeepSeek LLM (67B)",
+    },
+    {
+      value: "deepseek-v2",
+      label: "DeepSeek V2 (MoE)",
+    },
+    {
+      value: "deepseek-v2-lite",
+      label: "DeepSeek V2 Lite",
+    },
+    {
+      value: "deepseek-r1-distill-qwen-32b",
+      label: "DeepSeek R1 Distill Qwen 32B",
+    },
+    {
+      value: "deepseek-r1-distill-llama-70b",
+      label: "DeepSeek R1 Distill Llama 70B",
+    },
   ],
   ollama: [
     { value: "llama3.3", label: "Llama 3.3 (Latest)" },
-    { value: DEFAULT_AI_MODELS.ollama, label: "Llama 3.2" },
+    {
+      value: DEFAULT_AI_MODELS.ollama,
+      label: "Llama 3.2",
+    },
     { value: "llama3.1", label: "Llama 3.1" },
     { value: "qwen2.5", label: "Qwen 2.5" },
     { value: "qwen2", label: "Qwen 2" },
@@ -94,7 +180,10 @@ export const AI_MODEL_OPTIONS = {
     { value: "phi3.5", label: "Phi-3.5" },
     { value: "phi3", label: "Phi-3" },
     { value: "mistral-nemo", label: "Mistral Nemo" },
-    { value: "mistral", label: "Mistral 7B" },
+    {
+      value: "mistral",
+      label: "Mistral 7B",
+    },
     { value: "codellama", label: "Code Llama" },
   ],
 } as const;
@@ -166,31 +255,45 @@ export type IssueActionType = keyof typeof ISSUE_ACTION_TYPES;
 
 // User Role Types for role-based issue summarization
 export const USER_ROLES = {
-  pm: {
-    code: "pm",
-    label: "Product Manager",
-    description: "Focus on product requirements, timelines, and stakeholder communication",
+  project_manager: {
+    code: "project_manager",
+    label: "Project Manager",
+    description:
+      "Focus on project requirements, timelines, and stakeholder communication",
   },
-  engineer: {
-    code: "engineer",
-    label: "Engineer",
-    description: "Focus on technical details, implementation, and code-related aspects",
+  product_owner: {
+    code: "product_owner",
+    label: "Product Owner",
+    description:
+      "Focus on product requirements, features, and user experience, and prioritize the product roadmap",
   },
-  data: {
-    code: "data",
-    label: "Data Analyst",
-    description: "Focus on metrics, data requirements, and analytical insights",
+  software_engineer: {
+    code: "software_engineer",
+    label: "Software Engineer",
+    description:
+      "Focus on technical details, implementation, and code-related aspects, and ensure the code is maintainable and scalable",
   },
-  sales: {
-    code: "sales",
-    label: "Sales",
-    description: "Focus on customer impact, business value, and commercial aspects",
+  data_scientist: {
+    code: "data_scientist",
+    label: "Data Scientist",
+    description: "Focus on metrics, data requirements, and analytical insights, and ensure the data is accurate and reliable",
+  },
+  business_development: {
+    code: "business_development",
+    label: "Business Development",
+    description:
+      "Focus on customer impact, business value, and commercial aspects, and ensure the business is profitable",
+  },
+  marketing_specialist: {
+    code: "marketing_specialist",
+    label: "Marketing Specialist",
+    description: "Focus on marketing strategies, campaigns, and customer engagement, and ensure the marketing is effective",
   },
 } as const;
 
 export type UserRoleType = keyof typeof USER_ROLES;
 
-export const DEFAULT_USER_ROLE: UserRoleType = "engineer";
+export const DEFAULT_USER_ROLE: UserRoleType = "software_engineer";
 
 export const USER_ROLE_OPTIONS = Object.entries(USER_ROLES).map(([value, role]) => ({
   value,

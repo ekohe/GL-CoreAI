@@ -26,4 +26,4 @@
 
 - HOTFIX: Google Authentication Expiry Period (30 days);
 - HOTFIX: Ext icon placement issue, should always be loaded from the store;
-- FEAT: Added new OpenAI and Claude models.
+- FEAT: Added new OpenAI and Claude, Deepseek models.
