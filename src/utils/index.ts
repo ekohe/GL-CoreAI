@@ -211,11 +211,13 @@ const getGoogleLastValidated = async (): Promise<number | undefined> => {
   return result ? parseInt(result as string) : undefined;
 };
 
+// 30 days in milliseconds
+const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+
 // Check if we need to validate token (if it's been more than 30 days)
 const needsTokenValidation = (lastValidated?: number): boolean => {
   if (!lastValidated) return true; // Never validated, need to validate
-  const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000; // 30 days
-  return Date.now() - lastValidated >= thirtyDaysInMs;
+  return Date.now() - lastValidated >= THIRTY_DAYS_MS;
 };
 
 const getGoogleAccount = async (token: string) => {
@@ -250,8 +252,8 @@ const refreshGoogleToken = async (): Promise<string | null> => {
       if (chrome.runtime.lastError || !token) {
         resolve(null);
       } else if (isValidGoogleToken(token)) {
-        // Store refreshed token with new expiry (typically 1 hour)
-        const tokenExpiresAt = Date.now() + (3600 * 1000); // 1 hour
+        // Store refreshed token with 30-day expiry
+        const tokenExpiresAt = Date.now() + THIRTY_DAYS_MS;
         setStorage({
           GASGoogleAccessToken: token,
           GASGoogleTokenExpiry: tokenExpiresAt
@@ -320,7 +322,6 @@ const launchGoogleAuthentication = async (
       try {
         const url = new URL(responseUrl);
         const tokenMatch = url.hash.match(/access_token=([^&]*)/);
-        const expiresMatch = url.hash.match(/expires_in=([^&]*)/);
 
         if (tokenMatch) {
           const accessToken = decodeURIComponent(tokenMatch[1]);
@@ -332,9 +333,8 @@ const launchGoogleAuthentication = async (
             return;
           }
 
-          // Calculate token expiry (default to 1 hour if not provided)
-          const expiresIn = expiresMatch ? parseInt(expiresMatch[1]) : 3600;
-          const tokenExpiresAt = Date.now() + (expiresIn * 1000);
+          // Set token expiry to 30 days after authentication
+          const tokenExpiresAt = Date.now() + THIRTY_DAYS_MS;
 
           // Store token, expiry, and last validated timestamp
           setStorage({
