@@ -72,8 +72,9 @@ const showNotification = (message: string, type: "success" | "error" | "info" = 
 const loadIconPosition = async (): Promise<{ bottom: number }> => {
   return new Promise((resolve) => {
     getStorage(TRIGGER_POSITION_KEY, (result: any) => {
-      if (result && typeof result.bottom === "number") {
-        resolve(result);
+      const savedPosition = result?.[TRIGGER_POSITION_KEY];
+      if (savedPosition && typeof savedPosition.bottom === "number") {
+        resolve(savedPosition);
       } else {
         resolve(DEFAULT_POSITION);
       }
