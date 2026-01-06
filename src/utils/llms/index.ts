@@ -12,6 +12,17 @@ type ProviderFunctionMap = {
   [key: string]: (...args: any[]) => Promise<void>;
 };
 
+import type { GitLabUser } from "../gitlab";
+
+// Chat context for follow-up conversations
+export interface ChatContext {
+  issueData: any;
+  discussions: any;
+  previousResponse: string;
+  conversationHistory: Array<{ role: "user" | "assistant"; content: string }>;
+  currentUser?: GitLabUser | null;
+}
+
 async function executeProviderFunction(
   providerFunctions: ProviderFunctionMap,
   ...args: any[]
@@ -107,7 +118,7 @@ async function invokingIssueAction(
   issueData: any,
   discussions: any,
   actionType: IssueActionType
-): Promise<void> {
+): Promise<string | void> {
   const providerFunctions: ProviderFunctionMap = {
     openai: async (containerRef, issueData, discussions, actionType) => {
       await openAi.invokingIssueAction(containerRef, issueData, discussions, actionType);
@@ -126,4 +137,32 @@ async function invokingIssueAction(
   await executeProviderFunction(providerFunctions, containerRef, issueData, discussions, actionType);
 }
 
-export { gitLabIssueSummarize, invokingCodeAnalysis, invokingMRAction, invokingIssueAction };
+// Type for the add to comments callback
+type AddToCommentsCallback = (content: string) => Promise<{ success: boolean; noteUrl?: string; error?: string }>;
+
+async function invokingIssueChat(
+  containerRef: any,
+  userQuery: string,
+  chatContext: ChatContext,
+  onComplete?: (response: string) => void,
+  onAddToComments?: AddToCommentsCallback
+): Promise<void> {
+  const providerFunctions: ProviderFunctionMap = {
+    openai: async (containerRef, userQuery, chatContext, onComplete, onAddToComments) => {
+      await openAi.invokingIssueChat(containerRef, userQuery, chatContext, onComplete, onAddToComments);
+    },
+    deepseek: async (containerRef, userQuery, chatContext, onComplete, onAddToComments) => {
+      await deepSeek.invokingIssueChat(containerRef, userQuery, chatContext, onComplete, onAddToComments);
+    },
+    ollama: async (containerRef, userQuery, chatContext, onComplete, onAddToComments) => {
+      await ollama.invokingIssueChat(containerRef, userQuery, chatContext, onComplete, onAddToComments);
+    },
+    claude: async (containerRef, userQuery, chatContext, onComplete, onAddToComments) => {
+      await claude.invokingIssueChat(containerRef, userQuery, chatContext, onComplete, onAddToComments);
+    },
+  };
+
+  await executeProviderFunction(providerFunctions, containerRef, userQuery, chatContext, onComplete, onAddToComments);
+}
+
+export { gitLabIssueSummarize, invokingCodeAnalysis, invokingMRAction, invokingIssueAction, invokingIssueChat };

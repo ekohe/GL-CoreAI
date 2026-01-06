@@ -59,6 +59,12 @@ const extPlugins = [
 ]
 
 module.exports = {
+    // Disable size warnings for Chrome extension (files are loaded locally)
+    performance: {
+        hints: false,
+        maxEntrypointSize: 512000,
+        maxAssetSize: 512000,
+    },
     optimization: {
         minimize: true, // Enable minification
         minimizer: [

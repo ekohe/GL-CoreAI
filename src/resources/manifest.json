@@ -2,8 +2,8 @@
   "manifest_version": 3,
   "short_name": "GL CoreAI",
   "name": "GL CoreAI",
-  "version": "1.0.1",
-  "description": "AI-powered GitLab assistant that summarizes issues and merge requests using OpenAI, Claude, or DeepSeek. Quickly understand complex issues without reading long comment histories.",
+  "version": "1.0.2",
+  "description": "AI-powered GitLab assistant that summarizes issues and MRs using AI for quick understanding.",
   "options_page": "packs/static/settings.html",
   "background": {
     "service_worker": "packs/js/background.js"
@@ -13,7 +13,7 @@
     "email": "encore@ekohe.com"
   },
   "homepage_url": "https://ekohe.com",
-  "permissions": ["storage", "identity", "sidePanel", "tabs", "activeTab", "contextMenus"],
+  "permissions": ["storage", "identity", "sidePanel", "tabs", "activeTab", "contextMenus", "scripting"],
   "action": {
     "default_title": "Open GL CoreAI",
     "default_popup": "packs/static/popup.html"
