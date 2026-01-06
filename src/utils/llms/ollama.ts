@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-redeclare */
 
 import { getOllamaModel, getOllamaURL, llamaApiChat } from "./../index";
-import { taskPrompts, codeReviewPrompts, mergeRequestActionsPrompts, issueActionsPrompts } from "./../prompts/index";
+import { taskPrompts, codeReviewPrompts, mergeRequestActionsPrompts, issueActionsPrompts, issueChatPrompts } from "./../prompts/index";
 import { aiGeneratedSummaries } from "./../tools";
 import { CodeReviewRenderer } from "../codeReviewRenderer";
 import { MRActionsRenderer } from "../mrActionsRenderer";
 import { IssueActionsRenderer } from "../issueActionsRenderer";
+import { IssueChatRenderer } from "../issueChatRenderer";
 import { DEFAULT_AI_MODELS, DEFAULT_OLLAMA_URL, MRActionType, IssueActionType } from "../constants";
 import {
   getCurrentUserRole,
@@ -16,6 +17,7 @@ import {
   updateResponseContainer,
   createErrorContainer,
 } from "./base";
+import type { ChatContext } from "./index";
 
 const aiProvider = "ollama";
 
@@ -380,4 +382,90 @@ async function invokingIssueAction(containerRef: any, issueData: any, discussion
   }
 }
 
-export { fetchLLMTaskSummarizer, invokingCodeAnalysis, invokingMRAction, invokingIssueAction };
+async function invokingIssueChat(
+  containerRef: any,
+  userQuery: string,
+  chatContext: ChatContext,
+  onComplete?: (response: string) => void,
+  onAddToComments?: (content: string) => Promise<{ success: boolean; noteUrl?: string; error?: string }>
+) {
+  const model = (await getOllamaModel()) || DEFAULT_AI_MODELS.ollama;
+  const ollamaURL = (await getOllamaURL()) || DEFAULT_OLLAMA_URL;
+  const aIApiUrl = `${ollamaURL}/api/chat`;
+
+  const userRole = await getCurrentUserRole();
+
+  const messages = issueChatPrompts.getChatPrompt(userQuery, {
+    issueData: chatContext.issueData,
+    discussions: chatContext.discussions,
+    previousResponse: chatContext.previousResponse,
+    conversationHistory: chatContext.conversationHistory,
+    currentUser: chatContext.currentUser,
+  }, userRole);
+
+  const messageContainer = document.createElement("div");
+  containerRef.current.appendChild(messageContainer);
+
+  IssueChatRenderer.showLoadingState(messageContainer);
+
+  try {
+    const response: any = await llamaApiChat("llamaAPI", aIApiUrl, {
+      model: model,
+      messages: messages,
+      stream: true,
+    });
+
+    if (!response.ok) {
+      throw new Error("Error calling LLM API");
+    }
+
+    const reader = response.body
+      ?.pipeThrough(new TextDecoderStream())
+      .getReader();
+    if (!reader) return;
+
+    let responseContent = "";
+    let lastUpdateTime = Date.now();
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      try {
+        const lines = value.split("\n").filter((line: string) => line.trim());
+
+        for (const line of lines) {
+          if (line.trim()) {
+            const jsonResponse = JSON.parse(line);
+
+            if (jsonResponse.message && jsonResponse.message.content) {
+              responseContent += jsonResponse.message.content;
+
+              const now = Date.now();
+              if (now - lastUpdateTime > 300 || responseContent.length < 50) {
+                IssueChatRenderer.renderStreamingResponse(messageContainer, responseContent);
+                lastUpdateTime = now;
+              }
+            }
+
+            if (jsonResponse.done) {
+              IssueChatRenderer.renderResponse(messageContainer, responseContent.trim(), onAddToComments);
+              onComplete?.(responseContent.trim());
+              return responseContent.trim();
+            }
+          }
+        }
+      } catch (error) {
+        continue;
+      }
+    }
+
+    IssueChatRenderer.renderResponse(messageContainer, responseContent.trim(), onAddToComments);
+    onComplete?.(responseContent.trim());
+    return responseContent.trim();
+  } catch (error) {
+    IssueChatRenderer.showErrorState(messageContainer, "Failed to get response from Ollama. Please try again.");
+  }
+}
+
+export { fetchLLMTaskSummarizer, invokingCodeAnalysis, invokingMRAction, invokingIssueAction, invokingIssueChat };

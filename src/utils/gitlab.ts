@@ -1,9 +1,87 @@
 /* eslint-disable no-useless-escape */
-import { fetchFromGitLabAPI, getGitLabWebURL } from ".";
+import { fetchFromGitLabAPI, getGitLabWebURL, getStorage, setStorage } from ".";
 
 const URLs = {
   project: `/api/v4/projects/`,
+  currentUser: `/api/v4/user`,
 };
+
+// GitLab User type
+export interface GitLabUser {
+  id: number;
+  username: string;
+  name: string;
+  email?: string;
+  avatar_url?: string;
+  web_url?: string;
+  state?: string;
+  is_admin?: boolean;
+  created_at?: string;
+}
+
+// Cache key for storing user info
+const GITLAB_USER_CACHE_KEY = "GASGitLabCurrentUser";
+const GITLAB_USER_CACHE_EXPIRY_KEY = "GASGitLabUserCacheExpiry";
+// Cache for 24 hours
+const USER_CACHE_DURATION_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * Fetch the current logged-in GitLab user
+ */
+async function fetchCurrentUser(): Promise<GitLabUser | null> {
+  try {
+    const user = await fetchFromGitLabAPI(URLs.currentUser);
+    return user as GitLabUser;
+  } catch (error) {
+    console.error("Failed to fetch current GitLab user:", error);
+    return null;
+  }
+}
+
+/**
+ * Get current user from cache or fetch from API
+ */
+async function getCurrentUser(): Promise<GitLabUser | null> {
+  return new Promise((resolve) => {
+    getStorage([GITLAB_USER_CACHE_KEY, GITLAB_USER_CACHE_EXPIRY_KEY], async (result) => {
+      const cachedUser = result[GITLAB_USER_CACHE_KEY];
+      const cacheExpiry = result[GITLAB_USER_CACHE_EXPIRY_KEY];
+
+      // Check if cache is valid
+      if (cachedUser && cacheExpiry && Date.now() < cacheExpiry) {
+        try {
+          const user = typeof cachedUser === 'string' ? JSON.parse(cachedUser) : cachedUser;
+          resolve(user as GitLabUser);
+          return;
+        } catch {
+          // Invalid cache, fetch fresh
+        }
+      }
+
+      // Fetch fresh user data
+      const user = await fetchCurrentUser();
+      if (user) {
+        // Cache the user
+        const cacheData: Record<string, any> = {};
+        cacheData[GITLAB_USER_CACHE_KEY] = JSON.stringify(user);
+        cacheData[GITLAB_USER_CACHE_EXPIRY_KEY] = Date.now() + USER_CACHE_DURATION_MS;
+        setStorage(cacheData);
+      }
+      resolve(user);
+    });
+  });
+}
+
+/**
+ * Clear the cached user (useful when switching accounts or on logout)
+ */
+async function clearCurrentUserCache(): Promise<void> {
+  return new Promise((resolve) => {
+    chrome.storage.sync.remove([GITLAB_USER_CACHE_KEY, GITLAB_USER_CACHE_EXPIRY_KEY], () => {
+      resolve();
+    });
+  });
+}
 
 function extractProjectPathAndIssueIdOrMergeRequestId(url: string) {
   const issuePattern =
@@ -202,6 +280,62 @@ async function fetchLatestCommentURL(
   return `${gitLabWebURL}/${projectPath}/-/issues/${issueId}#note_${latestNote.id}`;
 }
 
+/**
+ * Post a comment/note to an issue
+ */
+async function postIssueComment(
+  projectId: number | string | undefined,
+  issueId: number | undefined,
+  body: string
+): Promise<{ success: boolean; noteUrl?: string; error?: string }> {
+  if (!projectId || !issueId) {
+    return { success: false, error: "Missing project or issue ID" };
+  }
+
+  try {
+    const gitLabWebURL = await getGitLabWebURL();
+    if (!gitLabWebURL) {
+      return { success: false, error: "Could not determine GitLab URL" };
+    }
+
+    const response = await fetch(
+      `${gitLabWebURL}/api/v4/projects/${projectId}/issues/${issueId}/notes`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ body }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      return { success: false, error: `Failed to post comment: ${errorText}` };
+    }
+
+    const note = await response.json();
+
+    // Get the project path for the URL
+    const projectResponse = await fetch(
+      `${gitLabWebURL}/api/v4/projects/${projectId}`,
+      { credentials: "include" }
+    );
+
+    let noteUrl: string | undefined;
+    if (projectResponse.ok) {
+      const project = await projectResponse.json();
+      noteUrl = `${gitLabWebURL}/${project.path_with_namespace}/-/issues/${issueId}#note_${note.id}`;
+    }
+
+    return { success: true, noteUrl };
+  } catch (error: any) {
+    console.error("Error posting issue comment:", error);
+    return { success: false, error: error.message || "Unknown error" };
+  }
+}
+
 export {
   getProjectIdFromPath,
   extractProjectPathAndIssueIdOrMergeRequestId,
@@ -214,4 +348,9 @@ export {
   fetchCommits,
   fetchLastMergeDetails,
   fetchLatestCommentURL,
+  postIssueComment,
+  // Current user functions
+  fetchCurrentUser,
+  getCurrentUser,
+  clearCurrentUserCache,
 };

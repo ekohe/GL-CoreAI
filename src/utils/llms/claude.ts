@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-redeclare */
 
 import { getClaudeApiKey, getClaudeModel } from "./../index";
-import { taskPrompts, codeReviewPrompts, mergeRequestActionsPrompts, issueActionsPrompts } from "./../prompts/index";
+import { taskPrompts, codeReviewPrompts, mergeRequestActionsPrompts, issueActionsPrompts, issueChatPrompts } from "./../prompts/index";
 import { aiGeneratedSummaries } from "./../tools";
 import { CodeReviewRenderer } from "../codeReviewRenderer";
 import { MRActionsRenderer } from "../mrActionsRenderer";
 import { IssueActionsRenderer } from "../issueActionsRenderer";
+import { IssueChatRenderer } from "../issueChatRenderer";
 import { DEFAULT_AI_MODELS, MRActionType, IssueActionType } from "../constants";
 import {
   getCurrentUserRole,
@@ -17,6 +18,7 @@ import {
   transformMessagesForClaude,
   createErrorContainer,
 } from "./base";
+import type { ChatContext } from "./index";
 
 const aiProvider = "claude";
 const aIApiUrl = "https://api.anthropic.com/v1/messages";
@@ -465,4 +467,114 @@ async function invokingIssueAction(containerRef: any, issueData: any, discussion
   }
 }
 
-export { fetchLLMTaskSummarizer, invokingCodeAnalysis, invokingMRAction, invokingIssueAction };
+async function invokingIssueChat(
+  containerRef: any,
+  userQuery: string,
+  chatContext: ChatContext,
+  onComplete?: (response: string) => void,
+  onAddToComments?: (content: string) => Promise<{ success: boolean; noteUrl?: string; error?: string }>
+) {
+  const personalAIApiKey = await getClaudeApiKey();
+  if (!personalAIApiKey) return;
+
+  const model = (await getClaudeModel()) || DEFAULT_AI_MODELS.claude;
+  const userRole = await getCurrentUserRole();
+
+  const messages = issueChatPrompts.getChatPrompt(userQuery, {
+    issueData: chatContext.issueData,
+    discussions: chatContext.discussions,
+    previousResponse: chatContext.previousResponse,
+    conversationHistory: chatContext.conversationHistory,
+    currentUser: chatContext.currentUser,
+  }, userRole);
+
+  const messageContainer = document.createElement("div");
+  containerRef.current.appendChild(messageContainer);
+
+  IssueChatRenderer.showLoadingState(messageContainer);
+
+  try {
+    const { system, messages: claudeMessages } = transformMessagesForClaude(messages);
+
+    const requestBody = {
+      model: model,
+      system: system,
+      messages: claudeMessages,
+      stream: true,
+      max_tokens: 4000,
+    };
+
+    const response = await fetch(aIApiUrl, {
+      method: "POST",
+      headers: {
+        "x-api-key": personalAIApiKey,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+        "anthropic-dangerous-direct-browser-access": "true",
+      },
+      body: JSON.stringify(requestBody),
+    });
+
+    if (!response.ok) {
+      throw new Error("Error calling Claude API");
+    }
+
+    const reader = response.body
+      ?.pipeThrough(new TextDecoderStream())
+      .getReader();
+    if (!reader) return;
+
+    let responseContent = "";
+    let lastUpdateTime = Date.now();
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      const arr = value.split("\n");
+      for (const data of arr) {
+        if (data.length === 0 || data.startsWith(":")) continue;
+        if (data === "data: [DONE]") {
+          IssueChatRenderer.renderResponse(messageContainer, responseContent.trim(), onAddToComments);
+          onComplete?.(responseContent.trim());
+          return responseContent.trim();
+        }
+
+        try {
+          if (data.includes("event: content_block_delta")) {
+            continue;
+          }
+
+          if (data.startsWith("data: ")) {
+            const jsonData = JSON.parse(data.substring(6));
+
+            if (
+              jsonData.type === "content_block_delta" &&
+              jsonData.delta &&
+              jsonData.delta.text
+            ) {
+              const deltaContent = jsonData.delta.text;
+              responseContent += deltaContent;
+
+              const now = Date.now();
+              if (now - lastUpdateTime > 300 || responseContent.length < 50) {
+                IssueChatRenderer.renderStreamingResponse(messageContainer, responseContent);
+                lastUpdateTime = now;
+              }
+            }
+          }
+        } catch (error) {
+          continue;
+        }
+      }
+    }
+
+    IssueChatRenderer.renderResponse(messageContainer, responseContent.trim(), onAddToComments);
+    onComplete?.(responseContent.trim());
+    return responseContent.trim();
+  } catch (error) {
+    IssueChatRenderer.showErrorState(messageContainer, "Failed to get response from Claude. Please try again.");
+  }
+}
+
+export { fetchLLMTaskSummarizer, invokingCodeAnalysis, invokingMRAction, invokingIssueAction, invokingIssueChat };

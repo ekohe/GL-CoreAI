@@ -19,10 +19,14 @@ import {
   fetchIssueDiscussions,
   fetchMergeRequestChanges,
   getProjectIdFromPath,
+  getCurrentUser,
+  GitLabUser,
 } from "../../../utils/gitlab";
-import { gitLabIssueSummarize, invokingMRAction, invokingIssueAction } from "../../../utils/llms";
+import { gitLabIssueSummarize, invokingMRAction, invokingIssueAction, invokingIssueChat } from "../../../utils/llms";
 import { GitLabAPI } from "../../../utils/gitlabApi";
 import { DEFAULT_AI_MODELS, MR_ACTION_TYPES, MRActionType, ISSUE_ACTION_TYPES, IssueActionType } from "../../../utils/constants";
+import { IssueChatRenderer } from "../../../utils/issueChatRenderer";
+import { issueChatPrompts } from "../../../utils/prompts";
 
 // Import sub-components
 import NotOnGitLabPage from "./NotOnGitLabPage";
@@ -30,6 +34,13 @@ import LoadingState from "./LoadingState";
 import { IssueTitleCard, IssueInfoCard } from "./IssueInfoCard";
 import { MRActionCard, IssueActionCard, ActionSectionHeader } from "./ActionCards";
 import { SetupLLMButton, TryAnotherActionButton } from "./ActionButtons";
+import ChatInput from "../../../components/ChatInput";
+
+// Chat message type for conversation history
+interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
 
 interface GitLabProps {
   setIsCopy: any;
@@ -51,6 +62,16 @@ const GitLab = (props: GitLabProps) => {
   const [isProcessingMRAction, setIsProcessingMRAction] = useState<boolean>(false);
   const [selectedIssueAction, setSelectedIssueAction] = useState<IssueActionType | null>(null);
   const [isProcessingIssueAction, setIsProcessingIssueAction] = useState<boolean>(false);
+
+  // Chat state for issue conversations
+  const [issueDiscussions, setIssueDiscussions] = useState<any>(null);
+  const [initialIssueResponse, setInitialIssueResponse] = useState<string>("");
+  const [conversationHistory, setConversationHistory] = useState<ChatMessage[]>([]);
+  const [isChatProcessing, setIsChatProcessing] = useState<boolean>(false);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+
+  // Current GitLab user
+  const [currentGitLabUser, setCurrentGitLabUser] = useState<GitLabUser | null>(null);
 
   // GitLab data state
   const [projectId, setProjectId] = useState<string | undefined>(undefined);
@@ -79,6 +100,17 @@ const GitLab = (props: GitLabProps) => {
 
     return () => observer.disconnect();
   }, [summarizerDetails]);
+
+  // Fetch current GitLab user
+  useEffect(() => {
+    const fetchUser = async () => {
+      const user = await getCurrentUser();
+      if (user) {
+        setCurrentGitLabUser(user);
+      }
+    };
+    fetchUser();
+  }, []);
 
   // Load LLM settings and tab URL
   useEffect(() => {
@@ -127,6 +159,22 @@ const GitLab = (props: GitLabProps) => {
       setMergeRequestChangesData({});
       setEnabledLLM(false);
       setStartGitLabAPI(true);
+
+      // Reset chat state when URL changes
+      setSelectedIssueAction(null);
+      setSelectedMRAction(null);
+      setIssueDiscussions(null);
+      setInitialIssueResponse("");
+      setConversationHistory([]);
+      setIsChatProcessing(false);
+
+      // Clear chat container
+      if (chatContainerRef?.current) {
+        chatContainerRef.current.innerHTML = '';
+      }
+      if (iisRef?.current) {
+        iisRef.current.innerHTML = '';
+      }
     };
 
     const onStorageChange: Parameters<typeof chrome.storage.onChanged.addListener>[0] = (changes, areaName) => {
@@ -294,6 +342,9 @@ const GitLab = (props: GitLabProps) => {
 
     setSelectedIssueAction(actionType);
     setIsProcessingIssueAction(true);
+    // Reset chat state for new action
+    setConversationHistory([]);
+    setInitialIssueResponse("");
 
     if (iisRef?.current) {
       iisRef.current.innerHTML = '';
@@ -303,6 +354,9 @@ const GitLab = (props: GitLabProps) => {
       const aiProvider = await getAiProvider();
       const model = await getModelForProvider(aiProvider || "");
       const discussions = await fetchIssueDiscussions(projectId, issueId);
+
+      // Save discussions for chat follow-up
+      setIssueDiscussions(discussions);
 
       const modelInfo = createModelInfoElement(
         ISSUE_ACTION_TYPES[actionType].title,
@@ -315,7 +369,10 @@ const GitLab = (props: GitLabProps) => {
         iisRef.current.appendChild(modelInfo);
       }
 
-      await invokingIssueAction(iisRef, issueData, discussions, actionType);
+      // Execute the action and capture the response for chat context
+      const response = await invokingIssueAction(iisRef, issueData, discussions, actionType);
+      // Set initial response for chat follow-up (response may be void)
+      setInitialIssueResponse(typeof response === 'string' ? response : '');
     } catch (error) {
       console.error("Error processing Issue action:", error);
     } finally {
@@ -323,9 +380,146 @@ const GitLab = (props: GitLabProps) => {
     }
   };
 
+  // Handle chat message submission for issues
+  const handleIssueChatSubmit = async (message: string) => {
+    if (!hasLLMAPIKey || !projectId || !issueId || isChatProcessing) return;
+
+    setIsChatProcessing(true);
+
+    // Fetch discussions if not already fetched (for direct chat without quick action)
+    let discussions = issueDiscussions;
+    if (!discussions) {
+      discussions = await fetchIssueDiscussions(projectId, issueId);
+      setIssueDiscussions(discussions);
+    }
+
+    // Render user message in the chat container
+    if (chatContainerRef?.current) {
+      IssueChatRenderer.renderUserMessage(chatContainerRef.current, message);
+    }
+
+    // Add user message to conversation history
+    const newHistory: ChatMessage[] = [
+      ...conversationHistory,
+      { role: "user" as const, content: message },
+    ];
+
+    try {
+      // Callback to insert content into the issue comment box for user review
+      const handleAddToComments = async (content: string): Promise<{ success: boolean; noteUrl?: string; error?: string }> => {
+        try {
+          // Send message to content script to insert text into comment box
+          const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+          if (!tab?.id) {
+            return { success: false, error: "Could not find active tab" };
+          }
+
+          // Execute script to find and fill the comment textarea
+          const results = await chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            func: (textToInsert: string) => {
+              // Try to find the comment textarea in GitLab
+              const selectors = [
+                'textarea#note-body',
+                'textarea#note_note',
+                'textarea.note-textarea',
+                'textarea[name="note[note]"]',
+                '.js-note-text textarea',
+                '.js-main-target-form textarea',
+                '#note-body',
+              ];
+
+              let textarea: HTMLTextAreaElement | null = null;
+              for (const selector of selectors) {
+                textarea = document.querySelector(selector) as HTMLTextAreaElement;
+                if (textarea) break;
+              }
+
+              if (!textarea) {
+                // Try to click "Add comment" or expand the comment form first
+                const addCommentBtn = document.querySelector('.js-note-target-toggle') as HTMLButtonElement;
+                if (addCommentBtn) {
+                  addCommentBtn.click();
+                  // Wait a bit and try again
+                  return new Promise((resolve) => {
+                    setTimeout(() => {
+                      for (const selector of selectors) {
+                        textarea = document.querySelector(selector) as HTMLTextAreaElement;
+                        if (textarea) break;
+                      }
+                      if (textarea) {
+                        textarea.value = textToInsert;
+                        textarea.focus();
+                        textarea.dispatchEvent(new Event('input', { bubbles: true }));
+                        textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        resolve({ success: true });
+                      } else {
+                        resolve({ success: false, error: "Could not find comment box" });
+                      }
+                    }, 300);
+                  });
+                }
+                return { success: false, error: "Could not find comment box" };
+              }
+
+              // Insert the text
+              textarea.value = textToInsert;
+              textarea.focus();
+              // Trigger input event so GitLab's JS picks up the change
+              textarea.dispatchEvent(new Event('input', { bubbles: true }));
+              // Scroll to the textarea
+              textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+              return { success: true };
+            },
+            args: [content],
+          });
+
+          const result = results?.[0]?.result as { success: boolean; error?: string } | undefined;
+          if (result?.success) {
+            return { success: true };
+          } else {
+            return { success: false, error: result?.error || "Failed to insert into comment box" };
+          }
+        } catch (error: any) {
+          console.error("Error inserting into comment box:", error);
+          return { success: false, error: error.message || "Unknown error" };
+        }
+      };
+
+      // Call the chat function with current user context
+      await invokingIssueChat(
+        chatContainerRef,
+        message,
+        {
+          issueData,
+          discussions: discussions,
+          previousResponse: initialIssueResponse,
+          conversationHistory: newHistory,
+          currentUser: currentGitLabUser,
+        },
+        (response: string) => {
+          // Add assistant response to conversation history
+          setConversationHistory([
+            ...newHistory,
+            { role: "assistant" as const, content: response },
+          ]);
+        },
+        handleAddToComments
+      );
+    } catch (error) {
+      console.error("Error processing chat message:", error);
+    } finally {
+      setIsChatProcessing(false);
+    }
+  };
+
   // Reset action handlers
   const handleResetIssueAction = () => {
     setSelectedIssueAction(null);
+    setConversationHistory([]);
+    setInitialIssueResponse("");
+    setIssueDiscussions(null);
     if (iisRef?.current) {
       iisRef.current.innerHTML = '';
     }
@@ -364,8 +558,10 @@ const GitLab = (props: GitLabProps) => {
       {/* Setup LLM Button */}
       {!hasLLMAPIKey && <SetupLLMButton />}
 
-      {/* Issue Actions */}
-      {hasLLMAPIKey && projectId && issueId && !selectedIssueAction && (
+      {/* Issue Actions - Quick actions as shortcuts (hidden immediately when sending) */}
+      {hasLLMAPIKey && projectId && issueId &&
+        !selectedIssueAction && !initialIssueResponse && conversationHistory.length === 0 &&
+        !isChatProcessing && !isProcessingIssueAction && (
         <div style={{ marginTop: "20px" }}>
           <ActionSectionHeader color="#11998e" />
           {(Object.keys(ISSUE_ACTION_TYPES) as IssueActionType[]).map((actionType) => (
@@ -373,7 +569,7 @@ const GitLab = (props: GitLabProps) => {
               key={actionType}
               actionType={actionType}
               onSelect={handleIssueActionSelect}
-              isProcessing={isProcessingIssueAction}
+              isProcessing={false}
             />
           ))}
         </div>
@@ -394,16 +590,33 @@ const GitLab = (props: GitLabProps) => {
         </div>
       )}
 
-      {/* Results container */}
+      {/* Results container for quick actions */}
       {hasLLMAPIKey && projectId && (
         (issueId && selectedIssueAction) || (mergeRequestId && selectedMRAction)
       ) && (
         <div ref={iisRef} />
       )}
 
-      {/* Try another action - Issue */}
-      {selectedIssueAction && !isProcessingIssueAction && (
-        <TryAnotherActionButton onClick={handleResetIssueAction} color="#11998e" />
+      {/* Chat container for issue conversations - always visible on issue pages */}
+      {hasLLMAPIKey && projectId && issueId && (
+        <>
+          {/* Chat messages container */}
+          <div ref={chatContainerRef} style={{ marginTop: "16px" }} />
+
+          {/* Chat input - always available for custom queries */}
+          <ChatInput
+            onSubmit={handleIssueChatSubmit}
+            isLoading={isChatProcessing || isProcessingIssueAction}
+            suggestedPrompts={issueChatPrompts.getSuggestedPrompts({
+              issueData: issueData as IssueType,
+              discussions: issueDiscussions || undefined,
+              currentUser: currentGitLabUser,
+              actionType: selectedIssueAction || undefined,
+              hasInitialResponse: !!initialIssueResponse,
+            })}
+            placeholder="Ask anything about this issue..."
+          />
+        </>
       )}
 
       {/* Try another action - MR */}

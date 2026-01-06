@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-redeclare */
 
 import { getOpenAIApiKey, getOpenAIModel } from "./../index";
-import { taskPrompts, codeReviewPrompts, mergeRequestActionsPrompts, issueActionsPrompts } from "./../prompts/index";
+import { taskPrompts, codeReviewPrompts, mergeRequestActionsPrompts, issueActionsPrompts, issueChatPrompts } from "./../prompts/index";
 import { aiGeneratedSummaries } from "./../tools";
 import { CodeReviewRenderer } from "../codeReviewRenderer";
 import { MRActionsRenderer } from "../mrActionsRenderer";
 import { IssueActionsRenderer } from "../issueActionsRenderer";
+import { IssueChatRenderer } from "../issueChatRenderer";
 import { DEFAULT_AI_MODELS, MRActionType, IssueActionType } from "../constants";
 import {
   getCurrentUserRole,
@@ -18,6 +19,7 @@ import {
   buildOpenAIRequest,
   createErrorContainer,
 } from "./base";
+import type { ChatContext } from "./index";
 
 const aiProvider = "openai";
 const aIApiUrl = "https://api.openai.com/v1/chat/completions";
@@ -430,4 +432,104 @@ async function invokingIssueAction(containerRef: any, issueData: any, discussion
   }
 }
 
-export { fetchLLMTaskSummarizer, invokingCodeAnalysis, invokingMRAction, invokingIssueAction };
+async function invokingIssueChat(
+  containerRef: any,
+  userQuery: string,
+  chatContext: ChatContext,
+  onComplete?: (response: string) => void,
+  onAddToComments?: (content: string) => Promise<{ success: boolean; noteUrl?: string; error?: string }>
+) {
+  const personalAIApiKey = await getOpenAIApiKey();
+  if (!personalAIApiKey) return;
+
+  const model = (await getOpenAIModel()) || DEFAULT_AI_MODELS.openai;
+
+  // Get user role for role-based prompts
+  const userRole = await getCurrentUserRole();
+
+  // Generate messages prompt for chat with current user context
+  const messages = issueChatPrompts.getChatPrompt(userQuery, {
+    issueData: chatContext.issueData,
+    discussions: chatContext.discussions,
+    previousResponse: chatContext.previousResponse,
+    conversationHistory: chatContext.conversationHistory,
+    currentUser: chatContext.currentUser,
+  }, userRole);
+
+  // Create message container for this chat response
+  const messageContainer = document.createElement("div");
+  containerRef.current.appendChild(messageContainer);
+
+  // Show loading state
+  IssueChatRenderer.showLoadingState(messageContainer);
+
+  try {
+    const response = await fetch(aIApiUrl, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${personalAIApiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: model,
+        messages: messages,
+        stream: true,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Error calling LLM API");
+    }
+
+    const reader = response.body
+      ?.pipeThrough(new TextDecoderStream())
+      .getReader();
+    if (!reader) return;
+
+    let responseContent = "";
+    let lastUpdateTime = Date.now();
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      const arr = value.split("\n");
+
+      for (const data of arr) {
+        if (data.length === 0 || data.startsWith(":")) continue;
+        if (data === "data: [DONE]") {
+          IssueChatRenderer.renderResponse(messageContainer, responseContent.trim(), onAddToComments);
+          onComplete?.(responseContent.trim());
+          return responseContent.trim();
+        }
+
+        try {
+          if (data.startsWith("data: ")) {
+            const jsonResponse = JSON.parse(data.substring(6));
+            const deltaContent = jsonResponse.choices?.[0]?.delta?.content;
+
+            if (deltaContent) {
+              responseContent += deltaContent;
+
+              const now = Date.now();
+              if (now - lastUpdateTime > 300 || responseContent.length < 50) {
+                IssueChatRenderer.renderStreamingResponse(messageContainer, responseContent);
+                lastUpdateTime = now;
+              }
+            }
+          }
+        } catch (error) {
+          continue;
+        }
+      }
+    }
+
+    IssueChatRenderer.renderResponse(messageContainer, responseContent.trim(), onAddToComments);
+    onComplete?.(responseContent.trim());
+    return responseContent.trim();
+  } catch (error) {
+    IssueChatRenderer.showErrorState(messageContainer, "Failed to get response from OpenAI. Please try again.");
+  }
+}
+
+export { fetchLLMTaskSummarizer, invokingCodeAnalysis, invokingMRAction, invokingIssueAction, invokingIssueChat };

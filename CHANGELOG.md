@@ -22,8 +22,9 @@
 - FEAT: 💬 Comment Box Integration
 - REFACTOR: 🔧 Content Script Enhancements
 
-## v1.0.1 (January 6, 2026)
+## v1.0.2 (January 6, 2026)
 
 - HOTFIX: Google Authentication Expiry Period (30 days);
 - HOTFIX: Ext icon placement issue, should always be loaded from the store;
 - FEAT: Added new OpenAI and Claude, Deepseek models.
+- Interactive integration with GitLab data
