@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import { isGitLabIssuesPage, setStorage, getStorage } from "../utils";
 import "../assets/styles/inject.css";
+import { AiBOT } from "../utils/common";
 
 export {};
 
@@ -193,7 +194,7 @@ if (isGitLabIssuesPage(currentTabUrl)) {
       const newCursorPos = cursorPos + (currentValue.length > 0 && cursorPos > 0 ? 2 : 0) + text.length;
       textarea.setSelectionRange(newCursorPos, newCursorPos);
 
-      showNotification("AI summary added to comment box!", "success");
+      showNotification(`${AiBOT.name} summary added to comment box!`, "success");
       return { success: true };
     } catch (error: any) {
       console.error("Error inserting text into comment box:", error);

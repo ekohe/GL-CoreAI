@@ -5,6 +5,7 @@
 import { createRoot, Root } from "react-dom/client";
 import { createElement } from "react";
 import ChatMessage from "../components/ChatMessage";
+import { shareToSlack, isSlackConfigured } from "./slack";
 
 // Store roots for cleanup
 const containerRoots = new Map<HTMLElement, Root>();
@@ -341,6 +342,20 @@ export class IssueChatRenderer {
         color: #1e293b;
       }
 
+      .chat-action-button.chat-slack-button {
+        background: linear-gradient(135deg, #4A154B 0%, #611f69 100%);
+        color: white;
+      }
+
+      .chat-action-button.chat-slack-button:hover {
+        background: linear-gradient(135deg, #611f69 0%, #4A154B 100%);
+      }
+
+      .chat-action-button.chat-slack-button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
       .chat-list {
         margin: 8px 0;
         padding-left: 24px;
@@ -453,11 +468,18 @@ export class IssueChatRenderer {
    * @param container - The container element to render into
    * @param content - The markdown content to render
    * @param onAddToComments - Optional callback to add content as a GitLab comment
+   * @param context - Optional context for Slack sharing (title, url, type, project)
    */
   public static renderResponse(
     container: HTMLElement,
     content: string,
-    onAddToComments?: (content: string) => Promise<{ success: boolean; noteUrl?: string; error?: string }>
+    onAddToComments?: (content: string) => Promise<{ success: boolean; noteUrl?: string; error?: string }>,
+    context?: {
+      title?: string;
+      url?: string;
+      type?: "issue" | "merge_request" | "todo" | "general";
+      project?: string;
+    }
   ): void {
     this.createStyles();
     container.innerHTML = '';
@@ -603,6 +625,86 @@ export class IssueChatRenderer {
           });
           actionsContainer.appendChild(insertButton);
         }
+
+        // Share to Slack button (check if Slack is configured)
+        isSlackConfigured().then((configured) => {
+          if (configured) {
+            const slackButton = document.createElement("button");
+            slackButton.className = "chat-action-button chat-slack-button";
+            slackButton.innerHTML = `
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zM8.834 6.313a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zM18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zM17.688 8.834a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312zM15.165 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zM15.165 17.688a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z"/>
+              </svg>
+            `;
+            slackButton.title = "Share to Slack";
+
+            slackButton.addEventListener("click", async () => {
+              slackButton.disabled = true;
+              const originalHTML = slackButton.innerHTML;
+              slackButton.innerHTML = `
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10" style="animation: spin 1s linear infinite; transform-origin: center;"/>
+                </svg>
+              `;
+              slackButton.title = "Sending...";
+
+              try {
+                const result = await shareToSlack(content, context);
+                if (result.success) {
+                  slackButton.innerHTML = `
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                  `;
+                  slackButton.classList.remove("chat-slack-button");
+                  slackButton.classList.add("chat-action-success");
+                  slackButton.title = "Sent to Slack!";
+
+                  setTimeout(() => {
+                    slackButton.innerHTML = originalHTML;
+                    slackButton.classList.remove("chat-action-success");
+                    slackButton.classList.add("chat-slack-button");
+                    slackButton.title = "Share to Slack";
+                    slackButton.disabled = false;
+                  }, 2000);
+                } else {
+                  slackButton.innerHTML = `
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"/>
+                      <line x1="15" y1="9" x2="9" y2="15"/>
+                      <line x1="9" y1="9" x2="15" y2="15"/>
+                    </svg>
+                  `;
+                  slackButton.classList.remove("chat-slack-button");
+                  slackButton.classList.add("chat-action-error");
+                  slackButton.title = result.error || "Failed to send";
+                  slackButton.disabled = false;
+
+                  setTimeout(() => {
+                    slackButton.innerHTML = originalHTML;
+                    slackButton.classList.remove("chat-action-error");
+                    slackButton.classList.add("chat-slack-button");
+                    slackButton.title = "Share to Slack";
+                  }, 3000);
+                }
+              } catch (error: any) {
+                slackButton.innerHTML = `
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="15" y1="9" x2="9" y2="15"/>
+                    <line x1="9" y1="9" x2="15" y2="15"/>
+                  </svg>
+                `;
+                slackButton.classList.remove("chat-slack-button");
+                slackButton.classList.add("chat-action-error");
+                slackButton.title = error.message || "Unknown error";
+                slackButton.disabled = false;
+              }
+            });
+
+            actionsContainer.appendChild(slackButton);
+          }
+        });
 
         assistantMessage.appendChild(actionsContainer);
       }

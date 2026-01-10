@@ -18,6 +18,7 @@ import {
   createErrorContainer,
 } from "./base";
 import type { ChatContext } from "./index";
+import { AiBOT } from "../common";
 
 const aiProvider = "openrouter";
 const aIApiUrl = "https://openrouter.ai/api/v1/chat/completions";
@@ -31,7 +32,7 @@ function buildOpenRouterHeaders(apiKey: string): Record<string, string> {
     Authorization: `Bearer ${apiKey}`,
     "Content-Type": "application/json",
     "HTTP-Referer": chrome.runtime.getURL("/"),
-    "X-Title": "GitLab AI Summarizer",
+    "X-Title": AiBOT.name,
   };
 }
 

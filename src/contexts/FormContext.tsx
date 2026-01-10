@@ -19,6 +19,7 @@ import {
   DEFAULT_APPEARANCE,
   DEFAULT_LANGUAGE,
 } from "../utils/constants";
+import { AiBOT } from "../utils/common";
 
 interface FormData {
   // GitLab settings
@@ -47,6 +48,12 @@ interface FormData {
   GASOccupation: string;
   GASAboutYou: string;
   GASCustomInstructions: string;
+  // Slack Integration settings
+  GASSlackEnabled: boolean;
+  GASSlackWebhookUrl: string;
+  GASSlackBotName: string;
+  GASSlackDefaultChannel: string;
+  GASSlackIconEmoji: string;
 }
 
 interface FormContextType {
@@ -88,6 +95,12 @@ const FormProvider = ({ children }: { children: ReactNode }) => {
     GASOccupation: "",
     GASAboutYou: "",
     GASCustomInstructions: "",
+    // Slack Integration settings
+    GASSlackEnabled: false,
+    GASSlackWebhookUrl: "",
+    GASSlackBotName: AiBOT.name,
+    GASSlackDefaultChannel: "",
+    GASSlackIconEmoji: ":robot_face:",
   });
 
   useEffect(() => {
