@@ -14,7 +14,7 @@ import { invokingAIInboxProcess, invokingAIInboxChat } from "../../../utils/llms
 import ChatInput from "../../../components/ChatInput";
 import { IssueChatRenderer } from "../../../utils/issueChatRenderer";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCheck, faSpinner, faCloud, faBrain, faPaintBrush, faArrowsToDot, faCrown, faExternalLinkAlt, faCheckCircle, faArrowsSpin } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faSpinner, faCloud, faBrain, faPaintBrush, faCrown, faExternalLinkAlt, faCheckCircle, faArrowsSpin } from "@fortawesome/free-solid-svg-icons";
 
 // Theme colors
 const THEME = {
@@ -1228,9 +1228,7 @@ const AIInbox = ({ onBack }: AIInboxProps) => {
             {summary && summary.headsUp.length > 0 && (
               <div style={{ marginBottom: "32px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
-                  <span style={{ fontSize: "1.25rem" }}>
-                    <FontAwesomeIcon icon={faArrowsToDot} style={{ color: THEME.primary }} />
-                  </span>
+                  <span style={{ fontSize: "1.25rem", color: THEME.primary }}>🎯</span>
                   <h2 style={{ margin: 0, fontSize: "1rem", fontWeight: 600, color: "#1e293b" }}>
                     Heads up:
                   </h2>
