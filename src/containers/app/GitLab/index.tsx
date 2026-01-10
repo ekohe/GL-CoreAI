@@ -12,6 +12,8 @@ import {
   getOllamaModel,
   getOpenAIApiKey,
   getOpenAIModel,
+  getOpenRouterApiKey,
+  getOpenRouterModel,
 } from "../../../utils";
 import {
   extractProjectPathAndIssueIdOrMergeRequestId,
@@ -120,30 +122,34 @@ const GitLab = (props: GitLabProps) => {
       openAIKey?: string;
       deepSeekKey?: string;
       claudeKey?: string;
+      openRouterKey?: string;
     }) => {
       if (provider === "ollama") return true;
       if (provider === "openai") return Boolean(keys.openAIKey?.trim());
       if (provider === "deepseek") return Boolean(keys.deepSeekKey?.trim());
       if (provider === "claude") return Boolean(keys.claudeKey?.trim());
+      if (provider === "openrouter") return Boolean(keys.openRouterKey?.trim());
 
       return (
         Boolean(keys.openAIKey?.trim()) ||
         Boolean(keys.deepSeekKey?.trim()) ||
-        Boolean(keys.claudeKey?.trim())
+        Boolean(keys.claudeKey?.trim()) ||
+        Boolean(keys.openRouterKey?.trim())
       );
     };
 
     const loadLLMSettings = async () => {
-      const [provider, claudeKey, openAIKey, deepSeekKey] = await Promise.all([
+      const [provider, claudeKey, openAIKey, deepSeekKey, openRouterKey] = await Promise.all([
         getAiProvider(),
         getClaudeApiKey(),
         getOpenAIApiKey(),
         getDeepSeekApiKey(),
+        getOpenRouterApiKey(),
       ]);
 
       if (cancelled) return;
 
-      const hasKey = computeHasKey(provider, { openAIKey, deepSeekKey, claudeKey });
+      const hasKey = computeHasKey(provider, { openAIKey, deepSeekKey, claudeKey, openRouterKey });
       setHasLLMAPIKey(hasKey);
     };
 
@@ -184,11 +190,13 @@ const GitLab = (props: GitLabProps) => {
           changes.GASOpenAIKey ||
           changes.GASDeepSeekAIKey ||
           changes.GASClaudeKey ||
+          changes.GASOpenRouterKey ||
           changes.GASOpenaiModel ||
           changes.GASDeepSeekModel ||
           changes.GASClaudeModel ||
           changes.GASOllamaModel ||
-          changes.GASOllamaURL
+          changes.GASOllamaURL ||
+          changes.GASOpenRouterModel
         ) {
         loadLLMSettings();
         return;
@@ -273,6 +281,7 @@ const GitLab = (props: GitLabProps) => {
     if (provider === "openai") return (await getOpenAIModel()) || DEFAULT_AI_MODELS.openai;
     if (provider === "deepseek") return (await getDeepSeekModel()) || DEFAULT_AI_MODELS.deepseek;
     if (provider === "ollama") return (await getOllamaModel()) || DEFAULT_AI_MODELS.ollama;
+    if (provider === "openrouter") return (await getOpenRouterModel()) || DEFAULT_AI_MODELS.openrouter;
     return "";
   };
 

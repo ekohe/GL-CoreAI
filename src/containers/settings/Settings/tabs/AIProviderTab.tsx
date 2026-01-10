@@ -71,6 +71,7 @@ const AIProviderTab = () => {
                   <option value="openai">OpenAI</option>
                   <option value="deepseek">DeepSeek</option>
                   <option value="claude">Claude</option>
+                  <option value="openrouter">OpenRouter</option>
                   <option value="ollama">Ollama (Local)</option>
                 </select>
               </div>
@@ -128,6 +129,24 @@ const AIProviderTab = () => {
             </FormField>
             <FormField label="Model">
               {renderSelect("GASDeepSeekModel", formData.GASDeepSeekModel, AI_MODEL_OPTIONS.deepseek)}
+            </FormField>
+          </div>
+        </div>
+      )}
+
+      {/* OpenRouter Settings */}
+      {formData.GASAiProvider === "openrouter" && (
+        <div className="settings-group provider-settings">
+          <div className="group-title">
+            <span className="group-icon">🌐</span>
+            OpenRouter Configuration
+          </div>
+          <div className="group-content">
+            <FormField label="API Key">
+              {renderPasswordInput("GASOpenRouterKey", "Enter your OpenRouter API key (sk-or-...)", formData.GASOpenRouterKey)}
+            </FormField>
+            <FormField label="Model">
+              {renderSelect("GASOpenRouterModel", formData.GASOpenRouterModel, AI_MODEL_OPTIONS.openrouter)}
             </FormField>
           </div>
         </div>

@@ -95,6 +95,11 @@ const getClaudeApiKey = async (): Promise<string | undefined> => {
   return getFromBackground("getClaudeApiKey", "GASClaudeKey");
 };
 
+// Retrieve OpenRouter API key
+const getOpenRouterApiKey = async (): Promise<string | undefined> => {
+  return getFromBackground("getOpenRouterApiKey", "GASOpenRouterKey");
+};
+
 // Retrieve Theme Type
 const getThemeType = async (): Promise<string | undefined> => {
   return getFromBackground("getThemeType", "GASThemeType");
@@ -128,6 +133,10 @@ const getOllamaModel = async (): Promise<string | undefined> => {
 
 const getOllamaURL = async (): Promise<string | undefined> => {
   return getFromBackground("getOllamaURL", "GASOllamaURL");
+};
+
+const getOpenRouterModel = async (): Promise<string | undefined> => {
+  return getFromBackground("getOpenRouterModel", "GASOpenRouterModel");
 };
 
 // Retrieve Personalization Settings
@@ -396,6 +405,7 @@ export {
   getOpenAIApiKey,
   getDeepSeekApiKey,
   getClaudeApiKey,
+  getOpenRouterApiKey,
   getThemeType,
   getThemeColor,
   getAiProvider,
@@ -404,6 +414,7 @@ export {
   getClaudeModel,
   getOllamaModel,
   getOllamaURL,
+  getOpenRouterModel,
   getOccupation,
   getNickname,
   getAboutYou,

@@ -30,11 +30,13 @@ interface FormData {
   GASOpenAIKey: string;
   GASDeepSeekAIKey: string;
   GASClaudeKey: string;
+  GASOpenRouterKey: string;
   GASOpenaiModel: string;
   GASDeepSeekModel: string;
   GASClaudeModel: string;
   GASOllamaURL: string;
   GASOllamaModel: string;
+  GASOpenRouterModel: string;
   // General settings
   GASThemeType: string;
   GASThemeColor: string;
@@ -69,11 +71,13 @@ const FormProvider = ({ children }: { children: ReactNode }) => {
     GASOpenAIKey: "",
     GASDeepSeekAIKey: "",
     GASClaudeKey: "",
+    GASOpenRouterKey: "",
     GASOpenaiModel: DEFAULT_AI_MODELS.openai,
     GASDeepSeekModel: DEFAULT_AI_MODELS.deepseek,
     GASClaudeModel: DEFAULT_AI_MODELS.claude,
     GASOllamaURL: DEFAULT_OLLAMA_URL,
     GASOllamaModel: DEFAULT_AI_MODELS.ollama,
+    GASOpenRouterModel: DEFAULT_AI_MODELS.openrouter,
     // General settings
     GASThemeType: "theme-green",
     GASThemeColor: "#f9f7f9",
