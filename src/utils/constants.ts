@@ -73,6 +73,7 @@ export const DEFAULT_AI_MODELS = {
   deepseek: "deepseek-chat",
   claude: "claude-opus-4-5-20251101",
   ollama: "llama3.2",
+  openrouter: "deepseek/deepseek-r1-0528:free",
 } as const;
 
 export const DEFAULT_OLLAMA_URL = "http://localhost:11434";
@@ -210,6 +211,58 @@ export const AI_MODEL_OPTIONS = {
       label: "Mistral 7B",
     },
     { value: "codellama", label: "Code Llama" },
+  ],
+  openrouter: [
+    // ═══════════════════════════════════════════════════════════════════════
+    // FREE MODELS (No cost per token)
+    // ═══════════════════════════════════════════════════════════════════════
+    { value: "xiaomi/mimo-v2-flash:free", label: "🆓 MiMo-V2-Flash (Xiaomi, 262K)" },
+    { value: "mistralai/devstral-2512:free", label: "🆓 Devstral 2 (Mistral, Coding)" },
+    { value: DEFAULT_AI_MODELS.openrouter, label: "🆓 DeepSeek R1 0528 (Default, 164K)" },
+    { value: "qwen/qwen3-coder:free", label: "🆓 Qwen3 Coder 480B (262K)" },
+    { value: "moonshotai/kimi-k2:free", label: "🆓 Kimi K2 (1T params, 128K)" },
+    { value: "tngtech/deepseek-r1t2-chimera:free", label: "🆓 DeepSeek R1T2 Chimera (164K)" },
+    { value: "tngtech/deepseek-r1t-chimera:free", label: "🆓 DeepSeek R1T Chimera (164K)" },
+    { value: "z-ai/glm-4.5-air:free", label: "🆓 GLM 4.5 Air (131K)" },
+    { value: "nvidia/nemotron-3-nano-30b-a3b:free", label: "🆓 Nemotron 3 Nano 30B (NVIDIA)" },
+    { value: "google/gemma-3-12b-it:free", label: "🆓 Gemma 3 12B (Google)" },
+    { value: "google/gemma-3-4b-it:free", label: "🆓 Gemma 3 4B (Google)" },
+    { value: "google/gemma-3n-e4b-it:free", label: "🆓 Gemma 3n 4B (Google, Mobile)" },
+    { value: "google/gemma-3n-e2b-it:free", label: "🆓 Gemma 3n 2B (Google, Mobile)" },
+    { value: "qwen/qwen3-4b:free", label: "🆓 Qwen3 4B" },
+    { value: "qwen/qwen-2.5-vl-7b-instruct:free", label: "🆓 Qwen2.5-VL 7B (Vision)" },
+    { value: "allenai/molmo-2-8b:free", label: "🆓 Molmo2 8B (AllenAI, Vision)" },
+    { value: "nvidia/nemotron-nano-12b-v2-vl:free", label: "🆓 Nemotron Nano 12B VL (Vision)" },
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // PAID MODELS
+    // ═══════════════════════════════════════════════════════════════════════
+    // Anthropic Models
+    { value: "anthropic/claude-sonnet-4", label: "Claude Sonnet 4" },
+    { value: "anthropic/claude-opus-4", label: "Claude Opus 4" },
+    { value: "anthropic/claude-3.5-sonnet", label: "Claude 3.5 Sonnet" },
+    { value: "anthropic/claude-3.5-haiku", label: "Claude 3.5 Haiku" },
+    // OpenAI Models
+    { value: "openai/gpt-4o", label: "GPT-4o" },
+    { value: "openai/gpt-4o-mini", label: "GPT-4o Mini" },
+    { value: "openai/o1", label: "o1" },
+    { value: "openai/o1-mini", label: "o1 Mini" },
+    { value: "openai/o3-mini", label: "o3 Mini" },
+    // Google Models
+    { value: "google/gemini-2.0-flash-exp", label: "Gemini 2.0 Flash" },
+    { value: "google/gemini-pro-1.5", label: "Gemini Pro 1.5" },
+    // Meta Models
+    { value: "meta-llama/llama-3.3-70b-instruct", label: "Llama 3.3 70B" },
+    { value: "meta-llama/llama-3.1-405b-instruct", label: "Llama 3.1 405B" },
+    // Mistral Models
+    { value: "mistralai/mistral-large", label: "Mistral Large" },
+    { value: "mistralai/mixtral-8x22b-instruct", label: "Mixtral 8x22B" },
+    // DeepSeek Models
+    { value: "deepseek/deepseek-r1", label: "DeepSeek R1" },
+    { value: "deepseek/deepseek-chat", label: "DeepSeek Chat" },
+    // Other Popular Models
+    { value: "qwen/qwen-2.5-72b-instruct", label: "Qwen 2.5 72B" },
+    { value: "cohere/command-r-plus", label: "Command R+" },
   ],
 } as const;
 

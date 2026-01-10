@@ -4,8 +4,9 @@ import * as openAi from "./openAi";
 import * as deepSeek from "./deepSeek";
 import * as ollama from "./ollama";
 import * as claude from "./claude";
+import * as openRouter from "./openRouter";
 
-import { getAiProvider, getOpenAIApiKey, getClaudeApiKey, getDeepSeekApiKey, getOllamaURL } from "./../index";
+import { getAiProvider, getOpenAIApiKey, getClaudeApiKey, getDeepSeekApiKey, getOllamaURL, getOpenRouterApiKey } from "./../index";
 import { MRActionType, IssueActionType, DEFAULT_AI_MODELS, DEFAULT_OLLAMA_URL } from "../constants";
 import { aiInboxPrompts } from "../prompts";
 import type { GitLabTodo, TodoSummary, PriorityItem, TopicGroup } from "../prompts/aiInbox";
@@ -69,6 +70,9 @@ async function gitLabIssueSummarize(
     claude: async (issueDetails, issueData, discussions) => {
       await claude.fetchLLMTaskSummarizer(issueDetails, issueData, discussions);
     },
+    openrouter: async (issueDetails, issueData, discussions) => {
+      await openRouter.fetchLLMTaskSummarizer(issueDetails, issueData, discussions);
+    },
   };
 
   await executeProviderFunction(
@@ -96,6 +100,9 @@ async function invokingCodeAnalysis(
     claude: async (issueDetails, diffsData) => {
       await claude.invokingCodeAnalysis(issueDetails, diffsData);
     },
+    openrouter: async (issueDetails, diffsData) => {
+      await openRouter.invokingCodeAnalysis(issueDetails, diffsData);
+    },
   };
 
   await executeProviderFunction(providerFunctions, issueDetails, diffsData);
@@ -118,6 +125,9 @@ async function invokingMRAction(
     },
     claude: async (containerRef, diffsData, actionType) => {
       await claude.invokingMRAction(containerRef, diffsData, actionType);
+    },
+    openrouter: async (containerRef, diffsData, actionType) => {
+      await openRouter.invokingMRAction(containerRef, diffsData, actionType);
     },
   };
 
@@ -142,6 +152,9 @@ async function invokingIssueAction(
     },
     claude: async (containerRef, issueData, discussions, actionType) => {
       await claude.invokingIssueAction(containerRef, issueData, discussions, actionType);
+    },
+    openrouter: async (containerRef, issueData, discussions, actionType) => {
+      await openRouter.invokingIssueAction(containerRef, issueData, discussions, actionType);
     },
   };
 
@@ -170,6 +183,9 @@ async function invokingIssueChat(
     },
     claude: async (containerRef, userQuery, chatContext, onComplete, onAddToComments) => {
       await claude.invokingIssueChat(containerRef, userQuery, chatContext, onComplete, onAddToComments);
+    },
+    openrouter: async (containerRef, userQuery, chatContext, onComplete, onAddToComments) => {
+      await openRouter.invokingIssueChat(containerRef, userQuery, chatContext, onComplete, onAddToComments);
     },
   };
 
@@ -229,6 +245,18 @@ async function invokingAIInboxProcess(
     apiUrl = `${ollamaUrl}/api/chat`;
     headers = { "Content-Type": "application/json" };
     body = { model: model || DEFAULT_AI_MODELS.ollama, messages, stream: false };
+  } else if (provider === "openrouter") {
+    const apiKey = await getOpenRouterApiKey();
+    if (!apiKey) throw new Error("OpenRouter API key not configured");
+
+    apiUrl = "https://openrouter.ai/api/v1/chat/completions";
+    headers = {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+      "HTTP-Referer": chrome.runtime.getURL("/"),
+      "X-Title": "GitLab AI Summarizer",
+    };
+    body = { model: model || DEFAULT_AI_MODELS.openrouter, messages };
   } else {
     // Default to OpenAI
     const apiKey = await getOpenAIApiKey();
@@ -261,6 +289,7 @@ async function invokingAIInboxProcess(
   } else if (provider === "ollama") {
     content = data.message?.content || "";
   } else {
+    // OpenAI, DeepSeek, and OpenRouter use the same response format
     content = data.choices?.[0]?.message?.content || "";
   }
 
@@ -430,6 +459,18 @@ Be conversational, concise, and actionable. Help users:
     apiUrl = `${ollamaUrl}/api/chat`;
     headers = { "Content-Type": "application/json" };
     body = { model: DEFAULT_AI_MODELS.ollama, messages, stream: true };
+  } else if (provider === "openrouter") {
+    const apiKey = await getOpenRouterApiKey();
+    if (!apiKey) throw new Error("OpenRouter API key not configured");
+
+    apiUrl = "https://openrouter.ai/api/v1/chat/completions";
+    headers = {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+      "HTTP-Referer": chrome.runtime.getURL("/"),
+      "X-Title": "GitLab AI Summarizer",
+    };
+    body = { model: DEFAULT_AI_MODELS.openrouter, messages, stream: true };
   } else {
     const apiKey = await getOpenAIApiKey();
     if (!apiKey) throw new Error("OpenAI API key not configured");
@@ -484,6 +525,7 @@ Be conversational, concise, and actionable. Help users:
             const json = JSON.parse(line);
             content = json.message?.content || "";
           } else {
+            // OpenAI, DeepSeek, and OpenRouter use the same streaming format
             const jsonStr = line.replace(/^data: /, "");
             if (jsonStr) {
               const json = JSON.parse(jsonStr);

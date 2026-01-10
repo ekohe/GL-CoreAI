@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "short_name": "GL CoreAI",
   "name": "GL CoreAI",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "AI-powered GitLab assistant that summarizes issues and MRs using AI for quick understanding.",
   "options_page": "packs/static/settings.html",
   "background": {
