@@ -1,9 +1,16 @@
 import { useFormContext } from "../../../../contexts/FormContext";
 import { APPEARANCE_OPTIONS, LANGUAGE_OPTIONS } from "../../../../utils/constants";
+import { applyAppearance } from "../../../../utils/theme";
 import FormField from "../FormField";
 
 const GeneralTab = () => {
   const { formData, handleChange } = useFormContext();
+
+  // Handle appearance change and apply immediately
+  const handleAppearanceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    handleChange(e);
+    applyAppearance(e.target.value);
+  };
 
   return (
     <div className="tab-content-section">
@@ -25,7 +32,7 @@ const GeneralTab = () => {
               <div className="select is-fullwidth">
                 <select
                   name="GASAppearance"
-                  onChange={handleChange}
+                  onChange={handleAppearanceChange}
                   value={formData.GASAppearance}
                 >
                   {APPEARANCE_OPTIONS.map(({ value, label }) => (

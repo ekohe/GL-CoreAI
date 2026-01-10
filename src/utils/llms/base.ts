@@ -4,11 +4,19 @@
  * This consolidates common code patterns used across OpenAI, Claude, DeepSeek, and Ollama
  */
 
-import { getOccupation } from "../index";
+import { getOccupation, getNickname, getAboutYou, getCustomInstructions } from "../index";
+import { DEFAULT_OCCUPATION } from "../constants";
 
 // ============================================================================
 // Types
 // ============================================================================
+
+export interface UserPersonalization {
+  occupation: string;
+  nickname: string;
+  aboutYou: string;
+  customInstructions: string;
+}
 
 export interface LLMConfig {
   provider: string;
@@ -34,7 +42,62 @@ export interface StreamHandlerOptions {
  */
 export async function getUserOccupation(): Promise<string> {
   const occupation = await getOccupation();
-  return occupation || "team member";
+  return occupation || DEFAULT_OCCUPATION;
+}
+
+/**
+ * Get all user personalization settings from storage
+ */
+export async function getUserPersonalization(): Promise<UserPersonalization> {
+  const [occupation, nickname, aboutYou, customInstructions] = await Promise.all([
+    getOccupation(),
+    getNickname(),
+    getAboutYou(),
+    getCustomInstructions(),
+  ]);
+
+  return {
+    occupation: occupation || DEFAULT_OCCUPATION,
+    nickname: nickname || "",
+    aboutYou: aboutYou || "",
+    customInstructions: customInstructions || "",
+  };
+}
+
+/**
+ * Build personalization context string for AI prompts
+ * This provides the AI with user-specific context to tailor responses
+ */
+export function buildPersonalizationContext(personalization?: UserPersonalization): string {
+  if (!personalization) return "";
+
+  const parts: string[] = [];
+
+  if (personalization.nickname) {
+    parts.push(`- Address the user as "${personalization.nickname}"`);
+  }
+
+  if (personalization.occupation && personalization.occupation !== DEFAULT_OCCUPATION) {
+    parts.push(`- The user is a ${personalization.occupation}`);
+  }
+
+  if (personalization.aboutYou) {
+    parts.push(`- About the user: ${personalization.aboutYou}`);
+  }
+
+  if (personalization.customInstructions) {
+    parts.push(`\nCUSTOM INSTRUCTIONS FROM USER:\n${personalization.customInstructions}`);
+  }
+
+  if (parts.length === 0) {
+    return "";
+  }
+
+  return `
+USER PERSONALIZATION:
+=====================
+${parts.join("\n")}
+`;
 }
 
 // ============================================================================
@@ -174,58 +237,6 @@ export function cleanResponseContent(content: string): string {
 export function updateResponseContainer(container: HTMLElement, content: string): void {
   container.style.opacity = "1";
   container.innerHTML = cleanResponseContent(content);
-}
-
-// ============================================================================
-// Stream Parsing Utilities
-// ============================================================================
-
-/**
- * Parse OpenAI-format streaming response chunk
- * Used by OpenAI, DeepSeek (OpenAI-compatible API)
- */
-export function parseOpenAIStreamChunk(data: string): string | null {
-  if (!data.startsWith("data: ")) return null;
-
-  try {
-    const jsonResponse = JSON.parse(data.substring(6));
-    return jsonResponse.choices?.[0]?.delta?.content || null;
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Parse Claude streaming response chunk
- */
-export function parseClaudeStreamChunk(data: string): string | null {
-  if (data.includes("event: content_block_delta")) return null;
-  if (!data.startsWith("data: ")) return null;
-
-  try {
-    const jsonData = JSON.parse(data.substring(6));
-    if (jsonData.type === "content_block_delta" && jsonData.delta?.text) {
-      return jsonData.delta.text;
-    }
-    return null;
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Parse Ollama streaming response chunk
- */
-export function parseOllamaStreamChunk(line: string): { content: string | null; done: boolean } {
-  try {
-    const jsonResponse = JSON.parse(line);
-    return {
-      content: jsonResponse.message?.content || null,
-      done: jsonResponse.done || false,
-    };
-  } catch {
-    return { content: null, done: false };
-  }
 }
 
 // ============================================================================

@@ -6,7 +6,9 @@ import {
   getUserAccessToken,
   openChromeSettingPage,
   getThemeType,
+  getAppearance,
 } from "../../utils";
+import { initializeAppearance, getEffectiveAppearance } from "../../utils/theme";
 import { AiBOT } from "../../utils/common";
 
 // Icons
@@ -25,15 +27,22 @@ function BrowserActionPopup() {
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [themeType, setThemeType] = useState<string>("light");
+  const [appearanceMode, setAppearanceMode] = useState<"light" | "dark">("light");
 
   useEffect(() => {
     loadUserData();
     loadTheme();
+    loadAppearance();
   }, []);
 
   const loadTheme = async () => {
     const theme = await getThemeType();
     setThemeType(theme || "light");
+  };
+
+  const loadAppearance = async () => {
+    const appearance = await initializeAppearance();
+    setAppearanceMode(getEffectiveAppearance(appearance));
   };
 
   const loadUserData = async () => {
@@ -104,7 +113,7 @@ function BrowserActionPopup() {
 
   if (loading) {
     return (
-      <div className="popup-container" data-theme={themeType}>
+      <div className="popup-container" data-theme={themeType} data-appearance={appearanceMode}>
         <article className="message is-info">
           <div className="message-body has-text-centered">
             <div className="loader"></div>
@@ -116,7 +125,7 @@ function BrowserActionPopup() {
   }
 
   return (
-    <div className="popup-container" data-theme={themeType}>
+    <div className="popup-container" data-theme={themeType} data-appearance={appearanceMode}>
       {/* Header */}
       <div className="popup-header">
         <div className="level is-mobile">

@@ -61,6 +61,9 @@ export const LANGUAGE_OPTIONS = [
 
 export const DEFAULT_LANGUAGE = "en";
 
+// Default occupation for personalization
+export const DEFAULT_OCCUPATION = "team member";
+
 export const DEFAULT_AI_MODELS = {
   openai: "gpt-5.2",
   deepseek: "deepseek-chat",

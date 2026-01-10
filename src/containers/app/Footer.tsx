@@ -18,7 +18,7 @@ const Footer = () => {
         }}
       >
         <strong style={{ color: "#374151" }}>
-          {AiBOT.name} was made by {AiBOT.authorName}.
+          {AiBOT.name} is made by {AiBOT.authorName}
         </strong>{" "}
         <span style={{ color: "#9ca3af" }}>v{AiBOT?.version}</span>
       </p>

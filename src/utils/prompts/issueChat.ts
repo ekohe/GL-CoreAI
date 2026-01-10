@@ -1,11 +1,11 @@
 import type { GitLabUser } from "../gitlab";
+import { DEFAULT_OCCUPATION } from "../constants";
+import { buildPersonalizationContext, type UserPersonalization } from "../llms/base";
 
 /**
  * Chat prompt for follow-up conversations about issues
  * This builds on the initial action response and allows users to ask follow-up questions
  */
-
-const DEFAULT_OCCUPATION = "team member";
 
 interface ChatMessage {
   role: "system" | "user" | "assistant";
@@ -87,17 +87,19 @@ ${JSON.stringify(discussions, null, 2)}
 export const getChatPrompt = (
   userQuery: string,
   context: IssueChatContext,
-  occupation?: string
+  occupation?: string,
+  personalization?: UserPersonalization
 ): ChatMessage[] => {
-  const userOccupation = occupation || DEFAULT_OCCUPATION;
+  const userOccupation = occupation || personalization?.occupation || DEFAULT_OCCUPATION;
   const systemMessage = getOccupationChatSystemMessage(userOccupation);
   const issueContext = buildIssueContext(context.issueData, context.discussions, context.currentUser);
+  const personalizationContext = buildPersonalizationContext(personalization);
 
   const messages: ChatMessage[] = [
     {
       role: "system",
       content: `${systemMessage}
-
+${personalizationContext}
 ${issueContext}
 
 PREVIOUS AI ANALYSIS:

@@ -1,6 +1,5 @@
-import { IssueActionType } from "../constants";
-
-const DEFAULT_OCCUPATION = "team member";
+import { IssueActionType, DEFAULT_OCCUPATION } from "../constants";
+import { buildPersonalizationContext, type UserPersonalization } from "../llms/base";
 
 // Summarize Issue prompt - focuses on understanding the issue and its context
 const summarizeIssuePrompt = (issueData: any, discussions: any) => `
@@ -535,11 +534,18 @@ WRITING GUIDELINES:
 ${getOccupationFocusAreas(occupation)}
 `;
 
-// Get prompt based on action type and user occupation
-export const getPrompt = (issueData: any, discussions: any, actionType: IssueActionType, occupation?: string): any => {
-  const userOccupation = occupation || DEFAULT_OCCUPATION;
+// Get prompt based on action type and user personalization
+export const getPrompt = (
+  issueData: any,
+  discussions: any,
+  actionType: IssueActionType,
+  occupation?: string,
+  personalization?: UserPersonalization
+): any => {
+  const userOccupation = occupation || personalization?.occupation || DEFAULT_OCCUPATION;
 
   const systemMessage = getOccupationSystemMessage(userOccupation, actionType);
+  const personalizationContext = buildPersonalizationContext(personalization);
 
   const prompts: Record<IssueActionType, string> = {
     summarize: summarizeIssuePromptWithOccupation(issueData, discussions, userOccupation),
@@ -547,10 +553,15 @@ export const getPrompt = (issueData: any, discussions: any, actionType: IssueAct
     draft_update: draftUpdatePromptWithOccupation(issueData, discussions, userOccupation),
   };
 
+  // Combine system message with personalization context
+  const fullSystemMessage = personalizationContext
+    ? `${systemMessage}\n\n${personalizationContext}`
+    : systemMessage;
+
   return [
     {
       role: "system",
-      content: systemMessage,
+      content: fullSystemMessage,
     },
     {
       role: "user",

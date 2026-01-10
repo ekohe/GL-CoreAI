@@ -9,14 +9,12 @@ import { IssueActionsRenderer } from "../issueActionsRenderer";
 import { IssueChatRenderer } from "../issueChatRenderer";
 import { DEFAULT_AI_MODELS, MRActionType, IssueActionType } from "../constants";
 import {
-  getUserOccupation,
+  getUserPersonalization,
   createModelBanner,
   createLoadingContainer,
   showBannerComplete,
   showBannerError,
   updateResponseContainer,
-  parseOpenAIStreamChunk,
-  buildOpenAIRequest,
   createErrorContainer,
 } from "./base";
 import type { ChatContext } from "./index";
@@ -346,11 +344,11 @@ async function invokingIssueAction(containerRef: any, issueData: any, discussion
 
   const model = (await getOpenAIModel()) || DEFAULT_AI_MODELS.openai;
 
-  // Get user role for role-based prompts
-  const occupation = await getUserOccupation();
+  // Get user personalization for role-based prompts
+  const personalization = await getUserPersonalization();
 
-  // Generate messages prompt for the specific action type with user role
-  const messages = issueActionsPrompts.getPrompt(issueData, discussions, actionType, occupation);
+  // Generate messages prompt for the specific action type with user personalization
+  const messages = issueActionsPrompts.getPrompt(issueData, discussions, actionType, personalization.occupation, personalization);
 
   // Create main container
   const mainContainer = document.createElement("div");
@@ -444,8 +442,8 @@ async function invokingIssueChat(
 
   const model = (await getOpenAIModel()) || DEFAULT_AI_MODELS.openai;
 
-  // Get user role for role-based prompts
-  const occupation = await getUserOccupation();
+  // Get user personalization for role-based prompts
+  const personalization = await getUserPersonalization();
 
   // Generate messages prompt for chat with current user context
   const messages = issueChatPrompts.getChatPrompt(userQuery, {
@@ -454,7 +452,7 @@ async function invokingIssueChat(
     previousResponse: chatContext.previousResponse,
     conversationHistory: chatContext.conversationHistory,
     currentUser: chatContext.currentUser,
-  }, occupation);
+  }, personalization.occupation, personalization);
 
   // Create message container for this chat response
   const messageContainer = document.createElement("div");

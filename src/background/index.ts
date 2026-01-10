@@ -7,6 +7,8 @@ import {
   DEFAULT_AI_MODELS,
   DEFAULT_AI_PROVIDER,
   DEFAULT_OLLAMA_URL,
+  DEFAULT_APPEARANCE,
+  DEFAULT_LANGUAGE,
 } from "../utils/constants";
 
 export {};
@@ -173,6 +175,8 @@ const storageActionsMap: { [key: string]: { key: string; defaultValue?: any } } 
   getNickname: { key: "GASNickname", defaultValue: "" },
   getAboutYou: { key: "GASAboutYou", defaultValue: "" },
   getCustomInstructions: { key: "GASCustomInstructions", defaultValue: "" },
+  getAppearance: { key: "GASAppearance", defaultValue: DEFAULT_APPEARANCE },
+  getLanguage: { key: "GASLanguage", defaultValue: DEFAULT_LANGUAGE },
 };
 
 // Consolidated message listener for all runtime messages

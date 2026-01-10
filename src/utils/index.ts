@@ -147,6 +147,16 @@ const getCustomInstructions = async (): Promise<string | undefined> => {
   return getFromBackground("getCustomInstructions", "GASCustomInstructions");
 };
 
+// Retrieve Appearance setting (light/dark/system)
+const getAppearance = async (): Promise<string | undefined> => {
+  return getFromBackground("getAppearance", "GASAppearance");
+};
+
+// Retrieve Language setting
+const getLanguage = async (): Promise<string | undefined> => {
+  return getFromBackground("getLanguage", "GASLanguage");
+};
+
 const getGoogleAccessToken = async (): Promise<string | undefined> => {
   return getFromBackground("getGoogleAccessToken", "GASGoogleAccessToken");
 };
@@ -398,6 +408,8 @@ export {
   getNickname,
   getAboutYou,
   getCustomInstructions,
+  getAppearance,
+  getLanguage,
   getDomainFromURL,
   getGoogleAccessToken,
   getUserAccessToken,

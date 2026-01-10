@@ -2,6 +2,54 @@
  * Shared theme constants for consistent styling across the application
  */
 
+import { DEFAULT_APPEARANCE } from "./constants";
+
+export type AppearanceMode = "light" | "dark" | "system";
+
+/**
+ * Get the effective appearance mode based on user preference and system settings
+ */
+export function getEffectiveAppearance(appearance: AppearanceMode | string): "light" | "dark" {
+  if (appearance === "system") {
+    // Check system preference
+    if (typeof window !== "undefined" && window.matchMedia) {
+      return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    }
+    return "light"; // Default fallback
+  }
+  return appearance === "dark" ? "dark" : "light";
+}
+
+/**
+ * Apply appearance mode to document
+ */
+export function applyAppearance(appearance: AppearanceMode | string): void {
+  const effectiveMode = getEffectiveAppearance(appearance);
+  document.documentElement.setAttribute("data-appearance", effectiveMode);
+  document.body.setAttribute("data-appearance", effectiveMode);
+}
+
+/**
+ * Initialize appearance from storage and set up system preference listener
+ */
+export async function initializeAppearance(): Promise<string> {
+  return new Promise((resolve) => {
+    chrome.storage.sync.get("GASAppearance", (result) => {
+      const appearance = result.GASAppearance || DEFAULT_APPEARANCE;
+      applyAppearance(appearance);
+
+      // Listen for system preference changes if using "system" mode
+      if (appearance === "system" && typeof window !== "undefined" && window.matchMedia) {
+        window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+          applyAppearance("system");
+        });
+      }
+
+      resolve(appearance);
+    });
+  });
+}
+
 // Primary gradient (purple) - used for MR actions, headers, buttons
 export const THEME_GRADIENTS = {
   primary: "linear-gradient(135deg, rgb(102, 126, 234) 0%, rgb(118, 75, 162) 100%)",
@@ -102,9 +150,26 @@ export const COMPONENT_STYLES = {
   },
 } as const;
 
+// Dark mode colors
+export const THEME_COLORS_DARK = {
+  // Text colors
+  textPrimary: "#f1f5f9",
+  textSecondary: "#94a3b8",
+  textMuted: "#64748b",
+
+  // Background colors
+  bgPrimary: "#1e1e2e",
+  bgSecondary: "#181825",
+  bgTertiary: "#11111b",
+
+  // Border colors
+  border: "#313244",
+  borderLight: "#45475a",
+} as const;
+
 // CSS variable definitions for use in stylesheets
 export const CSS_VARIABLES = `
-  :root {
+  :root, [data-appearance="light"] {
     --theme-primary: ${THEME_COLORS.primary};
     --theme-primary-dark: ${THEME_COLORS.primaryDark};
     --theme-primary-light: ${THEME_COLORS.primaryLight};
@@ -120,14 +185,28 @@ export const CSS_VARIABLES = `
     --theme-radius-md: ${THEME_RADIUS.md};
     --theme-radius-lg: ${THEME_RADIUS.lg};
   }
+
+  [data-appearance="dark"] {
+    --theme-text-primary: ${THEME_COLORS_DARK.textPrimary};
+    --theme-text-secondary: ${THEME_COLORS_DARK.textSecondary};
+    --theme-bg-primary: ${THEME_COLORS_DARK.bgPrimary};
+    --theme-bg-secondary: ${THEME_COLORS_DARK.bgSecondary};
+    --theme-border: ${THEME_COLORS_DARK.border};
+    --theme-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --theme-shadow-md: 0 4px 15px rgba(0, 0, 0, 0.4);
+  }
 `;
 
 export default {
   THEME_GRADIENTS,
   THEME_COLORS,
+  THEME_COLORS_DARK,
   THEME_SHADOWS,
   THEME_RADIUS,
   COMPONENT_STYLES,
   CSS_VARIABLES,
+  getEffectiveAppearance,
+  applyAppearance,
+  initializeAppearance,
 };
 

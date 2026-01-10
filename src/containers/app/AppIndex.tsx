@@ -5,10 +5,12 @@ import {
   getGoogleAccessToken,
   getGoogleTokenExpiry,
   getThemeType,
+  getAppearance,
   getUserAccessToken,
   isTokenExpired,
   refreshGoogleToken,
 } from "./../../utils";
+import { initializeAppearance, applyAppearance } from "./../../utils/theme";
 
 import Header from "./Header";
 import Footer from "./Footer";
@@ -28,6 +30,9 @@ const storageGoogleAccessToken = await getGoogleAccessToken();
 const storageGoogleTokenExpiry = await getGoogleTokenExpiry();
 const storageUserAccessToken = await getUserAccessToken();
 const themeType = await getThemeType();
+
+// Initialize appearance mode
+await initializeAppearance();
 
 function AppIndex() {
   const issueDetailsRef = useRef(null);

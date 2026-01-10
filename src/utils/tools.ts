@@ -25,11 +25,14 @@ const isEmail = (email: string) =>
   /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(email);
 
 const toastMessage = (message: string, messagetype: any) => {
+  // Use primary theme color as default, keep semantic colors for errors
+  const type = messagetype === "is-danger" ? "is-danger" : "is-primary";
+
   return toast({
     message: message,
-    type: messagetype,
+    type: type,
     duration: 5000,
-    position: "top-left",
+    position: "top-right",
     pauseOnHover: true,
     animate: { in: "fadeIn", out: "fadeOut" },
   });

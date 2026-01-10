@@ -6,8 +6,9 @@
    Settings Page - Modern Tabbed Layout
    ============================================ */
 
-/* CSS Variables for Settings */
-:root {
+/* CSS Variables for Settings - Light Mode (default) */
+:root,
+[data-appearance="light"] {
   --settings-sidebar-width: 280px;
   --settings-label-width: 100px;
   --settings-bg: #f8fafc;
@@ -23,6 +24,21 @@
   --settings-radius: 12px;
   --settings-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   --settings-transition: all 0.2s ease;
+  --settings-input-bg: #ffffff;
+  --settings-input-border: #e2e8f0;
+}
+
+/* CSS Variables for Settings - Dark Mode */
+[data-appearance="dark"] {
+  --settings-bg: #0f172a;
+  --settings-card-bg: #1e293b;
+  --settings-border: #334155;
+  --settings-text-primary: #f1f5f9;
+  --settings-text-secondary: #94a3b8;
+  --settings-text-muted: #64748b;
+  --settings-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  --settings-input-bg: #1e293b;
+  --settings-input-border: #475569;
 }
 
 /* Main Layout */
@@ -356,11 +372,11 @@
 .settings-field .input,
 .settings-field .textarea {
   width: 100%;
-  border: 1px solid var(--settings-border);
+  border: 1px solid var(--settings-input-border);
   border-radius: 8px;
   padding: 10px 14px;
   font-size: 0.9rem;
-  background: white;
+  background: var(--settings-input-bg);
   color: var(--settings-text-primary);
   transition: var(--settings-transition);
 }
@@ -410,7 +426,7 @@
   padding: 0 14px;
   padding-right: 36px;
   font-size: 0.9rem;
-  background: white;
+  background: var(--settings-input-bg);
   color: var(--settings-text-primary);
   transition: var(--settings-transition);
   cursor: pointer;
@@ -673,7 +689,7 @@
 
 .hero .hero-foot {
   height: 50px;
-  background: white;
+  background: var(--settings-card-bg);
   box-shadow: 0 2px 15px rgba(0, 0, 0, 0.082);
 }
 
