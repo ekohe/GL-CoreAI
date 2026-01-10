@@ -222,7 +222,7 @@ Be conversational and actionable in your response.`;
 /**
  * Get suggested prompts for AI Inbox chat
  */
-export function getSuggestedPrompts(todoCount: number): string[] {
+export function getSuggestedPrompts(todoCount: number, slackEnabled?: boolean): string[] {
   const basePrompts = [
     "What should I focus on first?",
     "Summarize my urgent items",
@@ -235,6 +235,10 @@ export function getSuggestedPrompts(todoCount: number): string[] {
 
   if (todoCount > 5) {
     basePrompts.push("What can I delegate?");
+  }
+
+  if (slackEnabled) {
+    basePrompts.push("Send this to Slack");
   }
 
   return basePrompts;

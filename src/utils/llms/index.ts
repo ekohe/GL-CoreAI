@@ -12,12 +12,13 @@ import { aiInboxPrompts } from "../prompts";
 import type { GitLabTodo, TodoSummary, PriorityItem, TopicGroup } from "../prompts/aiInbox";
 import { IssueChatRenderer } from "../issueChatRenderer";
 import { getUserPersonalization, buildPersonalizationContext } from "./base";
+import { isSlackConfigured, sendSlackMessage } from "../slack";
+import { AiBOT } from "../common";
+import { GitLabUser } from "../gitlab";
 
 type ProviderFunctionMap = {
   [key: string]: (...args: any[]) => Promise<void>;
 };
-
-import type { GitLabUser } from "../gitlab";
 
 // Chat context for follow-up conversations
 export interface ChatContext {
@@ -254,7 +255,7 @@ async function invokingAIInboxProcess(
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
       "HTTP-Referer": chrome.runtime.getURL("/"),
-      "X-Title": "GitLab AI Summarizer",
+      "X-Title": AiBOT.name,
     };
     body = { model: model || DEFAULT_AI_MODELS.openrouter, messages };
   } else {
@@ -384,6 +385,48 @@ async function invokingAIInboxChat(
   const container = containerRef?.current;
   if (!container) return;
 
+  // Check if user wants to send to Slack
+  const slackKeywords = ["send to slack", "share to slack", "post to slack", "slack this", "share on slack", "notify slack"];
+  const wantsSlack = slackKeywords.some(keyword => userQuery.toLowerCase().includes(keyword));
+  const slackConfigured = await isSlackConfigured();
+
+  // If user wants to send to Slack and it's configured
+  if (wantsSlack && slackConfigured) {
+    // Create response container
+    const responseContainer = document.createElement("div");
+    responseContainer.className = "chat-response-wrapper";
+    container.appendChild(responseContainer);
+    IssueChatRenderer.showLoadingState(responseContainer);
+
+    // Get the last assistant message from history to send to Slack
+    const lastAssistantMessage = context.conversationHistory
+      .filter(msg => msg.role === "assistant")
+      .pop();
+
+    if (lastAssistantMessage) {
+      const result = await sendSlackMessage(lastAssistantMessage.content);
+      if (result.success) {
+        const successMessage = "I've sent the previous response to your Slack channel! Your team should see it shortly.";
+        IssueChatRenderer.renderResponse(responseContainer, successMessage);
+        onComplete?.(successMessage);
+        return;
+      } else {
+        const errorMessage = `I wasn't able to send to Slack: ${result.error}. Please check your Slack settings.`;
+        IssueChatRenderer.renderResponse(responseContainer, errorMessage);
+        onComplete?.(errorMessage);
+        return;
+      }
+    } else {
+      // No previous message to send, create a summary first
+      IssueChatRenderer.renderResponse(
+        responseContainer,
+        "I'll create a summary first, then you can ask me to send it to Slack."
+      );
+      onComplete?.("I'll create a summary first, then you can ask me to send it to Slack.");
+      return;
+    }
+  }
+
   // Create loading container
   const loadingContainer = document.createElement("div");
   loadingContainer.className = "chat-response-wrapper";
@@ -393,6 +436,11 @@ async function invokingAIInboxChat(
   const personalization = await getUserPersonalization();
   const personalizationContext = buildPersonalizationContext(personalization);
 
+  // Build system prompt with Slack capability info
+  const slackInfo = slackConfigured
+    ? "You can send messages to Slack. If the user asks to 'send to Slack' or 'share on Slack', the system will automatically post the previous response to their configured Slack channel."
+    : "";
+
   const systemPrompt = `You are a helpful assistant that helps users manage their GitLab todos inbox.
 ${personalizationContext}
 
@@ -400,7 +448,8 @@ Be conversational, concise, and actionable. Help users:
 - Understand their todos better
 - Prioritize their work
 - Find specific items
-- Draft responses when needed`;
+- Draft responses when needed
+${slackInfo ? `\n${slackInfo}` : ""}`;
 
   const todoContext = context.todos.slice(0, 20).map((todo) => {
     return `- ${todo.target.title} (${todo.target_type} by ${todo.author.name}) - ${todo.action_name}`;
@@ -468,7 +517,7 @@ Be conversational, concise, and actionable. Help users:
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
       "HTTP-Referer": chrome.runtime.getURL("/"),
-      "X-Title": "GitLab AI Summarizer",
+      "X-Title": AiBOT.name,
     };
     body = { model: DEFAULT_AI_MODELS.openrouter, messages, stream: true };
   } else {

@@ -4,10 +4,10 @@ import {
   faRobot,
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
-import { faGitlab } from "@fortawesome/free-brands-svg-icons";
+import { faGitlab, faSlack } from "@fortawesome/free-brands-svg-icons";
 import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 
-export type SettingsTab = "general" | "gitlab" | "ai-provider" | "personalization";
+export type SettingsTab = "general" | "gitlab" | "ai-provider" | "personalization" | "slack";
 
 interface TabItem {
   id: SettingsTab;
@@ -40,6 +40,12 @@ const TABS: TabItem[] = [
     label: "Personalization",
     icon: faUser,
     description: "Custom preferences & profile",
+  },
+  {
+    id: "slack",
+    label: "Slack",
+    icon: faSlack,
+    description: "Slack webhook integration",
   },
 ];
 

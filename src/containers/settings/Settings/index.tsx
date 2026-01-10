@@ -9,6 +9,7 @@ import {
   GitLabTab,
   AIProviderTab,
   PersonalizationTab,
+  SlackTab,
   type SettingsTab,
 } from "./tabs";
 
@@ -25,6 +26,8 @@ function Settings() {
         return <AIProviderTab />;
       case "personalization":
         return <PersonalizationTab />;
+      case "slack":
+        return <SlackTab />;
       default:
         return <GeneralTab />;
     }
