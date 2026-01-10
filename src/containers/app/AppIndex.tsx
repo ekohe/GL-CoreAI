@@ -18,6 +18,7 @@ import Footer from "./Footer";
 import SignIn from "../../components/SignIn";
 import SignUp from "../../components/SignUp";
 import AiSummarizer from "./AiSummarizer";
+import AIInbox from "./AIInbox";
 // SidePanelToggle functionality integrated directly
 
 import { AI_EXT_STATUS } from "../../utils/constants";
@@ -161,6 +162,7 @@ function AppIndex() {
             isCopy={isCopy}
             iisRef={issueDetailsRef}
             setScreenName={setScreenName}
+            currentScreen={screenName}
           />
 
           <AiSummarizer
@@ -173,6 +175,33 @@ function AppIndex() {
             setErrorText={setErrorText}
             iisRef={issueDetailsRef}
           />
+
+          <Footer />
+        </>
+      )}
+
+      {screenName === AI_EXT_STATUS.ai_inbox.code && (
+        <>
+          <Header
+            signOut={signOut}
+            isCopy={isCopy}
+            iisRef={issueDetailsRef}
+            setScreenName={setScreenName}
+            currentScreen={screenName}
+          />
+
+          <div
+            className="container"
+            style={{
+              height: "calc(-120px + 100vh)",
+              width: "100%",
+              maxWidth: "100%",
+              backgroundColor: "white",
+              overflowY: "auto",
+            }}
+          >
+            <AIInbox onBack={() => setScreenName(AI_EXT_STATUS.summarizer.code)} />
+          </div>
 
           <Footer />
         </>

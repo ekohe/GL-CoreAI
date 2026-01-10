@@ -9,6 +9,16 @@
   --bulma-skeleton-lines-gap: 0.75em;
   --bulma-skeleton-line-height: 0.75em;
 
+  /* Bulma strong color */
+  --bulma-strong-color: #1a1a2e;
+  --bulma-strong-font-weight: 600;
+  --bulma-strong-font-size: 1.1rem;
+  --bulma-strong-margin-top: 20px;
+  --bulma-strong-margin-bottom: 8px;
+  --bulma-strong-padding-bottom: 6px;
+  --bulma-strong-border-bottom: 2px solid #667eea;
+  --bulma-strong-display: inline-block;
+
   /* Primary theme gradient for notifications */
   --app-primary-gradient: linear-gradient(135deg, rgb(102, 126, 234) 0%, rgb(118, 75, 162) 100%);
 }

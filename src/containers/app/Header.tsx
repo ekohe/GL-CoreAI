@@ -2,7 +2,7 @@
 import { AiBOT } from "../../utils/common";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCopy, faGears, faSignOut } from "@fortawesome/free-solid-svg-icons";
+import { faCopy, faGears, faSignOut, faInbox } from "@fortawesome/free-solid-svg-icons";
 
 import logo from "../../assets/icons/icon48.png";
 import { AI_EXT_STATUS } from "../../utils/constants";
@@ -13,14 +13,21 @@ const Header = (props: {
   isCopy: boolean;
   iisRef: any;
   setScreenName: any;
+  currentScreen?: string;
 }) => {
-  const { signOut, isCopy, iisRef, setScreenName } = props;
+  const { signOut, isCopy, iisRef, setScreenName, currentScreen } = props;
 
   const handleSignOut = (): void => {
     signOut();
 
     setScreenName(AI_EXT_STATUS.signin.code);
   };
+
+  const handleAIInbox = (): void => {
+    setScreenName(AI_EXT_STATUS.ai_inbox.code);
+  };
+
+  const isOnAIInbox = currentScreen === AI_EXT_STATUS.ai_inbox.code;
 
   return (
     <nav className="has-background-white py-2 px-4 is-flex is-justify-content-space-between is-align-items-center">
@@ -57,6 +64,24 @@ const Header = (props: {
             />
           </a>
         )}
+
+        <a
+          className="navbar-item is-size-5 has-tooltip-arrow has-tooltip-left"
+          data-tooltip="AI Inbox"
+          onClick={handleAIInbox}
+          style={{
+            background: isOnAIInbox ? "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" : "transparent",
+            borderRadius: "8px",
+            margin: "0 4px",
+            padding: "6px 10px",
+          }}
+        >
+          <FontAwesomeIcon
+            icon={faInbox}
+            fontSize={"1rem"}
+            color={isOnAIInbox ? "#ffffff" : "#333333B2"}
+          />
+        </a>
 
         <a
           className="navbar-item is-size-5 has-tooltip-arrow has-tooltip-left"

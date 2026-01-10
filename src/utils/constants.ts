@@ -15,6 +15,10 @@ export const AI_EXT_STATUS = {
     text: "Summarizer",
     code: "summarizer",
   },
+  ai_inbox: {
+    text: "AI Inbox",
+    code: "ai_inbox",
+  },
   forget_password: {
     text: "Forget Password?",
     code: "forget_password",
