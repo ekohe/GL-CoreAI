@@ -16,13 +16,16 @@ import {
   DEFAULT_AI_MODELS,
   DEFAULT_AI_PROVIDER,
   DEFAULT_OLLAMA_URL,
-  DEFAULT_USER_ROLE,
+  DEFAULT_APPEARANCE,
+  DEFAULT_LANGUAGE,
 } from "../utils/constants";
 
 interface FormData {
+  // GitLab settings
   GASGitLab: string;
   GASGitLabAccessToken: string;
   GASGitLabApiVersion: string;
+  // AI Provider settings
   GASAiProvider: string;
   GASOpenAIKey: string;
   GASDeepSeekAIKey: string;
@@ -32,9 +35,16 @@ interface FormData {
   GASClaudeModel: string;
   GASOllamaURL: string;
   GASOllamaModel: string;
+  // General settings
   GASThemeType: string;
   GASThemeColor: string;
-  GASUserRole: string;
+  GASAppearance: string;
+  GASLanguage: string;
+  // Personalization settings
+  GASNickname: string;
+  GASOccupation: string;
+  GASAboutYou: string;
+  GASCustomInstructions: string;
 }
 
 interface FormContextType {
@@ -50,9 +60,11 @@ const FormContext = createContext<FormContextType | undefined>(undefined);
 
 const FormProvider = ({ children }: { children: ReactNode }) => {
   const [formData, setFormData] = useState<FormData>({
+    // GitLab settings
     GASGitLab: "",
     GASGitLabAccessToken: "",
     GASGitLabApiVersion: "api/v4",
+    // AI Provider settings
     GASAiProvider: DEFAULT_AI_PROVIDER,
     GASOpenAIKey: "",
     GASDeepSeekAIKey: "",
@@ -62,9 +74,16 @@ const FormProvider = ({ children }: { children: ReactNode }) => {
     GASClaudeModel: DEFAULT_AI_MODELS.claude,
     GASOllamaURL: DEFAULT_OLLAMA_URL,
     GASOllamaModel: DEFAULT_AI_MODELS.ollama,
+    // General settings
     GASThemeType: "theme-green",
     GASThemeColor: "#f9f7f9",
-    GASUserRole: DEFAULT_USER_ROLE,
+    GASAppearance: DEFAULT_APPEARANCE,
+    GASLanguage: DEFAULT_LANGUAGE,
+    // Personalization settings
+    GASNickname: "",
+    GASOccupation: "",
+    GASAboutYou: "",
+    GASCustomInstructions: "",
   });
 
   useEffect(() => {

@@ -10,20 +10,13 @@ interface FormFieldProps {
  */
 const FormField = ({ label, children }: FormFieldProps) => {
   return (
-    <div className="field is-horizontal">
-      <div
-        className="field-label"
-        style={{
-          justifyContent: "right",
-          alignItems: "center",
-          display: "flex",
-        }}
-      >
-        <label className="label has-text-black">{label}</label>
+    <div className="field is-horizontal settings-field">
+      <div className="field-label is-normal">
+        <label className="label">{label}</label>
       </div>
       <div className="field-body">
-        <div className="field is-expanded">
-          <div className="field has-addons">{children}</div>
+        <div className="field">
+          {children}
         </div>
       </div>
     </div>
@@ -31,4 +24,3 @@ const FormField = ({ label, children }: FormFieldProps) => {
 };
 
 export default FormField;
-

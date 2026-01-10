@@ -1,10 +1,11 @@
-import { UserRoleType, USER_ROLES, DEFAULT_USER_ROLE } from "../constants";
 import type { GitLabUser } from "../gitlab";
 
 /**
  * Chat prompt for follow-up conversations about issues
  * This builds on the initial action response and allows users to ask follow-up questions
  */
+
+const DEFAULT_OCCUPATION = "team member";
 
 interface ChatMessage {
   role: "system" | "user" | "assistant";
@@ -19,18 +20,13 @@ interface IssueChatContext {
   currentUser?: GitLabUser | null;
 }
 
-// Get role-specific system message for chat
-const getRoleChatSystemMessage = (role: UserRoleType): string => {
-  const roleContext: Record<UserRoleType, string> = {
-    project_manager: "You are an expert project analyst assistant helping a Project Manager understand and manage this GitLab issue. You have deep knowledge of project management, timelines, resource allocation, and stakeholder communication.",
-    product_owner: "You are an expert project analyst assistant helping a Product Owner understand and manage this GitLab issue. You understand product requirements, user stories, feature prioritization, and roadmap alignment.",
-    software_engineer: "You are an expert project analyst assistant helping a Software Engineer understand and manage this GitLab issue. You understand code implementation, architecture, technical debt, and engineering best practices.",
-    data_scientist: "You are an expert project analyst assistant helping a Data Scientist understand and manage this GitLab issue. You understand data requirements, metrics, machine learning, analytics pipelines, and data-driven insights.",
-    business_development: "You are an expert project analyst assistant helping a Business Development representative understand and manage this GitLab issue. You understand customer needs, business value, market positioning, partnerships, and revenue implications.",
-    marketing_specialist: "You are an expert project analyst assistant helping a Marketing Specialist understand and manage this GitLab issue. You understand customer messaging, brand positioning, campaign planning, and go-to-market strategies.",
-  };
+// Get occupation-specific system message for chat
+const getOccupationChatSystemMessage = (occupation: string): string => {
+  const occupationContext = occupation
+    ? `You are an expert project analyst assistant helping a ${occupation} understand and manage this GitLab issue.`
+    : `You are an expert project analyst assistant helping a team member understand and manage this GitLab issue.`;
 
-  return `${roleContext[role] || roleContext.software_engineer}
+  return `${occupationContext}
 
 You are continuing a conversation about a GitLab issue. The user has already received an initial analysis and now has follow-up questions or requests.
 
@@ -91,10 +87,10 @@ ${JSON.stringify(discussions, null, 2)}
 export const getChatPrompt = (
   userQuery: string,
   context: IssueChatContext,
-  userRole?: UserRoleType
+  occupation?: string
 ): ChatMessage[] => {
-  const role = userRole || DEFAULT_USER_ROLE;
-  const systemMessage = getRoleChatSystemMessage(role);
+  const userOccupation = occupation || DEFAULT_OCCUPATION;
+  const systemMessage = getOccupationChatSystemMessage(userOccupation);
   const issueContext = buildIssueContext(context.issueData, context.discussions, context.currentUser);
 
   const messages: ChatMessage[] = [
@@ -272,4 +268,3 @@ export default {
   getChatPrompt,
   getSuggestedPrompts,
 };
-

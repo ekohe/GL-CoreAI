@@ -130,9 +130,21 @@ const getOllamaURL = async (): Promise<string | undefined> => {
   return getFromBackground("getOllamaURL", "GASOllamaURL");
 };
 
-// Retrieve User Role
-const getUserRole = async (): Promise<string | undefined> => {
-  return getFromBackground("getUserRole", "GASUserRole");
+// Retrieve Personalization Settings
+const getOccupation = async (): Promise<string | undefined> => {
+  return getFromBackground("getOccupation", "GASOccupation");
+};
+
+const getNickname = async (): Promise<string | undefined> => {
+  return getFromBackground("getNickname", "GASNickname");
+};
+
+const getAboutYou = async (): Promise<string | undefined> => {
+  return getFromBackground("getAboutYou", "GASAboutYou");
+};
+
+const getCustomInstructions = async (): Promise<string | undefined> => {
+  return getFromBackground("getCustomInstructions", "GASCustomInstructions");
 };
 
 const getGoogleAccessToken = async (): Promise<string | undefined> => {
@@ -382,7 +394,10 @@ export {
   getClaudeModel,
   getOllamaModel,
   getOllamaURL,
-  getUserRole,
+  getOccupation,
+  getNickname,
+  getAboutYou,
+  getCustomInstructions,
   getDomainFromURL,
   getGoogleAccessToken,
   getUserAccessToken,

@@ -1,4 +1,6 @@
-import { IssueActionType, UserRoleType, USER_ROLES, DEFAULT_USER_ROLE } from "../constants";
+import { IssueActionType } from "../constants";
+
+const DEFAULT_OCCUPATION = "team member";
 
 // Summarize Issue prompt - focuses on understanding the issue and its context
 const summarizeIssuePrompt = (issueData: any, discussions: any) => `
@@ -196,110 +198,138 @@ WRITING GUIDELINES:
 - Make the stakeholder message suitable for email or Slack sharing
 `;
 
-// Role-specific focus areas for summarization
-const getRoleFocusAreas = (role: UserRoleType): string => {
-  const focusAreas: Record<UserRoleType, string> = {
-    project_manager: `FOCUS YOUR ANALYSIS AS A PROJECT MANAGER ON:
+// Occupation-specific focus areas for summarization
+const getOccupationFocusAreas = (occupation: string): string => {
+  const lowerOccupation = occupation.toLowerCase();
+
+  // Match common occupation keywords
+  if (lowerOccupation.includes('project') || lowerOccupation.includes('manager')) {
+    return `FOCUS YOUR ANALYSIS ON:
 - Project timeline and milestone tracking
 - Resource allocation and team coordination
 - Risk management and mitigation strategies
 - Stakeholder communication and reporting
 - Cross-team dependencies and blockers
-- Delivery readiness and go-live planning
-- Budget and scope considerations`,
+- Delivery readiness and planning`;
+  }
 
-    product_owner: `FOCUS YOUR ANALYSIS AS A PRODUCT OWNER ON:
+  if (lowerOccupation.includes('product') || lowerOccupation.includes('owner')) {
+    return `FOCUS YOUR ANALYSIS ON:
 - Product requirements and acceptance criteria
 - User stories and feature prioritization
 - User experience and customer value
 - Product roadmap alignment
-- Backlog grooming and sprint planning
-- Feature completeness and MVP scope
-- Stakeholder expectations and feedback`,
+- Feature completeness and scope
+- Stakeholder expectations and feedback`;
+  }
 
-    software_engineer: `FOCUS YOUR ANALYSIS AS A SOFTWARE ENGINEER ON:
+  if (lowerOccupation.includes('engineer') || lowerOccupation.includes('developer') || lowerOccupation.includes('programmer')) {
+    return `FOCUS YOUR ANALYSIS ON:
 - Technical implementation details and architecture decisions
 - Code-related discussions and technical debt
 - Performance implications and scalability concerns
 - Testing requirements and quality considerations
 - Technical dependencies and integration points
-- Development effort estimation
-- Potential technical blockers and solutions`,
+- Development effort estimation`;
+  }
 
-    data_scientist: `FOCUS YOUR ANALYSIS AS A DATA SCIENTIST ON:
+  if (lowerOccupation.includes('data') || lowerOccupation.includes('scientist') || lowerOccupation.includes('analyst')) {
+    return `FOCUS YOUR ANALYSIS ON:
 - Data requirements and schema changes
 - Metrics and KPIs mentioned or impacted
 - Analytics implications and tracking needs
 - Data quality and validation requirements
-- Machine learning model considerations
-- Data pipeline and ETL impacts
-- Statistical methodology and experimentation`,
+- Data pipeline and processing impacts
+- Statistical methodology considerations`;
+  }
 
-    business_development: `FOCUS YOUR ANALYSIS AS A BUSINESS DEVELOPMENT REPRESENTATIVE ON:
+  if (lowerOccupation.includes('business') || lowerOccupation.includes('sales')) {
+    return `FOCUS YOUR ANALYSIS ON:
 - Customer impact and value proposition
-- Commercial implications and revenue opportunities
-- Partnership and collaboration opportunities
-- Competitive positioning aspects
-- Market expansion and growth potential
+- Commercial implications and opportunities
+- Partnership and collaboration aspects
+- Market positioning considerations
 - Client relationship management
-- Sales enablement and go-to-market strategy`,
+- Go-to-market strategy`;
+  }
 
-    marketing_specialist: `FOCUS YOUR ANALYSIS AS A MARKETING SPECIALIST ON:
-- Customer messaging and value communication
+  if (lowerOccupation.includes('marketing')) {
+    return `FOCUS YOUR ANALYSIS ON:
+- Customer messaging and communication
 - Brand alignment and positioning
-- Campaign planning and execution
-- Market research and customer insights
-- Content creation and distribution needs
-- Launch timing and promotional activities
-- Customer engagement and retention strategies`,
-  };
+- Campaign and launch planning
+- Market research insights
+- Content creation needs
+- Customer engagement strategies`;
+  }
 
-  return focusAreas[role] || focusAreas.software_engineer;
+  if (lowerOccupation.includes('design') || lowerOccupation.includes('ux') || lowerOccupation.includes('ui')) {
+    return `FOCUS YOUR ANALYSIS ON:
+- User experience requirements
+- Design specifications and guidelines
+- Usability considerations
+- Accessibility requirements
+- Visual design elements
+- User research insights`;
+  }
+
+  if (lowerOccupation.includes('qa') || lowerOccupation.includes('test') || lowerOccupation.includes('quality')) {
+    return `FOCUS YOUR ANALYSIS ON:
+- Testing requirements and coverage
+- Quality assurance considerations
+- Bug reports and regression risks
+- Test automation opportunities
+- Acceptance criteria validation
+- Release readiness assessment`;
+  }
+
+  // Default focus areas
+  return `FOCUS YOUR ANALYSIS ON:
+- Understanding the core problem or request
+- Tracking the discussion flow and key decisions
+- Identifying current status and blockers
+- Highlighting unanswered questions
+- Next steps and action items`;
 };
 
-// Role-specific system messages
-const getRoleSystemMessage = (role: UserRoleType, actionType: IssueActionType): string => {
-  const roleContext: Record<UserRoleType, string> = {
-    project_manager: "You are an expert project analyst specializing in project management perspectives. You understand project timelines, resource allocation, risk management, and cross-team coordination.",
-    product_owner: "You are an expert project analyst specializing in product ownership perspectives. You understand product requirements, user stories, feature prioritization, and roadmap alignment.",
-    software_engineer: "You are an expert project analyst specializing in technical perspectives. You understand code implementation, architecture, technical debt, and engineering best practices.",
-    data_scientist: "You are an expert project analyst specializing in data science perspectives. You understand data requirements, metrics, machine learning, analytics pipelines, and data-driven insights.",
-    business_development: "You are an expert project analyst specializing in business development perspectives. You understand customer needs, business value, market positioning, partnerships, and revenue implications.",
-    marketing_specialist: "You are an expert project analyst specializing in marketing perspectives. You understand customer messaging, brand positioning, campaign planning, and go-to-market strategies.",
-  };
+// Get system message based on occupation
+const getOccupationSystemMessage = (occupation: string, actionType: IssueActionType): string => {
+  const occupationContext = occupation
+    ? `You are an expert project analyst helping a ${occupation} understand and analyze this GitLab issue.`
+    : "You are an expert project analyst helping a team member understand and analyze this GitLab issue.";
 
   const baseMessages: Record<IssueActionType, string> = {
-    summarize: `${roleContext[role] || roleContext.software_engineer}
+    summarize: `${occupationContext}
 
 CRITICAL REQUIREMENTS:
 - You MUST return ONLY valid JSON - no markdown, no explanations, no additional text
-- Tailor your summary to highlight aspects most relevant to your role perspective
+- Tailor your summary to highlight aspects most relevant to their perspective
 - Focus on extracting key information from the issue and discussions
 - Your response will be directly parsed as JSON, so any non-JSON content will cause errors.`,
 
-    analyze_blockers: `${roleContext[role] || roleContext.software_engineer} You also excel at identifying blockers, dependencies, and risks.
+    analyze_blockers: `${occupationContext} You also excel at identifying blockers, dependencies, and risks.
 
 CRITICAL REQUIREMENTS:
 - You MUST return ONLY valid JSON - no markdown, no explanations, no additional text
-- Focus on finding blockers, dependencies, and potential risks relevant to your role
-- Provide actionable recommendations from your role's perspective
+- Focus on finding blockers, dependencies, and potential risks relevant to their work
+- Provide actionable recommendations from their perspective
 - Your response will be directly parsed as JSON, so any non-JSON content will cause errors.`,
 
-    draft_update: `${roleContext[role] || roleContext.software_engineer} You create professional status updates tailored for stakeholders.
+    draft_update: `${occupationContext} You create professional status updates tailored for stakeholders.
 
 CRITICAL REQUIREMENTS:
 - You MUST return ONLY valid JSON - no markdown, no explanations, no additional text
 - Write professionally and concisely
-- Focus on progress, challenges, and next steps relevant to your role's audience
+- Focus on progress, challenges, and next steps relevant to their audience
 - Your response will be directly parsed as JSON, so any non-JSON content will cause errors.`,
   };
 
   return baseMessages[actionType];
 };
 
-// Role-aware summarize issue prompt
-const summarizeIssuePromptWithRole = (issueData: any, discussions: any, role: UserRoleType) => `
-You are an expert project analyst. Analyze the GitLab issue and its discussions to provide a comprehensive summary tailored for a ${USER_ROLES[role]?.label || 'team member'}.
+// Occupation-aware summarize issue prompt
+const summarizeIssuePromptWithOccupation = (issueData: any, discussions: any, occupation: string) => `
+You are an expert project analyst. Analyze the GitLab issue and its discussions to provide a comprehensive summary tailored for a ${occupation || DEFAULT_OCCUPATION}.
 
 ISSUE DETAILS:
 Title: ${issueData.title || 'No title'}
@@ -318,10 +348,10 @@ RESPONSE FORMAT - RETURN ONLY VALID JSON:
 {
   "title": "Brief one-line summary of the issue",
   "overview": "2-3 sentence overview of what this issue is about",
-  "role_perspective": {
-    "role": "${role}",
-    "key_insights": "Key insights specifically relevant to a ${USER_ROLES[role]?.label || 'team member'}",
-    "action_items": ["Role-specific action items or considerations"]
+  "perspective": {
+    "occupation": "${occupation || DEFAULT_OCCUPATION}",
+    "key_insights": "Key insights specifically relevant to a ${occupation || DEFAULT_OCCUPATION}",
+    "action_items": ["Occupation-specific action items or considerations"]
   },
   "current_status": {
     "state": "open|in_progress|blocked|resolved",
@@ -332,7 +362,7 @@ RESPONSE FORMAT - RETURN ONLY VALID JSON:
     {
       "type": "requirement|decision|question|concern|update",
       "summary": "Key point from the issue or discussions",
-      "relevance": "Why this matters for your role"
+      "relevance": "Why this matters for your work"
     }
   ],
   "stakeholders": {
@@ -355,12 +385,12 @@ CRITICAL JSON REQUIREMENTS:
 - state must be exactly one of: "open", "in_progress", "blocked", "resolved"
 - type must be exactly one of: "requirement", "decision", "question", "concern", "update"
 
-${getRoleFocusAreas(role)}
+${getOccupationFocusAreas(occupation)}
 `;
 
-// Role-aware analyze blockers prompt
-const analyzeBlockersPromptWithRole = (issueData: any, discussions: any, role: UserRoleType) => `
-You are an expert project risk analyst. Analyze the GitLab issue and its discussions to identify potential blockers, risks, and dependencies from a ${USER_ROLES[role]?.label || 'team member'} perspective.
+// Occupation-aware analyze blockers prompt
+const analyzeBlockersPromptWithOccupation = (issueData: any, discussions: any, occupation: string) => `
+You are an expert project risk analyst. Analyze the GitLab issue and its discussions to identify potential blockers, risks, and dependencies from a ${occupation || DEFAULT_OCCUPATION} perspective.
 
 ISSUE DETAILS:
 Title: ${issueData.title || 'No title'}
@@ -377,10 +407,10 @@ RESPONSE FORMAT - RETURN ONLY VALID JSON:
 {
   "risk_level": "low|medium|high|critical",
   "summary": "One sentence summary of the overall risk situation",
-  "role_perspective": {
-    "role": "${role}",
-    "primary_concerns": "Main concerns from a ${USER_ROLES[role]?.label || 'team member'} perspective",
-    "recommended_focus": "What this role should prioritize"
+  "perspective": {
+    "occupation": "${occupation || DEFAULT_OCCUPATION}",
+    "primary_concerns": "Main concerns from a ${occupation || DEFAULT_OCCUPATION} perspective",
+    "recommended_focus": "What to prioritize based on this perspective"
   },
   "blockers": [
     {
@@ -389,7 +419,7 @@ RESPONSE FORMAT - RETURN ONLY VALID JSON:
       "description": "Description of the blocker",
       "mentioned_by": "Who mentioned this blocker",
       "suggested_resolution": "How this might be resolved",
-      "role_impact": "How this affects your role specifically"
+      "impact": "How this affects your work specifically"
     }
   ],
   "dependencies": [
@@ -425,12 +455,12 @@ CRITICAL JSON REQUIREMENTS:
 - risk_level must be exactly one of: "low", "medium", "high", "critical"
 - severity must be exactly one of: "Critical", "High", "Medium", "Low"
 
-${getRoleFocusAreas(role)}
+${getOccupationFocusAreas(occupation)}
 `;
 
-// Role-aware draft update prompt
-const draftUpdatePromptWithRole = (issueData: any, discussions: any, role: UserRoleType) => `
-You are a technical writer creating a status update for stakeholders from a ${USER_ROLES[role]?.label || 'team member'} perspective. Analyze the GitLab issue and create a professional progress update.
+// Occupation-aware draft update prompt
+const draftUpdatePromptWithOccupation = (issueData: any, discussions: any, occupation: string) => `
+You are a technical writer creating a status update for stakeholders from a ${occupation || DEFAULT_OCCUPATION} perspective. Analyze the GitLab issue and create a professional progress update.
 
 ISSUE DETAILS:
 Title: ${issueData.title || 'No title'}
@@ -452,9 +482,9 @@ RESPONSE FORMAT - RETURN ONLY VALID JSON:
   "headline": "One-line headline for the update",
   "status_indicator": "on_track|at_risk|blocked|completed",
   "summary": "2-3 sentence executive summary",
-  "role_perspective": {
-    "role": "${role}",
-    "audience_focus": "What matters most to stakeholders from this role's perspective",
+  "perspective": {
+    "occupation": "${occupation || DEFAULT_OCCUPATION}",
+    "audience_focus": "What matters most to stakeholders from this perspective",
     "key_message": "The main takeaway for this audience"
   },
   "progress": {
@@ -485,7 +515,7 @@ RESPONSE FORMAT - RETURN ONLY VALID JSON:
       "due": "When it's due or priority level"
     }
   ],
-  "stakeholder_message": "A professional paragraph suitable for sharing with stakeholders, written from a ${USER_ROLES[role]?.label || 'team member'} perspective"
+  "stakeholder_message": "A professional paragraph suitable for sharing with stakeholders, written from a ${occupation || DEFAULT_OCCUPATION} perspective"
 }
 
 CRITICAL JSON REQUIREMENTS:
@@ -500,21 +530,21 @@ WRITING GUIDELINES:
 - Focus on facts from the issue and discussions
 - Be objective about progress and challenges
 - Make the stakeholder message suitable for email or Slack sharing
-- Tailor the language and focus for a ${USER_ROLES[role]?.label || 'team member'} audience
+- Tailor the language and focus for the ${occupation || DEFAULT_OCCUPATION} audience
 
-${getRoleFocusAreas(role)}
+${getOccupationFocusAreas(occupation)}
 `;
 
-// Get prompt based on action type and user role
-export const getPrompt = (issueData: any, discussions: any, actionType: IssueActionType, userRole?: UserRoleType): any => {
-  const role = userRole || DEFAULT_USER_ROLE;
+// Get prompt based on action type and user occupation
+export const getPrompt = (issueData: any, discussions: any, actionType: IssueActionType, occupation?: string): any => {
+  const userOccupation = occupation || DEFAULT_OCCUPATION;
 
-  const systemMessage = getRoleSystemMessage(role, actionType);
+  const systemMessage = getOccupationSystemMessage(userOccupation, actionType);
 
   const prompts: Record<IssueActionType, string> = {
-    summarize: summarizeIssuePromptWithRole(issueData, discussions, role),
-    analyze_blockers: analyzeBlockersPromptWithRole(issueData, discussions, role),
-    draft_update: draftUpdatePromptWithRole(issueData, discussions, role),
+    summarize: summarizeIssuePromptWithOccupation(issueData, discussions, userOccupation),
+    analyze_blockers: analyzeBlockersPromptWithOccupation(issueData, discussions, userOccupation),
+    draft_update: draftUpdatePromptWithOccupation(issueData, discussions, userOccupation),
   };
 
   return [
@@ -529,8 +559,7 @@ export const getPrompt = (issueData: any, discussions: any, actionType: IssueAct
   ];
 };
 
-// Legacy function for backwards compatibility (uses default engineer role)
+// Legacy function for backwards compatibility (uses default occupation)
 export const getPromptLegacy = (issueData: any, discussions: any, actionType: IssueActionType): any => {
-  return getPrompt(issueData, discussions, actionType, DEFAULT_USER_ROLE);
+  return getPrompt(issueData, discussions, actionType, DEFAULT_OCCUPATION);
 };
-

@@ -43,6 +43,24 @@ export const THEMECOLORS = [
 
 export const DEFAULT_AI_PROVIDER = "openai";
 
+// Appearance options
+export const APPEARANCE_OPTIONS = [
+  { value: "system", label: "System Default" },
+  { value: "light", label: "Light" },
+  { value: "dark", label: "Dark" },
+] as const;
+
+export const DEFAULT_APPEARANCE = "light";
+
+// Language options
+export const LANGUAGE_OPTIONS = [
+  { value: "en", label: "English" },
+  { value: "zh_CN", label: "简体中文" },
+  { value: "fr", label: "Français" },
+] as const;
+
+export const DEFAULT_LANGUAGE = "en";
+
 export const DEFAULT_AI_MODELS = {
   openai: "gpt-5.2",
   deepseek: "deepseek-chat",

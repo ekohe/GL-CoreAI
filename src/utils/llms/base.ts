@@ -4,8 +4,7 @@
  * This consolidates common code patterns used across OpenAI, Claude, DeepSeek, and Ollama
  */
 
-import { getUserRole } from "../index";
-import { DEFAULT_USER_ROLE, UserRoleType } from "../constants";
+import { getOccupation } from "../index";
 
 // ============================================================================
 // Types
@@ -26,16 +25,16 @@ export interface StreamHandlerOptions {
 }
 
 // ============================================================================
-// User Role Utilities
+// User Personalization Utilities
 // ============================================================================
 
 /**
- * Get the current user role from storage
- * Falls back to default role if not set
+ * Get the current user occupation from storage
+ * Falls back to default occupation if not set
  */
-export async function getCurrentUserRole(): Promise<UserRoleType> {
-  const role = await getUserRole();
-  return (role as UserRoleType) || DEFAULT_USER_ROLE;
+export async function getUserOccupation(): Promise<string> {
+  const occupation = await getOccupation();
+  return occupation || "team member";
 }
 
 // ============================================================================

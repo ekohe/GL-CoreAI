@@ -9,7 +9,7 @@ import { IssueActionsRenderer } from "../issueActionsRenderer";
 import { IssueChatRenderer } from "../issueChatRenderer";
 import { DEFAULT_AI_MODELS, MRActionType, IssueActionType } from "../constants";
 import {
-  getCurrentUserRole,
+  getUserOccupation,
   createModelBanner,
   createLoadingContainer,
   showBannerComplete,
@@ -369,10 +369,10 @@ async function invokingIssueAction(containerRef: any, issueData: any, discussion
   const model = (await getClaudeModel()) || DEFAULT_AI_MODELS.claude;
 
   // Get user role for role-based prompts
-  const userRole = await getCurrentUserRole();
+  const occupation = await getUserOccupation();
 
   // Generate messages prompt for the specific action type with user role
-  const messages = issueActionsPrompts.getPrompt(issueData, discussions, actionType, userRole);
+  const messages = issueActionsPrompts.getPrompt(issueData, discussions, actionType, occupation);
 
   const mainContainer = document.createElement("div");
   containerRef.current.appendChild(mainContainer);
@@ -478,7 +478,7 @@ async function invokingIssueChat(
   if (!personalAIApiKey) return;
 
   const model = (await getClaudeModel()) || DEFAULT_AI_MODELS.claude;
-  const userRole = await getCurrentUserRole();
+  const occupation = await getUserOccupation();
 
   const messages = issueChatPrompts.getChatPrompt(userQuery, {
     issueData: chatContext.issueData,
@@ -486,7 +486,7 @@ async function invokingIssueChat(
     previousResponse: chatContext.previousResponse,
     conversationHistory: chatContext.conversationHistory,
     currentUser: chatContext.currentUser,
-  }, userRole);
+  }, occupation);
 
   const messageContainer = document.createElement("div");
   containerRef.current.appendChild(messageContainer);
