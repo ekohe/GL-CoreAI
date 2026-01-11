@@ -1,10 +1,22 @@
 /**
- * AI Inbox Prompts - Prompts for processing GitLab todos into actionable summaries
+ * AI Inbox Prompts
+ *
+ * Prompts for processing GitLab todos into actionable summaries:
+ * - Heads Up: Priority items requiring immediate attention
+ * - Catch Up: Grouped summaries of other updates
+ *
+ * DEPENDENCIES: Uses shared utilities from ./shared.ts
+ * IMPACT: Changes here affect the AI Inbox feature
  */
 
 import { buildPersonalizationContext, UserPersonalization } from "../llms/base";
+import { NAME_FORMATTING_INSTRUCTION } from "./shared";
 
-// GitLab Todo type from API
+// =============================================================================
+// TYPE DEFINITIONS
+// =============================================================================
+
+/** GitLab Todo type from API */
 export interface GitLabTodo {
   id: number;
   project: {
@@ -37,7 +49,7 @@ export interface GitLabTodo {
   updated_at: string;
 }
 
-// Processed todo summary structure
+/** Processed todo summary structure */
 export interface TodoSummary {
   headsUp: PriorityItem[];
   catchUp: TopicGroup[];
@@ -45,7 +57,7 @@ export interface TodoSummary {
 
 export interface PriorityItem {
   id: string;
-  gitlabTodoId: number; // Actual GitLab todo ID for API operations
+  gitlabTodoId: number;
   title: string;
   summary: string;
   urgency: "high" | "medium" | "low";
@@ -76,6 +88,72 @@ export interface TopicItem {
   isClientFeedback?: boolean;
 }
 
+// =============================================================================
+// RESPONSE SCHEMA
+// =============================================================================
+
+const TODO_RESPONSE_SCHEMA = `{
+  "headsUp": [
+    {
+      "id": "unique_id",
+      "title": "Short action-oriented title",
+      "summary": "Brief description with context - mention the person using *name* markdown tags",
+      "urgency": "high|medium|low",
+      "project": "Project Name",
+      "targetType": "Issue|MergeRequest|etc",
+      "actionName": "mentioned|assigned|etc",
+      "emailCount": 1,
+      "isClientFeedback": false
+    }
+  ],
+  "catchUp": [
+    {
+      "topic": "Topic/Project Name",
+      "items": [
+        {
+          "summary": "Concise summary, starting with person name in *name* markdown tags",
+          "isClientFeedback": false
+        }
+      ],
+      "emailCount": 3,
+      "isClientFeedback": false
+    }
+  ]
+}`;
+
+// =============================================================================
+// GUIDELINES
+// =============================================================================
+
+const IMPORTANT_GUIDELINES = `
+IMPORTANT GUIDELINES:
+- Write summaries in a friendly, conversational tone
+- Use action-oriented language for priorities (e.g., "Review the code changes", "Respond to *Jason*'s question")
+- For Catch Up items, start summaries with the person's name when relevant (e.g., "*Jason*" announced...)
+- Be concise but informative
+- Identify the author/initiator clearly
+- Indicate the number of related emails/updates when grouping
+- Focus on what the USER needs to do or know`;
+
+const CLIENT_FEEDBACK_RULES = `
+CLIENT FEEDBACK DETECTION:
+- Mark items as "isClientFeedback: true" if they appear to be from external clients/customers
+- Client feedback indicators: labels containing "client", "customer", "external", "feedback", "bug-report"
+- Also check if author username looks like an external account (not company employees)
+- Client feedback items are HIGH PRIORITY and should be highlighted`;
+
+const CLASSIFICATION_RULES = `
+CLASSIFICATION RULES:
+- Heads Up: Direct mentions, assignments, review requests, items with due dates, blocking issues, CLIENT FEEDBACK
+- Catch Up: General updates, comments on issues you're watching, completed tasks, FYI items
+- isClientFeedback: Set to true for any feedback from external clients/customers (check labels and author)
+
+Keep summaries concise and actionable. Maximum 5 items in Heads Up, group others into Catch Up topics.`;
+
+// =============================================================================
+// PROMPT BUILDERS
+// =============================================================================
+
 /**
  * Build the system prompt for AI Inbox processing
  */
@@ -95,30 +173,16 @@ export function buildSystemPrompt(personalization?: UserPersonalization): string
    - De-emphasize informational or FYI items
 
 ${personalizationContext}
-
-IMPORTANT GUIDELINES:
-- Write summaries in a friendly, conversational tone
-- Use action-oriented language for priorities (e.g., "Review the code changes", "Respond to John's question")
-- For Catch Up items, start summaries with the person's name when relevant (e.g., "Maya N. announced...")
-- Be concise but informative
-- Identify the author/initiator clearly
-- Indicate the number of related emails/updates when grouping
-- Focus on what the USER needs to do or know
-
-CLIENT FEEDBACK DETECTION:
-- Mark items as "isClientFeedback: true" if they appear to be from external clients/customers
-- Client feedback indicators: labels containing "client", "customer", "external", "feedback", "bug-report"
-- Also check if author username looks like an external account (not company employees)
-- Client feedback items are HIGH PRIORITY and should be highlighted`;
+${IMPORTANT_GUIDELINES}
+${NAME_FORMATTING_INSTRUCTION}
+${CLIENT_FEEDBACK_RULES}`;
 }
 
 /**
- * Build the user prompt for processing todos
+ * Format a single todo for prompt inclusion
  */
-export function buildTodoProcessingPrompt(todos: GitLabTodo[]): string {
-  // Format todos for the AI to process
-  const formattedTodos = todos.map((todo, index) => {
-    return `[Todo ${index + 1}]
+const formatTodo = (todo: GitLabTodo, index: number): string => {
+  return `[Todo ${index + 1}]
 - ID: ${todo.id}
 - Project: ${todo.project.name} (${todo.project.path_with_namespace})
 - Target Type: ${todo.target_type}
@@ -131,7 +195,13 @@ export function buildTodoProcessingPrompt(todos: GitLabTodo[]): string {
 - Due Date: ${todo.target.due_date || "Not set"}
 - Labels: ${todo.target.labels?.join(", ") || "None"}
 - URL: ${todo.target.web_url}`;
-  }).join("\n\n");
+};
+
+/**
+ * Build the user prompt for processing todos
+ */
+export function buildTodoProcessingPrompt(todos: GitLabTodo[]): string {
+  const formattedTodos = todos.map((todo, index) => formatTodo(todo, index)).join("\n\n");
 
   return `Please analyze the following ${todos.length} GitLab todos and create a summary with two sections:
 
@@ -140,41 +210,9 @@ ${formattedTodos}
 
 **REQUIRED OUTPUT FORMAT:**
 Please respond with a JSON object in this exact structure:
-{
-  "headsUp": [
-    {
-      "id": "unique_id",
-      "title": "Short action-oriented title",
-      "summary": "Brief description with context - mention the person who triggered this",
-      "urgency": "high|medium|low",
-      "project": "Project Name",
-      "targetType": "Issue|MergeRequest|etc",
-      "actionName": "mentioned|assigned|etc",
-      "emailCount": 1,
-      "isClientFeedback": false
-    }
-  ],
-  "catchUp": [
-    {
-      "topic": "Topic/Project Name",
-      "items": [
-        {
-          "summary": "Concise summary of updates, starting with person name when relevant",
-          "isClientFeedback": false
-        }
-      ],
-      "emailCount": 3,
-      "isClientFeedback": false
-    }
-  ]
-}
-
-CLASSIFICATION RULES:
-- Heads Up: Direct mentions, assignments, review requests, items with due dates, blocking issues, CLIENT FEEDBACK
-- Catch Up: General updates, comments on issues you're watching, completed tasks, FYI items
-- isClientFeedback: Set to true for any feedback from external clients/customers (check labels and author)
-
-Keep summaries concise and actionable. Maximum 5 items in Heads Up, group others into Catch Up topics.`;
+${TODO_RESPONSE_SCHEMA}
+${NAME_FORMATTING_INSTRUCTION}
+${CLASSIFICATION_RULES}`;
 }
 
 /**
@@ -194,17 +232,17 @@ export function buildTodoChatPrompt(
     `${msg.role === "user" ? "User" : "Assistant"}: ${msg.content}`
   ).join("\n");
 
+  const summaryContext = previousSummary ? `
+CURRENT SUMMARY:
+- Heads Up: ${previousSummary.headsUp.length} priority items
+- Catch Up: ${previousSummary.catchUp.length} topic groups
+` : "";
+
   return `You are helping the user with their GitLab todos inbox.
 
 CURRENT TODOS CONTEXT:
 ${todoContext}
-
-${previousSummary ? `
-CURRENT SUMMARY:
-- Heads Up: ${previousSummary.headsUp.length} priority items
-- Catch Up: ${previousSummary.catchUp.length} topic groups
-` : ""}
-
+${summaryContext}
 ${historyContext ? `CONVERSATION HISTORY:\n${historyContext}\n` : ""}
 
 USER QUESTION: ${userQuery}

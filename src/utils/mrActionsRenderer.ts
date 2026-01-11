@@ -4,18 +4,10 @@ import { MRActionType } from "./constants";
 interface SummarizeResponse {
   title: string;
   overview: string;
-  key_changes: Array<{
-    file: string;
-    type: "added" | "modified" | "deleted" | "refactored";
-    summary: string;
-  }>;
   impact_areas: Array<{
     area: string;
     impact: string;
-    risk_level: "low" | "medium" | "high";
   }>;
-  dependencies: string;
-  testing_notes: string;
 }
 
 interface SpotIssueItem {
@@ -148,28 +140,12 @@ export class MRActionsRenderer {
     text += `**${data.title}**\n\n`;
     text += `## Overview\n${data.overview}\n\n`;
 
-    if (data.key_changes && data.key_changes.length > 0) {
-      text += `## Key Changes\n`;
-      data.key_changes.forEach((change) => {
-        text += `- **${change.file}** [${change.type}]: ${change.summary}\n`;
-      });
-      text += `\n`;
-    }
-
     if (data.impact_areas && data.impact_areas.length > 0) {
       text += `## Impact Areas\n`;
       data.impact_areas.forEach((area) => {
-        text += `- **${area.area}** (${area.risk_level} risk): ${area.impact}\n`;
+        text += `- **${area.area}**: ${area.impact}\n`;
       });
       text += `\n`;
-    }
-
-    if (data.dependencies) {
-      text += `## Dependencies\n${data.dependencies}\n\n`;
-    }
-
-    if (data.testing_notes) {
-      text += `## Testing Notes\n${data.testing_notes}\n`;
     }
 
     return text.trim();
@@ -561,36 +537,6 @@ export class MRActionsRenderer {
     `;
     mainDiv.appendChild(overviewSection);
 
-    // Key Changes Section
-    if (data.key_changes && data.key_changes.length > 0) {
-      const changesSection = document.createElement("div");
-      changesSection.className = "mr-section";
-      changesSection.innerHTML = `<div class="mr-section-header">📁 Key Changes (${data.key_changes.length} files)</div>`;
-
-      const changesContent = document.createElement("div");
-      data.key_changes.forEach((change) => {
-        const config = this.getTypeConfig(change.type);
-        const item = document.createElement("div");
-        item.className = "mr-item";
-        item.innerHTML = `
-          <span class="mr-badge" style="background: ${config.color}20; color: ${config.color};">
-            ${config.icon} ${change.type}
-          </span>
-          <div style="flex: 1;">
-            <div style="font-weight: 600; color: #0366d6; font-size: 13px; margin-bottom: 4px;">
-              ${change.file}
-            </div>
-            <div style="font-size: 14px; color: #586069; line-height: 1.4;">
-              ${change.summary}
-            </div>
-          </div>
-        `;
-        changesContent.appendChild(item);
-      });
-      changesSection.appendChild(changesContent);
-      mainDiv.appendChild(changesSection);
-    }
-
     // Impact Areas Section
     if (data.impact_areas && data.impact_areas.length > 0) {
       const impactSection = document.createElement("div");
@@ -599,13 +545,9 @@ export class MRActionsRenderer {
 
       const impactContent = document.createElement("div");
       data.impact_areas.forEach((area) => {
-        const config = this.getRiskConfig(area.risk_level);
         const item = document.createElement("div");
         item.className = "mr-item";
         item.innerHTML = `
-          <span class="mr-badge" style="background: ${config.bg}; color: ${config.color};">
-            ${config.icon} ${area.risk_level.toUpperCase()}
-          </span>
           <div style="flex: 1;">
             <div style="font-weight: 600; color: #24292e; font-size: 14px; margin-bottom: 4px;">
               ${area.area}
@@ -619,34 +561,6 @@ export class MRActionsRenderer {
       });
       impactSection.appendChild(impactContent);
       mainDiv.appendChild(impactSection);
-    }
-
-    // Dependencies & Testing Notes
-    if (data.dependencies || data.testing_notes) {
-      const notesSection = document.createElement("div");
-      notesSection.className = "mr-section";
-      notesSection.innerHTML = `<div class="mr-section-header">📌 Notes</div>`;
-
-      let notesContent = '<div class="mr-section-content">';
-      if (data.dependencies) {
-        notesContent += `
-          <div class="mr-notes-section" style="margin-top: 0;">
-            <div class="mr-notes-title">📦 Dependencies</div>
-            <div class="mr-notes-content">${data.dependencies}</div>
-          </div>
-        `;
-      }
-      if (data.testing_notes) {
-        notesContent += `
-          <div class="mr-notes-section">
-            <div class="mr-notes-title">🧪 Testing Notes</div>
-            <div class="mr-notes-content">${data.testing_notes}</div>
-          </div>
-        `;
-      }
-      notesContent += "</div>";
-      notesSection.innerHTML += notesContent;
-      mainDiv.appendChild(notesSection);
     }
 
     // Add copy button
