@@ -323,37 +323,123 @@ export class IssueChatRenderer {
         color: #dc2626;
       }
 
-      .chat-copy-button {
+      .chat-action-button.chat-icon-button {
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        border-radius: 8px;
         display: inline-flex;
         align-items: center;
-        gap: 6px;
-        background: #e2e8f0;
-        color: #475569;
-        border: none;
-        padding: 6px 12px;
-        border-radius: 6px;
-        font-size: 12px;
-        cursor: pointer;
-        transition: all 0.2s ease;
+        justify-content: center;
+        position: relative;
       }
 
-      .chat-copy-button:hover {
-        background: #cbd5e1;
+      .chat-action-button.chat-icon-button::before,
+      .chat-action-button.chat-icon-button::after {
+        content: none;
+        position: absolute;
+        pointer-events: none;
+        opacity: 0;
+        visibility: hidden;
+      }
+
+      .chat-action-button.chat-icon-button:hover::after {
+        content: attr(data-tooltip);
+        visibility: visible;
+        opacity: 1;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        margin-bottom: 8px;
+        background: #1e293b;
+        color: white;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 500;
+        white-space: nowrap;
+        z-index: 9999;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .chat-action-button.chat-icon-button:hover::before {
+        content: '';
+        visibility: visible;
+        opacity: 1;
+        bottom: 100%;
+        left: 50%;
+        margin-bottom: 2px;
+        z-index: 9999;
+      }
+
+      @keyframes tooltipFadeIn {
+        from {
+          opacity: 0;
+          transform: translateX(-50%) translateY(4px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(-50%) translateY(0);
+        }
+      }
+
+      @keyframes spin {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .spinning-icon {
+        animation: spin 1s linear infinite;
+        transform-origin: center;
+      }
+
+      .chat-action-button.chat-copy-button {
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        color: #475569;
+      }
+
+      .chat-action-button.chat-copy-button:hover {
+        background: #e2e8f0;
+        border-color: #cbd5e1;
         color: #1e293b;
+      }
+
+      .chat-action-button.chat-insert-button {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+      }
+
+      .chat-action-button.chat-insert-button:hover {
+        background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
       }
 
       .chat-action-button.chat-slack-button {
         background: linear-gradient(135deg, #4A154B 0%, #611f69 100%);
         color: white;
+        border: none;
       }
 
       .chat-action-button.chat-slack-button:hover {
-        background: linear-gradient(135deg, #611f69 0%, #4A154B 100%);
+        background: linear-gradient(135deg, #5c1a5e 0%, #7a2585 100%);
+        box-shadow: 0 2px 8px rgba(74, 21, 75, 0.4);
       }
 
-      .chat-action-button.chat-slack-button:disabled {
+      .chat-action-button.chat-slack-button:disabled,
+      .chat-action-button.chat-icon-button:disabled {
         opacity: 0.6;
         cursor: not-allowed;
+      }
+
+      .chat-action-button.chat-icon-button:disabled:hover::after,
+      .chat-action-button.chat-icon-button:disabled:hover::before {
+        display: none;
       }
 
       .chat-list {
@@ -499,177 +585,173 @@ export class IssueChatRenderer {
         const actionsContainer = document.createElement("div");
         actionsContainer.className = "chat-action-buttons";
 
-        // Copy button
+        // Copy button (icon-only with tooltip)
         const copyButton = document.createElement("button");
-        copyButton.className = "chat-action-button";
+        copyButton.className = "chat-action-button chat-icon-button chat-copy-button";
+        copyButton.setAttribute("data-tooltip", "Copy");
         copyButton.innerHTML = `
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
             <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
           </svg>
-          Copy
         `;
         copyButton.addEventListener("click", async () => {
           try {
             await navigator.clipboard.writeText(content);
             copyButton.innerHTML = `
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="20 6 9 17 4 12"/>
               </svg>
-              Copied!
             `;
+            copyButton.setAttribute("data-tooltip", "Copied!");
             copyButton.classList.add("chat-action-success");
             setTimeout(() => {
               copyButton.innerHTML = `
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
                   <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
                 </svg>
-                Copy
               `;
+              copyButton.setAttribute("data-tooltip", "Copy");
               copyButton.classList.remove("chat-action-success");
             }, 2000);
           } catch {
-            copyButton.innerHTML = "Failed";
+            copyButton.setAttribute("data-tooltip", "Failed");
             copyButton.classList.add("chat-action-error");
           }
         });
         actionsContainer.appendChild(copyButton);
 
-        // Insert to comment box button (if callback provided)
+        // Insert to comment box button (icon-only with tooltip, if callback provided)
         if (onAddToComments) {
           const insertButton = document.createElement("button");
-          insertButton.className = "chat-action-button";
+          insertButton.className = "chat-action-button chat-icon-button chat-insert-button";
+          insertButton.setAttribute("data-tooltip", "Insert to comment");
           insertButton.innerHTML = `
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
               <line x1="12" y1="8" x2="12" y2="14"/>
               <line x1="9" y1="11" x2="15" y2="11"/>
             </svg>
-            Insert to comment
           `;
-          insertButton.title = "Insert this response into the issue comment box for review";
           insertButton.addEventListener("click", async () => {
             insertButton.disabled = true;
             insertButton.innerHTML = `
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10" style="animation: spin 1s linear infinite; transform-origin: center;"/>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spinning-icon">
+                <circle cx="12" cy="12" r="10"/>
               </svg>
-              Inserting...
             `;
+            insertButton.setAttribute("data-tooltip", "Inserting...");
 
             try {
               const result = await onAddToComments(content);
               if (result.success) {
                 insertButton.innerHTML = `
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="20 6 9 17 4 12"/>
                   </svg>
-                  Inserted!
                 `;
+                insertButton.setAttribute("data-tooltip", "Inserted!");
                 insertButton.classList.add("chat-action-success");
 
                 // Reset button after a short delay
                 setTimeout(() => {
                   insertButton.innerHTML = `
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                       <line x1="12" y1="8" x2="12" y2="14"/>
                       <line x1="9" y1="11" x2="15" y2="11"/>
                     </svg>
-                    Insert to comment
                   `;
+                  insertButton.setAttribute("data-tooltip", "Insert to comment");
                   insertButton.classList.remove("chat-action-success");
                   insertButton.disabled = false;
                 }, 2000);
               } else {
                 insertButton.innerHTML = `
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="12" cy="12" r="10"/>
                     <line x1="15" y1="9" x2="9" y2="15"/>
                     <line x1="9" y1="9" x2="15" y2="15"/>
                   </svg>
-                  Failed
                 `;
+                insertButton.setAttribute("data-tooltip", result.error || "Failed to insert");
                 insertButton.classList.add("chat-action-error");
                 insertButton.disabled = false;
-                insertButton.title = result.error || "Failed to insert into comment box";
 
                 // Reset after delay
                 setTimeout(() => {
                   insertButton.innerHTML = `
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                       <line x1="12" y1="8" x2="12" y2="14"/>
                       <line x1="9" y1="11" x2="15" y2="11"/>
                     </svg>
-                    Insert to comment
                   `;
+                  insertButton.setAttribute("data-tooltip", "Insert to comment");
                   insertButton.classList.remove("chat-action-error");
-                  insertButton.title = "Insert this response into the issue comment box for review";
                 }, 3000);
               }
             } catch (error: any) {
               insertButton.innerHTML = `
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <circle cx="12" cy="12" r="10"/>
                   <line x1="15" y1="9" x2="9" y2="15"/>
                   <line x1="9" y1="9" x2="15" y2="15"/>
                 </svg>
-                Failed
               `;
+              insertButton.setAttribute("data-tooltip", error.message || "Failed");
               insertButton.classList.add("chat-action-error");
               insertButton.disabled = false;
-              insertButton.title = error.message || "Unknown error";
             }
           });
           actionsContainer.appendChild(insertButton);
         }
 
-        // Share to Slack button (check if Slack is configured)
+        // Share to Slack button (icon-only with tooltip, check if Slack is configured)
         isSlackConfigured().then((configured) => {
           if (configured) {
             const slackButton = document.createElement("button");
-            slackButton.className = "chat-action-button chat-slack-button";
+            slackButton.className = "chat-action-button chat-icon-button chat-slack-button";
+            slackButton.setAttribute("data-tooltip", "Share to Slack");
             slackButton.innerHTML = `
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zM8.834 6.313a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zM18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zM17.688 8.834a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312zM15.165 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zM15.165 17.688a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z"/>
               </svg>
             `;
-            slackButton.title = "Share to Slack";
 
             slackButton.addEventListener("click", async () => {
               slackButton.disabled = true;
               const originalHTML = slackButton.innerHTML;
               slackButton.innerHTML = `
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="12" cy="12" r="10" style="animation: spin 1s linear infinite; transform-origin: center;"/>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spinning-icon">
+                  <circle cx="12" cy="12" r="10"/>
                 </svg>
               `;
-              slackButton.title = "Sending...";
+              slackButton.setAttribute("data-tooltip", "Sending...");
 
               try {
                 const result = await shareToSlack(content, context);
                 if (result.success) {
                   slackButton.innerHTML = `
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <polyline points="20 6 9 17 4 12"/>
                     </svg>
                   `;
                   slackButton.classList.remove("chat-slack-button");
                   slackButton.classList.add("chat-action-success");
-                  slackButton.title = "Sent to Slack!";
+                  slackButton.setAttribute("data-tooltip", "Sent to Slack!");
 
                   setTimeout(() => {
                     slackButton.innerHTML = originalHTML;
                     slackButton.classList.remove("chat-action-success");
                     slackButton.classList.add("chat-slack-button");
-                    slackButton.title = "Share to Slack";
+                    slackButton.setAttribute("data-tooltip", "Share to Slack");
                     slackButton.disabled = false;
                   }, 2000);
                 } else {
                   slackButton.innerHTML = `
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <circle cx="12" cy="12" r="10"/>
                       <line x1="15" y1="9" x2="9" y2="15"/>
                       <line x1="9" y1="9" x2="15" y2="15"/>
@@ -677,19 +759,19 @@ export class IssueChatRenderer {
                   `;
                   slackButton.classList.remove("chat-slack-button");
                   slackButton.classList.add("chat-action-error");
-                  slackButton.title = result.error || "Failed to send";
+                  slackButton.setAttribute("data-tooltip", result.error || "Failed to send");
                   slackButton.disabled = false;
 
                   setTimeout(() => {
                     slackButton.innerHTML = originalHTML;
                     slackButton.classList.remove("chat-action-error");
                     slackButton.classList.add("chat-slack-button");
-                    slackButton.title = "Share to Slack";
+                    slackButton.setAttribute("data-tooltip", "Share to Slack");
                   }, 3000);
                 }
               } catch (error: any) {
                 slackButton.innerHTML = `
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="12" cy="12" r="10"/>
                     <line x1="15" y1="9" x2="9" y2="15"/>
                     <line x1="9" y1="9" x2="15" y2="15"/>
@@ -697,7 +779,7 @@ export class IssueChatRenderer {
                 `;
                 slackButton.classList.remove("chat-slack-button");
                 slackButton.classList.add("chat-action-error");
-                slackButton.title = error.message || "Unknown error";
+                slackButton.setAttribute("data-tooltip", error.message || "Failed");
                 slackButton.disabled = false;
               }
             });
