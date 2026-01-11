@@ -6,46 +6,47 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { faGitlab, faSlack } from "@fortawesome/free-brands-svg-icons";
 import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
+import { useLanguage } from "../../../../contexts/LanguageContext";
 
 export type SettingsTab = "general" | "gitlab" | "ai-provider" | "personalization" | "slack";
 
 interface TabItem {
   id: SettingsTab;
-  label: string;
+  labelKey: string;
   icon: IconDefinition;
-  description: string;
+  descriptionKey: string;
 }
 
 const TABS: TabItem[] = [
   {
     id: "general",
-    label: "General",
+    labelKey: "tabs.general",
     icon: faCog,
-    description: "Appearance & Language",
+    descriptionKey: "tabs.generalDesc",
   },
   {
     id: "gitlab",
-    label: "GitLab",
+    labelKey: "tabs.gitlab",
     icon: faGitlab,
-    description: "GitLab connection settings",
+    descriptionKey: "tabs.gitlabDesc",
   },
   {
     id: "ai-provider",
-    label: "AI Provider",
+    labelKey: "tabs.aiProvider",
     icon: faRobot,
-    description: "AI model & API configuration",
+    descriptionKey: "tabs.aiProviderDesc",
   },
   {
     id: "personalization",
-    label: "Personalization",
+    labelKey: "tabs.personalization",
     icon: faUser,
-    description: "Custom preferences & profile",
+    descriptionKey: "tabs.personalizationDesc",
   },
   {
     id: "slack",
-    label: "Slack",
+    labelKey: "tabs.slack",
     icon: faSlack,
-    description: "Slack webhook integration",
+    descriptionKey: "tabs.slackDesc",
   },
 ];
 
@@ -55,10 +56,12 @@ interface TabNavigationProps {
 }
 
 const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) => {
+  const { t } = useLanguage();
+
   return (
     <nav className="settings-tab-nav">
       <div className="tab-nav-header">
-        <span className="nav-title">Settings</span>
+        <span className="nav-title">{t("tabs.settings")}</span>
       </div>
       <ul className="tab-list">
         {TABS.map((tab) => (
@@ -72,8 +75,8 @@ const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) => {
                 <FontAwesomeIcon icon={tab.icon} />
               </span>
               <span className="tab-content">
-                <span className="tab-label">{tab.label}</span>
-                <span className="tab-description">{tab.description}</span>
+                <span className="tab-label">{t(tab.labelKey)}</span>
+                <span className="tab-description">{t(tab.descriptionKey)}</span>
               </span>
             </button>
           </li>

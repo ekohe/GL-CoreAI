@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useFormContext } from "../../../../contexts/FormContext";
+import { useLanguage } from "../../../../contexts/LanguageContext";
 import { postToSlack, SlackMessageOptions } from "../../../../utils/slack";
 import FormField from "../FormField";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -8,13 +9,14 @@ import { AiBOT } from "../../../../utils/common";
 
 const SlackTab = () => {
   const { formData, handleChange } = useFormContext();
+  const { t } = useLanguage();
   const [testStatus, setTestStatus] = useState<"idle" | "testing" | "success" | "error">("idle");
   const [testError, setTestError] = useState<string>("");
 
   const handleTestConnection = async () => {
     if (!formData.GASSlackWebhookUrl) {
       setTestStatus("error");
-      setTestError("Please enter a webhook URL first");
+      setTestError(t("slack.enterWebhookFirst"));
       return;
     }
 
@@ -35,26 +37,25 @@ const SlackTab = () => {
         setTimeout(() => setTestStatus("idle"), 3000);
       } else {
         setTestStatus("error");
-        setTestError(result.error || "Failed to send test message");
+        setTestError(result.error || t("slack.failed"));
       }
     } catch (err: any) {
       setTestStatus("error");
-      setTestError(err.message || "An unexpected error occurred");
+      setTestError(err.message || t("slack.failed"));
     }
   };
 
   // Handle checkbox change for enabled state
   const handleEnabledChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Create a synthetic event that the handleChange function expects
     handleChange(e);
   };
 
   return (
     <div className="tab-content-section">
       <div className="section-header">
-        <h2 className="section-title">Slack Integration</h2>
+        <h2 className="section-title">{t("slack.title")}</h2>
         <p className="section-description">
-          Connect your Slack workspace to share AI summaries and insights directly with your team
+          {t("slack.description")}
         </p>
       </div>
 
@@ -62,10 +63,10 @@ const SlackTab = () => {
       <div className="settings-group">
         <div className="group-title">
           <span className="group-icon">⚡</span>
-          Quick Settings
+          {t("slack.quickSettings")}
         </div>
         <div className="group-content">
-          <FormField label="Enable Slack">
+          <FormField label={t("slack.enableSlack")}>
             <div className="control">
               <label className="checkbox-label" style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                 <input
@@ -80,7 +81,7 @@ const SlackTab = () => {
                   }}
                 />
                 <span style={{ color: formData.GASSlackEnabled ? "#16a34a" : "#64748b" }}>
-                  {formData.GASSlackEnabled ? "Slack integration is enabled" : "Slack integration is disabled"}
+                  {formData.GASSlackEnabled ? t("slack.enabled") : t("slack.disabled")}
                 </span>
               </label>
             </div>
@@ -92,10 +93,10 @@ const SlackTab = () => {
       <div className="settings-group">
         <div className="group-title">
           <span className="group-icon">🔗</span>
-          Webhook Configuration
+          {t("slack.webhookConfig")}
         </div>
         <div className="group-content">
-          <FormField label="Webhook URL">
+          <FormField label={t("slack.webhookUrl")}>
             <div className="control">
               <input
                 className="input"
@@ -107,14 +108,14 @@ const SlackTab = () => {
                 style={{ fontFamily: "monospace" }}
               />
               <p className="help" style={{ marginTop: "6px", fontSize: "0.8rem", color: "#64748b" }}>
-                Create an Incoming Webhook in your Slack App settings.
+                {t("slack.webhookUrlHelp")}
                 <a
                   href="https://api.slack.com/messaging/webhooks"
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{ marginLeft: "4px", color: "#667eea" }}
                 >
-                  Learn how →
+                  {t("slack.learnHow")}
                 </a>
               </p>
             </div>
@@ -162,10 +163,10 @@ const SlackTab = () => {
                   <path d="M22 2l-7 20-4-9-9-4 20-7z"/>
                 </svg>
               )}
-              {testStatus === "testing" ? "Sending..." :
-               testStatus === "success" ? "Message Sent!" :
-               testStatus === "error" ? "Failed" :
-               "Test Connection"}
+              {testStatus === "testing" ? t("slack.sending") :
+               testStatus === "success" ? t("slack.messageSent") :
+               testStatus === "error" ? t("slack.failed") :
+               t("slack.testConnection")}
             </button>
             {testStatus === "error" && testError && (
               <p style={{
@@ -188,10 +189,10 @@ const SlackTab = () => {
       <div className="settings-group">
         <div className="group-title">
           <span className="group-icon">🤖</span>
-          Bot Customization
+          {t("slack.botCustomization")}
         </div>
         <div className="group-content">
-          <FormField label="Bot Name">
+          <FormField label={t("slack.botName")}>
             <div className="control">
               <input
                 className="input"
@@ -202,12 +203,12 @@ const SlackTab = () => {
                 placeholder={AiBOT.name}
               />
               <p className="help" style={{ marginTop: "6px", fontSize: "0.8rem", color: "#64748b" }}>
-                The name that will appear as the sender in Slack
+                {t("slack.botNameHelp")}
               </p>
             </div>
           </FormField>
 
-          <FormField label="Default Channel">
+          <FormField label={t("slack.defaultChannel")}>
             <div className="control">
               <input
                 className="input"
@@ -215,15 +216,15 @@ const SlackTab = () => {
                 name="GASSlackDefaultChannel"
                 value={formData.GASSlackDefaultChannel}
                 onChange={handleChange}
-                placeholder="#general or leave empty for webhook default"
+                placeholder="#general"
               />
               <p className="help" style={{ marginTop: "6px", fontSize: "0.8rem", color: "#64748b" }}>
-                Optional: Override the default channel set in your webhook
+                {t("slack.defaultChannelHelp")}
               </p>
             </div>
           </FormField>
 
-          <FormField label="Icon Emoji">
+          <FormField label={t("slack.iconEmoji")}>
             <div className="control">
               <input
                 className="input"
@@ -234,7 +235,7 @@ const SlackTab = () => {
                 placeholder=":robot_face:"
               />
               <p className="help" style={{ marginTop: "6px", fontSize: "0.8rem", color: "#64748b" }}>
-                Slack emoji to use as the bot's icon (e.g., :robot_face:, :brain:, :sparkles:)
+                {t("slack.iconEmojiHelp")}
               </p>
             </div>
           </FormField>
@@ -245,7 +246,7 @@ const SlackTab = () => {
       <div className="settings-group">
         <div className="group-title">
           <span className="group-icon">💡</span>
-          How to Use
+          {t("slack.howToUse")}
         </div>
         <div className="group-content" style={{ padding: "16px" }}>
           <div style={{
@@ -255,7 +256,7 @@ const SlackTab = () => {
             border: "1px solid #bae6fd"
           }}>
             <h4 style={{ margin: "0 0 12px", fontSize: "0.95rem", fontWeight: 600, color: "#0369a1" }}>
-              Share AI insights to Slack
+              {t("slack.shareAIInsights")}
             </h4>
             <ul style={{
               margin: 0,
@@ -264,10 +265,10 @@ const SlackTab = () => {
               fontSize: "0.875rem",
               lineHeight: 1.6
             }}>
-              <li>After any AI response, click the <strong>Share to Slack</strong> button</li>
-              <li>Use the chat to ask AI to "send this to Slack"</li>
-              <li>Summaries and code reviews can be shared instantly</li>
-              <li>Messages include context about the source (issue/MR)</li>
+              <li>{t("slack.step1")}</li>
+              <li>{t("slack.step2")}</li>
+              <li>{t("slack.step3")}</li>
+              <li>{t("slack.step4")}</li>
             </ul>
           </div>
         </div>

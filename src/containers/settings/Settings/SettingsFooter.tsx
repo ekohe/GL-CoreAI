@@ -1,4 +1,5 @@
 /* eslint-disable react/jsx-no-target-blank */
+import { Trans } from "react-i18next";
 import { AiBOT } from "../../../utils/common";
 import { THEME_GRADIENTS } from "../../../utils/theme";
 
@@ -6,6 +7,8 @@ import { THEME_GRADIENTS } from "../../../utils/theme";
  * Settings page footer with author info
  */
 const SettingsFooter = () => {
+  const linkStyle = { color: "white", textDecorationLine: "underline" as const };
+
   return (
     <footer className="settings-footer">
       <article
@@ -14,23 +17,29 @@ const SettingsFooter = () => {
       >
         <div className="message-body" style={{ background: THEME_GRADIENTS.primary }}>
           <p>
-            <strong>{AiBOT.name}</strong> is made by{" "}
-            <a
-              href={AiBOT.homepageURL}
-              style={{ color: "white", textDecorationLine: "underline" }}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {AiBOT.authorName}
-            </a>
-            . If you have any ideas? Please contact via (
-            <a
-              href={`mailto:${AiBOT.authorEmail}`}
-              style={{ color: "white", textDecorationLine: "underline" }}
-            >
-              {AiBOT.authorEmail}
-            </a>
-            ).
+            <Trans
+              i18nKey="footer.content"
+              values={{
+                name: AiBOT.name,
+                author: AiBOT.authorName,
+                email: AiBOT.authorEmail,
+              }}
+              components={[
+                <strong key="name" />,
+                <a
+                  key="author"
+                  href={AiBOT.homepageURL}
+                  style={linkStyle}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                />,
+                <a
+                  key="email"
+                  href={`mailto:${AiBOT.authorEmail}`}
+                  style={linkStyle}
+                />,
+              ]}
+            />
           </p>
         </div>
       </article>

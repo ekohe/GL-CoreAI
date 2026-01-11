@@ -61,6 +61,7 @@ export const LANGUAGE_OPTIONS = [
   { value: "en", label: "English" },
   { value: "zh_CN", label: "简体中文" },
   { value: "fr", label: "Français" },
+  { value: "ja", label: "日本語" },
 ] as const;
 
 export const DEFAULT_LANGUAGE = "en";

@@ -6,6 +6,7 @@ import { initializeAppearance } from './../../utils/theme';
 
 import './../../assets/styles/settings.css';
 import { FormProvider } from './../../contexts/FormContext';
+import { LanguageProvider } from './../../contexts/LanguageContext';
 
 // Initialize appearance before rendering
 initializeAppearance().then(() => {
@@ -15,7 +16,9 @@ initializeAppearance().then(() => {
     root.render(
       <React.StrictMode>
         <FormProvider>
-          <AppSettings />
+          <LanguageProvider>
+            <AppSettings />
+          </LanguageProvider>
         </FormProvider>
       </React.StrictMode>
     );

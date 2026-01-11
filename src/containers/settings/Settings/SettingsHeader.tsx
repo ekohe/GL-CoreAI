@@ -1,11 +1,14 @@
 import { AiBOT } from "../../../utils/common";
 import logoBrand from "../../../assets/icons/logo-brand.png";
 import manifest from "../../../resources/manifest.json";
+import { useLanguage } from "../../../contexts/LanguageContext";
 
 /**
  * Settings page header with logo and description
  */
 const SettingsHeader = () => {
+  const { t } = useLanguage();
+
   return (
     <header className="settings-header">
       <div className="header-content">
@@ -23,7 +26,7 @@ const SettingsHeader = () => {
         </a>
         <div className="header-info">
           <h1 className="app-name">{manifest.name}</h1>
-          <p className="app-description">{manifest.description}</p>
+          <p className="app-description">{t("header.description")}</p>
           <span className="app-version">v{manifest.version}</span>
         </div>
       </div>

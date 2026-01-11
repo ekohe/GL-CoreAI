@@ -1,31 +1,33 @@
 import { useFormContext } from "../../../../contexts/FormContext";
+import { useLanguage } from "../../../../contexts/LanguageContext";
 import FormField from "../FormField";
 
 const GitLabTab = () => {
   const { formData, handleChange } = useFormContext();
+  const { t } = useLanguage();
 
   return (
     <div className="tab-content-section">
       <div className="section-header">
-        <h2 className="section-title">GitLab Configuration</h2>
+        <h2 className="section-title">{t("gitlab.title")}</h2>
         <p className="section-description">
-          Configure your GitLab instance connection settings
+          {t("gitlab.description")}
         </p>
       </div>
 
       <div className="settings-group">
         <div className="group-title">
           <span className="group-icon">🔗</span>
-          Connection
+          {t("gitlab.connection")}
         </div>
         <div className="group-content">
-          <FormField label="Web URL">
+          <FormField label={t("gitlab.webUrl")}>
             <div className="control">
               <input
                 className="input"
                 type="text"
                 name="GASGitLab"
-                placeholder="Auto-detected from GitLab page"
+                placeholder={t("gitlab.autoDetectedPlaceholder")}
                 onChange={handleChange}
                 value={formData.GASGitLab}
                 readOnly
@@ -33,7 +35,7 @@ const GitLabTab = () => {
             </div>
           </FormField>
 
-          <FormField label="API Version">
+          <FormField label={t("gitlab.apiVersion")}>
             <div className="control">
               <input
                 className="input"
@@ -53,7 +55,7 @@ const GitLabTab = () => {
       <div className="info-card">
         <div className="info-icon">ℹ️</div>
         <div className="info-content">
-          <strong>Note:</strong> The GitLab URL is automatically detected when you visit a GitLab page.
+          <strong>Note:</strong> {t("gitlab.autoDetectNote")}
         </div>
       </div>
     </div>

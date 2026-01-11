@@ -2,11 +2,13 @@ import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { useFormContext } from "../../../../contexts/FormContext";
+import { useLanguage } from "../../../../contexts/LanguageContext";
 import { AI_MODEL_OPTIONS } from "../../../../utils/constants";
 import FormField from "../FormField";
 
 const AIProviderTab = () => {
   const { formData, handleChange } = useFormContext();
+  const { t } = useLanguage();
   const [showAIKey, setShowAIKey] = useState(true);
 
   const toggleShowKey = () => setShowAIKey(!showAIKey);
@@ -48,19 +50,19 @@ const AIProviderTab = () => {
   return (
     <div className="tab-content-section">
       <div className="section-header">
-        <h2 className="section-title">AI Provider Settings</h2>
+        <h2 className="section-title">{t("aiProvider.title")}</h2>
         <p className="section-description">
-          Configure your preferred AI provider and model for code analysis
+          {t("aiProvider.description")}
         </p>
       </div>
 
       <div className="settings-group">
         <div className="group-title">
           <span className="group-icon">🤖</span>
-          Provider Selection
+          {t("aiProvider.providerSelection")}
         </div>
         <div className="group-content">
-          <FormField label="Provider">
+          <FormField label={t("aiProvider.provider")}>
             <div className="control">
               <div className="select is-fullwidth">
                 <select
@@ -85,13 +87,13 @@ const AIProviderTab = () => {
         <div className="settings-group provider-settings">
           <div className="group-title">
             <span className="group-icon">🔑</span>
-            OpenAI Configuration
+            {t("aiProvider.openaiConfig")}
           </div>
           <div className="group-content">
-            <FormField label="API Key">
-              {renderPasswordInput("GASOpenAIKey", "Enter your OpenAI API key (sk-...)", formData.GASOpenAIKey)}
+            <FormField label={t("aiProvider.apiKey")}>
+              {renderPasswordInput("GASOpenAIKey", t("aiProvider.enterOpenAIKey"), formData.GASOpenAIKey)}
             </FormField>
-            <FormField label="Model">
+            <FormField label={t("aiProvider.model")}>
               {renderSelect("GASOpenaiModel", formData.GASOpenaiModel, AI_MODEL_OPTIONS.openai)}
             </FormField>
           </div>
@@ -103,13 +105,13 @@ const AIProviderTab = () => {
         <div className="settings-group provider-settings">
           <div className="group-title">
             <span className="group-icon">🔑</span>
-            Claude Configuration
+            {t("aiProvider.claudeConfig")}
           </div>
           <div className="group-content">
-            <FormField label="API Key">
-              {renderPasswordInput("GASClaudeKey", "Enter your Claude API key (sk-ant-...)", formData.GASClaudeKey)}
+            <FormField label={t("aiProvider.apiKey")}>
+              {renderPasswordInput("GASClaudeKey", t("aiProvider.enterClaudeKey"), formData.GASClaudeKey)}
             </FormField>
-            <FormField label="Model">
+            <FormField label={t("aiProvider.model")}>
               {renderSelect("GASClaudeModel", formData.GASClaudeModel, AI_MODEL_OPTIONS.claude)}
             </FormField>
           </div>
@@ -121,13 +123,13 @@ const AIProviderTab = () => {
         <div className="settings-group provider-settings">
           <div className="group-title">
             <span className="group-icon">🔑</span>
-            DeepSeek Configuration
+            {t("aiProvider.deepseekConfig")}
           </div>
           <div className="group-content">
-            <FormField label="API Key">
-              {renderPasswordInput("GASDeepSeekAIKey", "Enter your DeepSeek API key", formData.GASDeepSeekAIKey)}
+            <FormField label={t("aiProvider.apiKey")}>
+              {renderPasswordInput("GASDeepSeekAIKey", t("aiProvider.enterDeepSeekKey"), formData.GASDeepSeekAIKey)}
             </FormField>
-            <FormField label="Model">
+            <FormField label={t("aiProvider.model")}>
               {renderSelect("GASDeepSeekModel", formData.GASDeepSeekModel, AI_MODEL_OPTIONS.deepseek)}
             </FormField>
           </div>
@@ -139,13 +141,13 @@ const AIProviderTab = () => {
         <div className="settings-group provider-settings">
           <div className="group-title">
             <span className="group-icon">🌐</span>
-            OpenRouter Configuration
+            {t("aiProvider.openrouterConfig")}
           </div>
           <div className="group-content">
-            <FormField label="API Key">
-              {renderPasswordInput("GASOpenRouterKey", "Enter your OpenRouter API key (sk-or-...)", formData.GASOpenRouterKey)}
+            <FormField label={t("aiProvider.apiKey")}>
+              {renderPasswordInput("GASOpenRouterKey", t("aiProvider.enterOpenRouterKey"), formData.GASOpenRouterKey)}
             </FormField>
-            <FormField label="Model">
+            <FormField label={t("aiProvider.model")}>
               {renderSelect("GASOpenRouterModel", formData.GASOpenRouterModel, AI_MODEL_OPTIONS.openrouter)}
             </FormField>
           </div>
@@ -157,10 +159,10 @@ const AIProviderTab = () => {
         <div className="settings-group provider-settings">
           <div className="group-title">
             <span className="group-icon">🖥️</span>
-            Ollama Configuration (Local)
+            {t("aiProvider.ollamaConfig")}
           </div>
           <div className="group-content">
-            <FormField label="Server URL">
+            <FormField label={t("aiProvider.serverUrl")}>
               <div className="control">
                 <input
                   className="input"
@@ -173,7 +175,7 @@ const AIProviderTab = () => {
                 />
               </div>
             </FormField>
-            <FormField label="Model">
+            <FormField label={t("aiProvider.model")}>
               {renderSelect("GASOllamaModel", formData.GASOllamaModel, AI_MODEL_OPTIONS.ollama)}
             </FormField>
           </div>
@@ -183,7 +185,7 @@ const AIProviderTab = () => {
       <div className="info-card">
         <div className="info-icon">💡</div>
         <div className="info-content">
-          <strong>Tip:</strong> API keys are stored securely in your browser and never shared.
+          <strong>Tip:</strong> {t("aiProvider.securityTip")}
         </div>
       </div>
     </div>
