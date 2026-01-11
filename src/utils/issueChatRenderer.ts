@@ -324,8 +324,8 @@ export class IssueChatRenderer {
       }
 
       .chat-action-button.chat-icon-button {
-        width: 36px;
-        height: 36px;
+        width: 30px;
+        height: 25px;
         padding: 0;
         border-radius: 8px;
         display: inline-flex;
@@ -370,6 +370,7 @@ export class IssueChatRenderer {
         left: 50%;
         margin-bottom: 2px;
         z-index: 9999;
+        background: none !important;
       }
 
       @keyframes tooltipFadeIn {

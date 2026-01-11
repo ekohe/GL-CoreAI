@@ -335,7 +335,7 @@ div[data-theme="theme-navy-blue"] {
 
 /* Custom tooltip styles with gradient background */
 [data-tooltip]:not(.is-loading)::before {
-  background: none !important;
+  background: linear-gradient(135deg, rgb(102, 126, 234) 0%, rgb(118, 75, 162) 100%) !important;
   color: white !important;
   font-weight: 500;
   font-size: 0.8rem;
