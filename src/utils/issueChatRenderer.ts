@@ -285,7 +285,9 @@ export class IssueChatRenderer {
         display: flex;
         align-items: center;
         gap: 8px;
-        margin-top: 12px;
+        margin-top: 20px;
+        padding-top: 12px;
+        border-top: 1px solid #e2e8f0;
         flex-wrap: wrap;
       }
 
