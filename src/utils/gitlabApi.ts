@@ -1,17 +1,3 @@
-interface GitLabComment {
-  body: string;
-  position?: {
-    base_sha: string;
-    start_sha: string;
-    head_sha: string;
-    old_path: string;
-    new_path: string;
-    position_type: 'text';
-    old_line?: number;
-    new_line?: number;
-  };
-}
-
 export class GitLabAPI {
   private static getGitLabInfo() {
     const url = window.location.href;

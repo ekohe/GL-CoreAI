@@ -523,17 +523,6 @@ const GitLab = (props: GitLabProps) => {
     }
   };
 
-  // Reset action handlers
-  const handleResetIssueAction = () => {
-    setSelectedIssueAction(null);
-    setConversationHistory([]);
-    setInitialIssueResponse("");
-    setIssueDiscussions(null);
-    if (iisRef?.current) {
-      iisRef.current.innerHTML = '';
-    }
-  };
-
   const handleResetMRAction = () => {
     setSelectedMRAction(null);
     if (iisRef?.current) {

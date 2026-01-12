@@ -2,15 +2,16 @@
 import { useEffect, useRef, useState } from "react";
 
 import {
+  getCurrentTabURL,
   getGoogleAccessToken,
   getGoogleTokenExpiry,
   getThemeType,
-  getAppearance,
   getUserAccessToken,
+  isGitLabIssuesPage,
   isTokenExpired,
   refreshGoogleToken,
 } from "./../../utils";
-import { initializeAppearance, applyAppearance } from "./../../utils/theme";
+import { initializeAppearance } from "./../../utils/theme";
 
 import Header from "./Header";
 import Footer from "./Footer";
@@ -26,6 +27,7 @@ import { AI_EXT_STATUS } from "../../utils/constants";
 import "./../../assets/styles/inject.css";
 import ForgetPassword from "../../components/ForgetPassword";
 import { toastMessage } from "../../utils/tools";
+import NotOnGitLabPage from "./GitLab/NotOnGitLabPage";
 
 const storageGoogleAccessToken = await getGoogleAccessToken();
 const storageGoogleTokenExpiry = await getGoogleTokenExpiry();
@@ -38,16 +40,25 @@ await initializeAppearance();
 function AppIndex() {
   const issueDetailsRef = useRef(null);
   const [isCopy, setIsCopy] = useState(false);
-  const [googleAccessToken, setGoogleAccessToken] = useState<
-    string | undefined
-  >(undefined);
-  const [userAccessToken, setUserAccessToken] = useState<string | undefined>(
-    undefined
-  );
+
+  const [googleAccessToken, setGoogleAccessToken] = useState<string | undefined>(undefined);
+  const [userAccessToken, setUserAccessToken] = useState<string | undefined>(undefined);
 
   const [screenName, setScreenName] = useState(AI_EXT_STATUS.signin.code);
   const [errorText, setErrorText] = useState("");
   const [messageText, setMessageText] = useState("");
+
+  // check if the current page is a GitLab page
+  const [currentTabURL, setCurrentTabURL] = useState<string | undefined>(undefined);
+  const [isGitLabPage, setIsGitLabPage] = useState(false);
+
+  useEffect(() => {
+    const getTabURL = async () => {
+      const tabURL = await getCurrentTabURL();
+      setCurrentTabURL(tabURL);
+    };
+    getTabURL();
+  }, []);
 
   useEffect(() => {
     const checkAndRefreshToken = async () => {
@@ -92,7 +103,14 @@ function AppIndex() {
   }, []);
 
   useEffect(() => {
-    if (googleAccessToken !== undefined || userAccessToken !== undefined) {
+    setIsGitLabPage(isGitLabIssuesPage(currentTabURL));
+  }, [currentTabURL]);
+
+  useEffect(() => {
+    if (
+      (googleAccessToken !== undefined && googleAccessToken !== null) ||
+      (userAccessToken !== undefined && userAccessToken !== null)
+    ) {
       setScreenName(AI_EXT_STATUS.summarizer.code);
     }
   }, [googleAccessToken, userAccessToken]);
@@ -155,7 +173,7 @@ function AppIndex() {
         </section>
       )}
 
-      {screenName === AI_EXT_STATUS.summarizer.code && (
+      {screenName === AI_EXT_STATUS.summarizer.code && isGitLabPage && (
         <>
           <Header
             signOut={signOut}
@@ -175,6 +193,22 @@ function AppIndex() {
             setErrorText={setErrorText}
             iisRef={issueDetailsRef}
           />
+
+          <Footer />
+        </>
+      )}
+
+      {screenName === AI_EXT_STATUS.summarizer.code && !isGitLabPage && (
+        <>
+          <Header
+            signOut={signOut}
+            isCopy={isCopy}
+            iisRef={issueDetailsRef}
+            setScreenName={setScreenName}
+            currentScreen={screenName}
+          />
+
+          <NotOnGitLabPage />
 
           <Footer />
         </>
