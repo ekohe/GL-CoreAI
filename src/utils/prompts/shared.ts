@@ -18,13 +18,14 @@
 // =============================================================================
 
 /**
- * Name formatting instruction - ensures all person/entity names are emphasized
+ * Name formatting instruction - ensures all person/entity names are clearly identified
  * Used in ALL prompts that may mention people
  */
 export const NAME_FORMATTING_INSTRUCTION = `
 NAME FORMATTING:
-- Any person names, usernames, or entity names MUST be wrapped in *name* markdown tags
-- Example: "*John Smith*" raised a concern about...`;
+- When mentioning people, always include their full name or username clearly
+- Attribute actions, comments, and decisions to specific individuals by name
+- Example: "John Smith raised a concern about..." or "User @jsmith suggested..."`;
 
 /**
  * Base JSON requirements for all JSON-returning prompts
@@ -40,8 +41,9 @@ CRITICAL JSON REQUIREMENTS:
  */
 export const getJsonRequirements = (additionalRules: string[] = []): string => {
   const baseRules = [
-    "Return ONLY the JSON object/array - no markdown, no explanations, no extra text",
-    "All strings must use double quotes and be properly escaped",
+    "Return ONLY the JSON object/array - no markdown code fences, no explanations, no extra text",
+    'ALL string values MUST be wrapped in double quotes (e.g., "summary": "text here" NOT "summary": text here)',
+    "Escape special characters in strings: \\\" for quotes, \\n for newlines, \\\\ for backslashes",
     "No trailing commas allowed",
   ];
 
@@ -156,9 +158,13 @@ export const STATUS_INDICATORS = ["on_track", "at_risk", "blocked", "completed"]
 export const getJsonSystemMessage = (role: string, additionalContext: string = ''): string => {
   return `${role}
 
-CRITICAL REQUIREMENTS:
-- You MUST return ONLY valid JSON - no markdown, no explanations, no additional text
-${additionalContext ? `- ${additionalContext}\n` : ''}- Your response will be directly parsed as JSON, so any non-JSON content will cause errors.`;
+CRITICAL JSON REQUIREMENTS:
+- You MUST return ONLY valid, parseable JSON - no markdown code fences, no explanations, no additional text
+- ALL string values MUST be wrapped in double quotes (e.g., "key": "value" NOT "key": value)
+- Properly escape special characters in strings: use \\" for quotes, \\n for newlines
+- Do NOT use trailing commas
+- Do NOT include comments in the JSON
+${additionalContext ? `- ${additionalContext}\n` : ''}- Your response will be directly parsed by JSON.parse(), so any syntax errors will cause failures.`;
 };
 
 // =============================================================================

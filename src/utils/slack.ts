@@ -271,7 +271,7 @@ const buildSummaryBlocks = (
   const contextElements: any[] = [
     {
       type: "mrkdwn",
-      text: `*${label}*`,
+      text: `**${label}**`,
     },
   ];
 

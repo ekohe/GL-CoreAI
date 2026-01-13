@@ -37,7 +37,7 @@ Based on the most current information in the issue and discussions,
 provide the following information in an easy to read HTML format:
 
 <div class="summary">Summarize the issue in a detailed paragraph.
-Focus on the key points, including the problem, its impact, and any major developments.
+Focus on the key points, including the problem, its impact, and any major developments, and maximum 3-5 that are most important to the user.
 Any highlighted keywords should be displayed using the format <strong style="color: black;">keyword</strong>. Be concise, and do not leave out any details.
 </div>
 

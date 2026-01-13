@@ -1,4 +1,5 @@
 import { IssueActionType } from "./constants";
+import { repairJSON, isCompleteJSON } from "./rendererUtils";
 
 // Types for different action responses
 interface SummarizeIssueResponse {
@@ -621,14 +622,9 @@ export class IssueActionsRenderer {
     this.createStyles();
 
     try {
-      let cleanedData = data.trim();
-      if (cleanedData.startsWith("```json")) {
-        cleanedData = cleanedData.replace(/^```json\s*/, "").replace(/\s*```$/, "");
-      } else if (cleanedData.startsWith("```")) {
-        cleanedData = cleanedData.replace(/^```\s*/, "").replace(/\s*```$/, "");
-      }
-
-      const parsed = JSON.parse(cleanedData);
+      // First attempt to repair the JSON before parsing
+      const repairedData = repairJSON(data);
+      const parsed = JSON.parse(repairedData);
 
       switch (actionType) {
         case "summarize":
@@ -643,6 +639,7 @@ export class IssueActionsRenderer {
       }
     } catch (error: any) {
       console.error("Failed to parse response:", error);
+      console.error("Original data:", data);
       this.showErrorState(container, `Failed to parse AI response: ${error.message}`, data);
     }
   }
@@ -1050,35 +1047,7 @@ export class IssueActionsRenderer {
   }
 
   public static isCompleteJSON(jsonString: string): boolean {
-    let trimmed = jsonString.trim();
-
-    if (trimmed.startsWith("```json")) {
-      trimmed = trimmed.replace(/^```json\s*/, "").replace(/\s*```$/, "");
-    } else if (trimmed.startsWith("```")) {
-      trimmed = trimmed.replace(/^```\s*/, "").replace(/\s*```$/, "");
-    }
-
-    if (!trimmed.startsWith("[") && !trimmed.startsWith("{")) return false;
-
-    try {
-      const openBrackets = (trimmed.match(/\[/g) || []).length;
-      const closeBrackets = (trimmed.match(/\]/g) || []).length;
-      const openBraces = (trimmed.match(/\{/g) || []).length;
-      const closeBraces = (trimmed.match(/\}/g) || []).length;
-
-      if (
-        openBrackets === closeBrackets &&
-        openBraces === closeBraces &&
-        (trimmed.endsWith("]") || trimmed.endsWith("}"))
-      ) {
-        JSON.parse(trimmed);
-        return true;
-      }
-    } catch (e) {
-      return false;
-    }
-
-    return false;
+    return isCompleteJSON(jsonString);
   }
 }
 
