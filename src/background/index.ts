@@ -10,6 +10,12 @@ import {
   DEFAULT_APPEARANCE,
   DEFAULT_LANGUAGE,
 } from "../utils/constants";
+import {
+  isSensitiveKey,
+  decrypt,
+  isEncrypted,
+  migrateToEncryptedStorage,
+} from "../utils/encryptionManager";
 
 export {};
 
@@ -62,7 +68,10 @@ const toggleSidePanelForWindow = (windowId: number, callback: (success: boolean)
   }
 };
 
-chrome.runtime.onInstalled.addListener(function (details) {
+chrome.runtime.onInstalled.addListener(async function (details) {
+  // Migrate existing unencrypted data to encrypted format
+  await migrateToEncryptedStorage();
+
   if (details.reason === "install") {
     chrome.tabs.create({
       url: "https://ekohe.com",
@@ -125,15 +134,25 @@ try {
 //   () => {}
 // );
 
-// Utility function to retrieve a value from Chrome storage
+// Utility function to retrieve a value from Chrome storage with decryption support
 const getFromStorage = (
   key: string,
   sendResponse: (response: any) => void,
   defaultValue: any = null
 ) => {
-  chrome.storage.sync.get(key, (result) => {
-    const value = result[key] !== undefined ? result[key] : defaultValue;
-    // Debug: log storage retrieval to help diagnose issues
+  chrome.storage.sync.get(key, async (result) => {
+    let value = result[key] !== undefined ? result[key] : defaultValue;
+
+    // Decrypt if this is a sensitive key and value is encrypted
+    if (isSensitiveKey(key) && typeof value === 'string' && isEncrypted(value)) {
+      try {
+        value = await decrypt(value);
+      } catch (error) {
+        console.error(`Error decrypting ${key}:`, error);
+        // Keep the encrypted value as fallback
+      }
+    }
+
     sendResponse({ [key]: value });
   });
 };

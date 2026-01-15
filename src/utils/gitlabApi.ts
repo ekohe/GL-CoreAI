@@ -1,3 +1,5 @@
+import { getSecureValue, setSecureValue } from './shared';
+
 export class GitLabAPI {
   private static getGitLabInfo() {
     const url = window.location.href;
@@ -15,23 +17,21 @@ export class GitLabAPI {
   }
 
   private static async getGitLabToken(): Promise<string> {
-    // Try to get token from extension storage or prompt user
-    return new Promise((resolve, reject) => {
-      chrome.storage.sync.get(['gitlab_token'], (result) => {
-        if (result.gitlab_token) {
-          resolve(result.gitlab_token);
-        } else {
-          // Prompt user for token
-          const token = prompt('Please enter your GitLab Personal Access Token (requires api scope):');
-          if (token) {
-            chrome.storage.sync.set({ gitlab_token: token });
-            resolve(token);
-          } else {
-            reject(new Error('GitLab token required'));
-          }
-        }
-      });
-    });
+    // Try to get token from extension storage (with decryption) or prompt user
+    const storedToken = await getSecureValue('gitlab_token');
+
+    if (storedToken) {
+      return storedToken;
+    }
+
+    // Prompt user for token
+    const token = prompt('Please enter your GitLab Personal Access Token (requires api scope):');
+    if (token) {
+      await setSecureValue('gitlab_token', token);
+      return token;
+    }
+
+    throw new Error('GitLab token required');
   }
 
   public static async postCodeSuggestion(

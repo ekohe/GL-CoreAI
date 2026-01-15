@@ -25,6 +25,12 @@ const TABS: TabItem[] = [
     descriptionKey: "tabs.generalDesc",
   },
   {
+    id: "personalization",
+    labelKey: "tabs.personalization",
+    icon: faUser,
+    descriptionKey: "tabs.personalizationDesc",
+  },
+  {
     id: "gitlab",
     labelKey: "tabs.gitlab",
     icon: faGitlab,
@@ -35,12 +41,6 @@ const TABS: TabItem[] = [
     labelKey: "tabs.aiProvider",
     icon: faRobot,
     descriptionKey: "tabs.aiProviderDesc",
-  },
-  {
-    id: "personalization",
-    labelKey: "tabs.personalization",
-    icon: faUser,
-    descriptionKey: "tabs.personalizationDesc",
   },
   {
     id: "slack",

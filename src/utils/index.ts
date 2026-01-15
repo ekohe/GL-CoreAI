@@ -8,6 +8,9 @@ import {
   toggleDisabledGitLabSites,
   getStorage,
   setStorage,
+  getSecureValue,
+  setSecureValue,
+  removeStorage,
 } from './shared';
 
 async function fetchFromGitLabAPI(url: string) {
@@ -395,6 +398,9 @@ export {
   // Storage functions (from shared)
   getStorage,
   setStorage,
+  getSecureValue,
+  setSecureValue,
+  removeStorage,
   // GitLab functions (from shared)
   isGitLabIssuesPage,
   checkDisabledGitLabSites,
