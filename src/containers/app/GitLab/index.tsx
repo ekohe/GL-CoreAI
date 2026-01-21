@@ -19,10 +19,12 @@ import {
   extractProjectPathAndIssueIdOrMergeRequestId,
   fetchIssueDetails,
   fetchIssueDiscussions,
+  fetchMergeRequestDetails,
   fetchMergeRequestChanges,
   getProjectIdFromPath,
   getCurrentUser,
   GitLabUser,
+  MergeRequestData,
 } from "../../../utils/gitlab";
 import { gitLabIssueSummarize, invokingMRAction, invokingIssueAction, invokingIssueChat } from "../../../utils/llms";
 import { GitLabAPI } from "../../../utils/gitlabApi";
@@ -33,7 +35,7 @@ import { issueChatPrompts } from "../../../utils/prompts";
 // Import sub-components
 import NotOnGitLabPage from "./NotOnGitLabPage";
 import LoadingState from "./LoadingState";
-import { IssueTitleCard, IssueInfoCard } from "./IssueInfoCard";
+import { IssueTitleCard, IssueInfoCard, MRTitleCard, MRInfoCard } from "./IssueInfoCard";
 import { MRActionCard, IssueActionCard, ActionSectionHeader } from "./ActionCards";
 import { SetupLLMButton, TryAnotherActionButton } from "./ActionButtons";
 import ChatInput from "../../../components/ChatInput";
@@ -80,6 +82,7 @@ const GitLab = (props: GitLabProps) => {
   const [issueId, setIssueId] = useState<number | undefined>(undefined);
   const [issueData, setIssueData] = useState<any>({});
   const [mergeRequestId, setMergeRequestId] = useState<number | undefined>(undefined);
+  const [mergeRequestData, setMergeRequestData] = useState<MergeRequestData | null>(null);
   const [mergeRequestChangesData, setMergeRequestChangesData] = useState<any>({});
 
   // Auto-scroll effect
@@ -162,6 +165,7 @@ const GitLab = (props: GitLabProps) => {
       setIssueId(undefined);
       setIssueData({});
       setMergeRequestId(undefined);
+      setMergeRequestData(null);
       setMergeRequestChangesData({});
       setEnabledLLM(false);
       setStartGitLabAPI(true);
@@ -237,7 +241,12 @@ const GitLab = (props: GitLabProps) => {
             setProjectId(gitlabProjectID);
             setMergeRequestId(mergeRequestId);
 
-            const changesData = await fetchMergeRequestChanges(gitlabProjectID, mergeRequestId);
+            // Fetch MR details and changes in parallel
+            const [mrDetails, changesData] = await Promise.all([
+              fetchMergeRequestDetails(gitlabProjectID, mergeRequestId),
+              fetchMergeRequestChanges(gitlabProjectID, mergeRequestId),
+            ]);
+            setMergeRequestData(mrDetails);
             setMergeRequestChangesData(changesData);
           }
 
@@ -552,6 +561,14 @@ const GitLab = (props: GitLabProps) => {
 
       {/* Issue Info Card */}
       {Object.keys(issueData).length > 0 && <IssueInfoCard issueData={issueData} />}
+
+      {/* MR Title Card */}
+      {mergeRequestData?.title && (
+        <MRTitleCard title={mergeRequestData.title} draft={mergeRequestData.draft} />
+      )}
+
+      {/* MR Info Card */}
+      {mergeRequestData && <MRInfoCard mrData={mergeRequestData} />}
 
       {/* Setup LLM Button */}
       {!hasLLMAPIKey && <SetupLLMButton />}

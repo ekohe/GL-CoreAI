@@ -186,6 +186,82 @@ async function fetchMergeRequests(
   return merge_requests;
 }
 
+// MergeRequest type
+export interface MergeRequestData {
+  id: number;
+  iid: number;
+  title: string;
+  description?: string;
+  state: string;
+  source_branch: string;
+  target_branch: string;
+  author?: {
+    id: number;
+    username: string;
+    name: string;
+    avatar_url?: string;
+    web_url?: string;
+  };
+  assignee?: {
+    id: number;
+    username: string;
+    name: string;
+    avatar_url?: string;
+    web_url?: string;
+  };
+  assignees?: Array<{
+    id: number;
+    username: string;
+    name: string;
+    avatar_url?: string;
+    web_url?: string;
+  }>;
+  reviewers?: Array<{
+    id: number;
+    username: string;
+    name: string;
+    avatar_url?: string;
+    web_url?: string;
+  }>;
+  labels?: string[];
+  milestone?: {
+    id: number;
+    title: string;
+  };
+  draft?: boolean;
+  work_in_progress?: boolean;
+  merge_status?: string;
+  detailed_merge_status?: string;
+  has_conflicts?: boolean;
+  user_notes_count?: number;
+  changes_count?: string;
+  created_at?: string;
+  updated_at?: string;
+  merged_at?: string;
+  closed_at?: string;
+  merged_by?: {
+    name: string;
+    username: string;
+  };
+  web_url?: string;
+}
+
+async function fetchMergeRequestDetails(
+  projectId: number | string,
+  mergeRequestId: number | undefined
+): Promise<MergeRequestData | null> {
+  if (!mergeRequestId) return null;
+
+  try {
+    const mrUrl = `${URLs.project}${projectId}/merge_requests/${mergeRequestId}`;
+    const response = await fetchFromGitLabAPI(mrUrl);
+    return response as MergeRequestData;
+  } catch (error) {
+    console.error("Failed to fetch MR details:", error);
+    return null;
+  }
+}
+
 async function fetchMergeRequestChanges(
   projectId: number,
   mergeRequestId: number | undefined
@@ -343,6 +419,7 @@ export {
   fetchLinkedIssues,
   fetchIssueDiscussions,
   fetchMergeRequests,
+  fetchMergeRequestDetails,
   fetchMergeRequestChanges,
   fetchLastCommitDetails,
   fetchCommits,
