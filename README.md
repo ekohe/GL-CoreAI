@@ -20,15 +20,17 @@ This simplifies onboarding by providing detailed summaries of complex issues, al
 ### API intergrations
 
 - OpenAI API (`/v1/chat/completions`)
-- DeepSeek API (`/v1/chat/completions`)
+- OpenRouter API (`/v1/chat/completions`)
 - Claude API (`/v1/messages`)
+- DeepSeek API (`/v1/chat/completions`)
 - GitLab API (`/projects`, `/issues`)
 
 ### Requirements
 
-- Generate an `API Key` from OpenAI
-- Generate an `API Key` from [DeepSeek](https://platform.deepseek.com/api_keys) (Chinese user-friendly)
-- Generate an `API Key` from [Claude](https://console.anthropic.com/keys) (Anthropic)
+- [OpenAI API Keys](https://platform.openai.com/api-keys)
+- [Claude API Keys](https://console.anthropic.com/keys) (Anthropic)
+- [OpenRouter API Keys](https://openrouter.ai/settings/keys) (Free)
+- [DeepSeek API Keys](https://platform.deepseek.com/api_keys) (Chinese user-friendly)
 
 ### Project Structure
 
@@ -44,17 +46,20 @@ src
 ├── components
 ├── containers
 │   ├── app
+│   │   ├── AIInbox
 │   │   └── GitLab
 │   ├── popup
 │   └── settings
 │       └── Settings
+│           └── tabs
 ├── contentscript
 ├── contexts
+├── locales
+│   ├── en
+│   ├── fr
+│   ├── ja
+│   └── zh_CN
 ├── resources
-│   └── _locales
-│       ├── en
-│       ├── fr
-│       └── zh_CN
 └── utils
     ├── llms
     ├── policies
