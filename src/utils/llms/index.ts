@@ -27,6 +27,9 @@ export interface ChatContext {
   previousResponse: string;
   conversationHistory: Array<{ role: "user" | "assistant"; content: string }>;
   currentUser?: GitLabUser | null;
+  // Enriched context from QueryRouter (external resources)
+  enrichedResourcesContent?: string;
+  enrichedResourcesSummaries?: string[];
 }
 
 // AI Inbox chat context
@@ -604,4 +607,12 @@ ${slackInfo ? `\n${slackInfo}` : ""}`;
   }
 }
 
-export { gitLabIssueSummarize, invokingCodeAnalysis, invokingMRAction, invokingIssueAction, invokingIssueChat, invokingAIInboxProcess, invokingAIInboxChat };
+export {
+  gitLabIssueSummarize,
+  invokingCodeAnalysis,
+  invokingMRAction,
+  invokingIssueAction,
+  invokingIssueChat,
+  invokingAIInboxProcess,
+  invokingAIInboxChat,
+};

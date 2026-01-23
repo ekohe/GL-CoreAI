@@ -395,12 +395,15 @@ async function invokingIssueChat(
 
   const personalization = await getUserPersonalization();
 
+  // Generate messages prompt for chat with current user context (including enriched resources)
   const messages = issueChatPrompts.getChatPrompt(userQuery, {
     issueData: chatContext.issueData,
     discussions: chatContext.discussions,
     previousResponse: chatContext.previousResponse,
     conversationHistory: chatContext.conversationHistory,
     currentUser: chatContext.currentUser,
+    enrichedResourcesContent: chatContext.enrichedResourcesContent,
+    enrichedResourcesSummaries: chatContext.enrichedResourcesSummaries,
   }, personalization.occupation, personalization);
 
   const messageContainer = document.createElement("div");

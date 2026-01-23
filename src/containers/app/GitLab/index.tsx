@@ -39,6 +39,8 @@ import { IssueTitleCard, IssueInfoCard, MRTitleCard, MRInfoCard } from "./IssueI
 import { MRActionCard, IssueActionCard, ActionSectionHeader } from "./ActionCards";
 import { SetupLLMButton, TryAnotherActionButton } from "./ActionButtons";
 import ChatInput from "../../../components/ChatInput";
+import { routeQuery, formatResourceCards } from "../../../utils/queryRouter";
+import { getCurrentProjectPath } from "../../../utils/multiIssueApi";
 
 // Chat message type for conversation history
 interface ChatMessage {
@@ -74,6 +76,13 @@ const GitLab = (props: GitLabProps) => {
   const [isChatProcessing, setIsChatProcessing] = useState<boolean>(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
+  // Current project path for QueryRouter
+  const [currentProjectPath, setCurrentProjectPath] = useState<string | null>(null);
+
+  // Track if there's pending new page data (user navigated but we haven't refreshed)
+  const [hasPendingPageData, setHasPendingPageData] = useState<boolean>(false);
+  const [pendingTabURL, setPendingTabURL] = useState<string | undefined>(undefined);
+
   // Current GitLab user
   const [currentGitLabUser, setCurrentGitLabUser] = useState<GitLabUser | null>(null);
 
@@ -106,15 +115,19 @@ const GitLab = (props: GitLabProps) => {
     return () => observer.disconnect();
   }, [summarizerDetails]);
 
-  // Fetch current GitLab user
+  // Fetch current GitLab user and project path
   useEffect(() => {
-    const fetchUser = async () => {
-      const user = await getCurrentUser();
+    const fetchUserAndProject = async () => {
+      const [user, projectPath] = await Promise.all([
+        getCurrentUser(),
+        getCurrentProjectPath(),
+      ]);
       if (user) {
         setCurrentGitLabUser(user);
       }
+      setCurrentProjectPath(projectPath);
     };
-    fetchUser();
+    fetchUserAndProject();
   }, []);
 
   // Load LLM settings and tab URL
@@ -160,6 +173,19 @@ const GitLab = (props: GitLabProps) => {
       const tabURL = await getCurrentTabURL();
       if (cancelled) return;
 
+      // Check if there's existing conversation - if so, don't auto-refresh
+      const hasExistingConversation = conversationHistory.length > 0 || 
+                                       initialIssueResponse.length > 0 ||
+                                       (chatContainerRef?.current && chatContainerRef.current.innerHTML.trim().length > 0);
+
+      if (hasExistingConversation && tabURL !== currentTabURL) {
+        // Store pending URL but don't refresh - user needs to manually refresh
+        setPendingTabURL(tabURL);
+        setHasPendingPageData(true);
+        return;
+      }
+
+      // No existing conversation - safe to auto-refresh
       setCurrentTabURL(tabURL);
       setProjectId(undefined);
       setIssueId(undefined);
@@ -169,6 +195,8 @@ const GitLab = (props: GitLabProps) => {
       setMergeRequestChangesData({});
       setEnabledLLM(false);
       setStartGitLabAPI(true);
+      setHasPendingPageData(false);
+      setPendingTabURL(undefined);
 
       // Reset chat state when URL changes
       setSelectedIssueAction(null);
@@ -423,6 +451,77 @@ const GitLab = (props: GitLabProps) => {
     ];
 
     try {
+      // Route the query through QueryRouter to detect and fetch external resources
+      const routerResult = await routeQuery(message, currentProjectPath);
+
+      // Show resource cards if external resources were fetched
+      if (routerResult.shouldIncludeContext && routerResult.enrichedContext && chatContainerRef?.current) {
+        const resourceCards = formatResourceCards(routerResult.enrichedContext);
+        if (resourceCards.length > 0) {
+          const cardsContainer = document.createElement("div");
+          cardsContainer.style.cssText = `
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 12px;
+          `;
+          
+          resourceCards.forEach((card) => {
+            const cardDiv = document.createElement("div");
+            const isError = card.state === 'error';
+            const stateColor = card.state === 'opened' ? '#22c55e' : 
+                               card.state === 'closed' ? '#ef4444' : 
+                               card.state === 'merged' ? '#8b5cf6' : '#64748b';
+            const typeIcon = card.type === 'issue' ? '🔵' : 
+                             card.type === 'merge_request' ? '🟣' : 
+                             card.type === 'wiki' ? '📄' : '❓';
+            
+            cardDiv.style.cssText = `
+              padding: 10px 12px;
+              background: ${isError ? '#fef2f2' : '#f8fafc'};
+              border: 1px solid ${isError ? '#fecaca' : '#e2e8f0'};
+              border-left: 3px solid ${isError ? '#ef4444' : stateColor};
+              border-radius: 6px;
+              font-size: 0.8rem;
+            `;
+            
+            if (isError) {
+              cardDiv.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 6px; color: #dc2626;">
+                  <span>❌</span>
+                  <span>${card.title}</span>
+                  <span style="color: #94a3b8; font-size: 0.75rem;">- ${card.error}</span>
+                </div>
+              `;
+            } else {
+              cardDiv.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span>${typeIcon}</span>
+                  <div style="flex: 1; min-width: 0;">
+                    <div style="font-weight: 500; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                      ${card.url ? `<a href="${card.url}" target="_blank" style="color: inherit; text-decoration: none; hover: underline;">${card.title}</a>` : card.title}
+                    </div>
+                  </div>
+                  <span style="
+                    padding: 2px 8px;
+                    border-radius: 12px;
+                    font-size: 0.7rem;
+                    font-weight: 500;
+                    background: ${stateColor}20;
+                    color: ${stateColor};
+                    text-transform: capitalize;
+                  ">${card.state}</span>
+                </div>
+              `;
+            }
+            
+            cardsContainer.appendChild(cardDiv);
+          });
+          
+          chatContainerRef.current.appendChild(cardsContainer);
+        }
+      }
+
       // Callback to insert content into the issue comment box for user review
       const handleAddToComments = async (content: string): Promise<{ success: boolean; noteUrl?: string; error?: string }> => {
         try {
@@ -505,17 +604,27 @@ const GitLab = (props: GitLabProps) => {
         }
       };
 
-      // Call the chat function with current user context
+      // Build chat context with enriched resources if available
+      const chatContext = {
+        issueData,
+        discussions: discussions,
+        previousResponse: initialIssueResponse,
+        conversationHistory: newHistory,
+        currentUser: currentGitLabUser,
+        // Add enriched context from QueryRouter if available
+        enrichedResourcesContent: routerResult.shouldIncludeContext
+          ? routerResult.enrichedContext?.resourcesContent
+          : undefined,
+        enrichedResourcesSummaries: routerResult.shouldIncludeContext
+          ? routerResult.enrichedContext?.resourceSummaries
+          : undefined,
+      };
+
+      // Call the chat function with current user context and enriched resources
       await invokingIssueChat(
         chatContainerRef,
         message,
-        {
-          issueData,
-          discussions: discussions,
-          previousResponse: initialIssueResponse,
-          conversationHistory: newHistory,
-          currentUser: currentGitLabUser,
-        },
+        chatContext,
         (response: string) => {
           // Add assistant response to conversation history
           setConversationHistory([
@@ -529,6 +638,41 @@ const GitLab = (props: GitLabProps) => {
       console.error("Error processing chat message:", error);
     } finally {
       setIsChatProcessing(false);
+    }
+  };
+
+  // Manual refresh to load new page data (clears existing conversation)
+  const handleManualRefresh = async () => {
+    const tabURL = pendingTabURL || await getCurrentTabURL();
+    if (!tabURL) return;
+
+    // Clear all state and reload
+    setCurrentTabURL(tabURL);
+    setProjectId(undefined);
+    setIssueId(undefined);
+    setIssueData({});
+    setMergeRequestId(undefined);
+    setMergeRequestData(null);
+    setMergeRequestChangesData({});
+    setEnabledLLM(false);
+    setStartGitLabAPI(true);
+    setHasPendingPageData(false);
+    setPendingTabURL(undefined);
+
+    // Reset chat state
+    setSelectedIssueAction(null);
+    setSelectedMRAction(null);
+    setIssueDiscussions(null);
+    setInitialIssueResponse("");
+    setConversationHistory([]);
+    setIsChatProcessing(false);
+
+    // Clear chat container
+    if (chatContainerRef?.current) {
+      chatContainerRef.current.innerHTML = '';
+    }
+    if (iisRef?.current) {
+      iisRef.current.innerHTML = '';
     }
   };
 
@@ -550,6 +694,94 @@ const GitLab = (props: GitLabProps) => {
       ref={summarizerDetails}
       style={{ maxWidth: "100%" }}
     >
+      {/* Pending new page notification */}
+      {hasPendingPageData && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "10px 14px",
+            background: "linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)",
+            border: "1px solid #fcd34d",
+            borderRadius: "8px",
+            marginBottom: "12px",
+            boxShadow: "0 2px 8px rgba(251, 191, 36, 0.2)",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b45309" strokeWidth="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <span style={{ fontSize: "0.8rem", color: "#92400e", fontWeight: "500" }}>
+              New page detected
+            </span>
+          </div>
+          <button
+            onClick={handleManualRefresh}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: "6px 12px",
+              background: "#f59e0b",
+              border: "none",
+              borderRadius: "6px",
+              color: "white",
+              fontSize: "0.75rem",
+              fontWeight: "600",
+              cursor: "pointer",
+              transition: "all 0.2s",
+            }}
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M23 4v6h-6"/>
+              <path d="M1 20v-6h6"/>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+            </svg>
+            Refresh
+          </button>
+        </div>
+      )}
+
+      {/* Refresh button in header when there's conversation */}
+      {(conversationHistory.length > 0 || initialIssueResponse) && !hasPendingPageData && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            marginBottom: "8px",
+          }}
+        >
+          <button
+            onClick={handleManualRefresh}
+            title="Clear conversation and reload current page"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+              padding: "4px 8px",
+              background: "transparent",
+              border: "1px solid #e2e8f0",
+              borderRadius: "4px",
+              color: "#64748b",
+              fontSize: "0.7rem",
+              cursor: "pointer",
+              transition: "all 0.2s",
+            }}
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M23 4v6h-6"/>
+              <path d="M1 20v-6h6"/>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+            </svg>
+            Reset
+          </button>
+        </div>
+      )}
+
       {/* Not on GitLab Page */}
       {!isLoading && !isOnSupportedPage && <NotOnGitLabPage />}
 
@@ -629,7 +861,7 @@ const GitLab = (props: GitLabProps) => {
               actionType: selectedIssueAction || undefined,
               hasInitialResponse: !!initialIssueResponse,
             })}
-            placeholder="Ask anything about this issue..."
+            placeholder="Ask about this issue, or reference others (#123, URLs)..."
           />
         </>
       )}

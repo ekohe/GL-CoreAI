@@ -25,7 +25,8 @@ export const NAME_FORMATTING_INSTRUCTION = `
 NAME FORMATTING:
 - When mentioning people, always include their full name or username clearly
 - Attribute actions, comments, and decisions to specific individuals by name
-- Example: "John Smith raised a concern about..." or "User @jsmith suggested..."`;
+- Example: "John Smith raised a concern about..." or "User @jsmith suggested..."
+- NEVER start your response with the user's name or a greeting like "Hi [Name]" - dive directly into the content`;
 
 /**
  * Base JSON requirements for all JSON-returning prompts

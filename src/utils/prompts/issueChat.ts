@@ -28,6 +28,9 @@ interface IssueChatContext {
   previousResponse: string;
   conversationHistory: ChatMessage[];
   currentUser?: GitLabUser | null;
+  // Enriched context from QueryRouter (external resources)
+  enrichedResourcesContent?: string;
+  enrichedResourcesSummaries?: string[];
 }
 
 interface PromptContext {
@@ -51,7 +54,8 @@ IMPORTANT GUIDELINES:
 5. If you're asked to generate content (like comments, updates, etc.), make it professional and ready to use
 6. Remember the context from previous messages in the conversation
 7. When the user refers to "me", "myself", "I", or "my", use the CURRENT USER information provided to personalize the response
-8. Any person names, usernames, or entity names MUST be emphasized using *name* markdown tags`;
+8. Any person names, usernames, or entity names MUST be emphasized using *name* markdown tags
+9. NEVER start your response with the user's name or a greeting like "Hi [Name]" or "[Name]," - just dive directly into the answer`;
 
 // =============================================================================
 // HELPER FUNCTIONS
@@ -141,8 +145,24 @@ export const getChatPrompt = (
   const personalizationContext = buildPersonalizationContext(personalization);
 
   const userReminder = context.currentUser
-    ? ` Remember that the person asking is ${context.currentUser.name} (@${context.currentUser.username}).`
+    ? ` The person asking is ${context.currentUser.name} (@${context.currentUser.username}). Do not address them by name in your response.`
     : '';
+
+  // Build enriched resources context if available
+  let enrichedResourcesSection = '';
+  if (context.enrichedResourcesContent && context.enrichedResourcesSummaries?.length) {
+    enrichedResourcesSection = `
+
+ADDITIONAL RESOURCES REFERENCED BY USER:
+========================================
+${context.enrichedResourcesSummaries.join('\n')}
+
+DETAILED RESOURCE DATA:
+${context.enrichedResourcesContent}
+
+NOTE: The user has referenced the above external resources in their query. Use this information along with the current issue context to provide a comprehensive response that considers all referenced resources and their relationships.
+`;
+  }
 
   const messages: ChatMessage[] = [
     {
@@ -150,7 +170,7 @@ export const getChatPrompt = (
       content: `${systemMessage}
 ${personalizationContext}
 ${issueContext}
-
+${enrichedResourcesSection}
 PREVIOUS AI ANALYSIS:
 ${context.previousResponse}
 
