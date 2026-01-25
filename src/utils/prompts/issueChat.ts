@@ -11,7 +11,7 @@
 import type { GitLabUser } from "../gitlab";
 import { DEFAULT_OCCUPATION } from "../constants";
 import { buildPersonalizationContext, type UserPersonalization } from "../llms/base";
-import { NAME_FORMATTING_INSTRUCTION, getOccupationContext, formatIssueDetails, formatDiscussions } from "./shared";
+import { getOccupationContext, formatDiscussions } from "./shared";
 
 // =============================================================================
 // TYPE DEFINITIONS
@@ -55,7 +55,16 @@ IMPORTANT GUIDELINES:
 6. Remember the context from previous messages in the conversation
 7. When the user refers to "me", "myself", "I", or "my", use the CURRENT USER information provided to personalize the response
 8. Any person names, usernames, or entity names MUST be emphasized using *name* markdown tags
-9. NEVER start your response with the user's name or a greeting like "Hi [Name]" or "[Name]," - just dive directly into the answer`;
+9. NEVER start your response with the user's name or a greeting like "Hi [Name]" or "[Name]," - just dive directly into the answer
+
+SPECIAL PROMPT HANDLING:
+- When the user asks for "One sentence summary":
+  * CRITICAL: Your response MUST be exactly 30-50 words. NO MORE than 50 words. Count carefully before responding.
+  * Write ONLY ONE single sentence - no multiple sentences, no bullet points, no headers
+  * Focus ONLY on: current status + one key priority or next step
+  * OMIT: background, scope details, team names, dates, task lists
+  * Example format: "[Issue] is [status], with [key priority/blocker/next step]."
+  * If your draft exceeds 50 words, rewrite it shorter. This is mandatory.`;
 
 // =============================================================================
 // HELPER FUNCTIONS
@@ -241,7 +250,9 @@ export const getSuggestedPrompts = (context: PromptContext): string[] => {
     return prompts.slice(0, 4);
   }
 
-  // Initial prompts
+  // Initial prompts - always include one sentence summary as first option
+  prompts.push("One sentence summary");
+
   if (isClosed) {
     prompts.push("Why was this issue closed?");
     prompts.push("What was the resolution?");
